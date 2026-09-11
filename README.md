@@ -4,7 +4,7 @@
 
 **Use it online:** [seqrets.github.io/Keypath](https://seqrets.github.io/Keypath/) (for real funds, download the file and use it offline).
 
-KeyPath is a modern re-imagining of Ian Coleman's [BIP39 tool](https://github.com/iancoleman/bip39). It produces the same results as that tool for every input, with one deliberate exception: **dice rolls with a word count chosen are hashed exactly as typed**, the convention of hardware wallets that accept dice, where Coleman's tool hashes the rolls with each 6 rewritten as 0. See [Dice rolls](#dice-rolls). Download `dist/index.html`, move it to an offline computer, open it in a browser, and you have everything needed to create, inspect, back up and verify a Bitcoin recovery phrase.
+KeyPath is a modern re-imagining of Ian Coleman's [BIP39 tool](https://github.com/iancoleman/bip39). It keeps what that tool got right and improves the rest; see [Dice rolls](#dice-rolls) for one example. Download `dist/index.html`, move it to an offline computer, open it in a browser, and you have everything needed to create, inspect, back up and verify a Bitcoin recovery phrase.
 
 ## Download and verify
 
@@ -64,12 +64,9 @@ npm run build
 
 ## Dice rolls
 
-Type your rolls into the entropy panel (digits 1 to 6; anything else is ignored) and pick a mode:
+Type your rolls into the entropy panel (digits 1 to 6; anything else is ignored). KeyPath hashes the rolls with SHA-256 exactly as typed, keeps the leading 128 to 256 bits for the word count chosen in the Words selector, and appends the BIP39 checksum. This is the convention followed by hardware wallets that accept dice, confirmed against a Krux device and against [myseedphrase.app](https://myseedphrase.app), which is the reference. A wallet that hashes dice the same way will reproduce the phrase. 50 rolls are enough for 12 words; 100 for 24.
 
-- **A word count (12 to 24 words):** the rolls are SHA-256 hashed exactly as typed, the leading 128 to 256 bits become the entropy, and the BIP39 checksum is appended. This is the convention followed by hardware wallets that accept dice, confirmed against a Krux device and against [myseedphrase.app](https://myseedphrase.app), which is the reference. A wallet that hashes dice the same way will reproduce the phrase. 50 rolls are enough for 12 words; 100 for 24.
-- **Raw entropy (no hashing):** Coleman's unbiased base-6 conversion, unchanged. It needs about 77 rolls for 12 words and does not match hardware wallets. This is the default, and the page says so when dice are entered in raw mode.
-
-**If you made a phrase from dice with a word count in KeyPath before v1.1.0, or in Coleman's tool:** the phrase you wrote down is still valid and unchanged. Only re-deriving it from the rolls differs. To reproduce it, type the rolls with every 6 written as 0; KeyPath detects that as base 6 and hashes it the old way.
+The Mnemonic length menu can be switched to **Raw entropy (no hashing)**, an unbiased base-6 conversion that needs about 77 rolls for 12 words. No hardware wallet reproduces it, and the page says so when it is selected with dice.
 
 ## Security
 
@@ -86,7 +83,7 @@ Type your rolls into the entropy panel (digits 1 to 6; anything else is ignored)
 npm test
 ```
 
-Builds, then runs `test/run.mjs`: the dice vectors above (before and after, in every mode), Coleman's encodings for every input type, the BIP44/49/84/86 vectors, and all 45 official SLIP-39 vectors including share re-encoding.
+Builds, then runs `test/run.mjs`: the dice vectors (hashed and raw), the event encodings for every input type, the BIP44/49/84/86 vectors, and all 45 official SLIP-39 vectors including share re-encoding.
 
 ## Verification
 

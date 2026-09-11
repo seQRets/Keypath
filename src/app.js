@@ -161,7 +161,7 @@ $('hideSecrets').addEventListener('click', () => { const on = $('hideSecrets').g
 $('fpValue').addEventListener('click', async () => { if (S.root && (await copyText(fpHex(S.root)))) toast('Fingerprint copied'); });
 $('clearBtn').addEventListener('click', () => {
   for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR']) $(id).value = '';
-  $('entropyLen').value = 'raw'; $('entropyType').value = 'auto'; $('entropyWeak').classList.add('hidden'); $('startIdx').value = '0';
+  $('entropyLen').value = 'raw'; $('entropyType').value = 'auto'; entropyLenTouched = false; $('entropyWeak').classList.add('hidden'); $('startIdx').value = '0';
   S.rootFromKey = false; $('rootOut').textContent = '';
   onPhraseInput(false); shamirClear(); shamirRecover(); toast('Cleared');
 });
@@ -209,6 +209,8 @@ function setMnemonicFromEntropy() {
   const raw = $('entropy').value;
   const typeSel = $('entropyType').value;
   const e = entropyFromString(raw, typeSel === 'auto' ? undefined : typeSel);
+  // Until the user picks a mode, dice get hashed the way hardware wallets do (word count from the Words selector); everything else stays raw.
+  if (!entropyLenTouched && e.binaryStr.length) { const want = e.base.str === 'base 6 (dice)' ? String(S.words) : 'raw'; if ($('entropyLen').value !== want) $('entropyLen').value = want; }
   const lenSel = $('entropyLen').value;
   $('entropyWeak').classList.add('hidden');
   $('diceRawNote').classList.toggle('hidden', !(lenSel === 'raw' && e.base.str === 'base 6 (dice)' && e.binaryStr.length));
@@ -254,7 +256,8 @@ function renderEntropyDetails(e, entBytes, error) {
   if (error) setMeter('entropyStatus', count(error, 'bad'));
   else {
     const hashed = $('entropyLen').value !== 'raw'; const shown = hashed ? Math.floor(events.length * Math.log2(e.base.asInt)) : e.binaryStr.length;
-    setMeter('entropyStatus', count(`${shown} bits${hashed ? ' (hashed)' : ''}`, shown >= 128 ? 'ok' : 'warn') + note(entBytes ? `${entBytes.length * 8} bits used → ${entBytes.length * 8 * 3 / 32} words` : ''));
+    const auto = hashed && e.base.str === 'base 6 (dice)' && !entropyLenTouched ? ' · dice hashed the way hardware wallets do; the word count follows the Words selector' : '';
+    setMeter('entropyStatus', count(`${shown} bits${hashed ? ' (hashed)' : ''}`, shown >= 128 ? 'ok' : 'warn') + note((entBytes ? `${entBytes.length * 8} bits used → ${entBytes.length * 8 * 3 / 32} words` : '') + auto));
   }
 }
 // When the phrase itself is the source, show its entropy in the panel.
@@ -267,7 +270,8 @@ function setEntropyFromPhrase() {
 $('showEntropy').addEventListener('click', () => { const on = $('showEntropy').getAttribute('aria-pressed') !== 'true'; $('showEntropy').setAttribute('aria-pressed', on); $('entropyPanel').classList.toggle('hidden', !on); $('showEntropy').textContent = on ? 'Hide entropy details' : 'Show entropy details'; });
 $('entropy').addEventListener('input', debounce(setMnemonicFromEntropy, 200));
 $('entropyType').addEventListener('change', setMnemonicFromEntropy);
-$('entropyLen').addEventListener('change', setMnemonicFromEntropy);
+let entropyLenTouched = false; // once the user picks a mode, stop choosing for them
+$('entropyLen').addEventListener('change', () => { entropyLenTouched = true; setMnemonicFromEntropy(); });
 
 /* ---------------- mnemonic ---------------- */
 for (const [k, v] of Object.entries(wordlists)) {
@@ -281,7 +285,7 @@ $('lang').addEventListener('change', () => {
   }
   S.prevLang = S.lang; onPhraseInput();
 });
-document.querySelectorAll('#wordCount button').forEach((b) => b.addEventListener('click', () => { markWordCount(+b.dataset.n); S.words = +b.dataset.n; }));
+document.querySelectorAll('#wordCount button').forEach((b) => b.addEventListener('click', () => { markWordCount(+b.dataset.n); S.words = +b.dataset.n; if (!entropyLenTouched && $('entropy').value.trim() && entropyFromString($('entropy').value).base.str === 'base 6 (dice)') setMnemonicFromEntropy(); }));
 function markWordCount(n) { document.querySelectorAll('#wordCount button').forEach((x) => x.setAttribute('aria-pressed', +x.dataset.n === n ? 'true' : 'false')); }
 $('generateBtn').addEventListener('click', () => {
   const strength = S.words * 32 / 3;

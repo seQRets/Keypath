@@ -12,21 +12,21 @@ const A = '545516644134664236233316552321223415136325326322323255322513432416332
 check('A dice 12 words', phraseFrom(A, '12'), 'youth spot place private target office ice spike brave ginger improve shy');
 check('A dice 15 words', phraseFrom(A, '15'), 'youth spot place private target office ice spike brave ginger improve shop security awesome rather');
 check('A dice 18 words', phraseFrom(A, '18'), 'youth spot place private target office ice spike brave ginger improve shop security awesome raw melt charge beef');
-check('A dice raw (unchanged, Coleman)', phraseFrom(A, 'raw'), 'document lift cool oven hen right vault roof voice review weekend grab');
+check('A dice raw (unbiased base-6, no hash)', phraseFrom(A, 'raw'), 'document lift cool oven hen right vault roof voice review weekend grab');
 const B = '123456'.repeat(9);
 check('B dice 12 words (myseedphrase.app self-test)', phraseFrom(B, '12'), 'universe intact render tank net oval paddle thought trick movie chimney bullet');
 const C = '123456'.repeat(16) + '1234';
 check('C dice 21 words', phraseFrom(C, '21'), 'tornado cactus wheel picture target finish home neither trend picture shoulder endless deputy glide open oxygen another ability forum swear search');
 check('C dice 24 words', phraseFrom(C, '24'), 'tornado cactus wheel picture target finish home neither trend picture shoulder endless deputy glide open oxygen another ability forum swear side alcohol devote random');
-// the way back for phrases made the old way: type each 6 as 0 (auto-detects as base 6, hashes the remapped string)
+// digits 0-5 are base 6, not dice: hashed over cleanStr as typed
 const A0 = A.replace(/6/g, '0');
 check('A with 6->0 auto-detects base 6', entropy.entropyFromString(A0).base.str, 'base 6');
-check('A with 6->0, 12 words (legacy result)', phraseFrom(A0, '12'), 'rent chase subway they force exact hungry seed powder rice quiz spend');
-check('A with 6->0, raw (legacy result)', phraseFrom(A0, 'raw'), 'document lift cool oven hen right vault roof voice review weekend grab');
+check('A with 6->0, 12 words (base 6 path)', phraseFrom(A0, '12'), 'rent chase subway they force exact hungry seed powder rice quiz spend');
+check('A with 6->0, raw (base 6 path)', phraseFrom(A0, 'raw'), 'document lift cool oven hen right vault roof voice review weekend grab');
 check('dice hashStr is the rolls as typed', entropy.entropyFromString(A).hashStr, A);
 check('dice type label', entropy.entropyFromString(A).base.str, 'base 6 (dice)');
 check('non-dice hashStr equals cleanStr', entropy.entropyFromString('4187a8bfd9c0ffee').hashStr, entropy.entropyFromString('4187a8bfd9c0ffee').cleanStr);
-// Coleman encodings (unchanged)
+// event encodings
 check('dice raw bits', entropy.entropyFromString('62535634').binaryStr, '0010111100110');
 check('cards bits', entropy.entropyFromString('ahqs9dtc').binaryStr, '11010101010101001');
 check('cards cleanStr', entropy.entropyFromString('ahqs9dtc').cleanStr, 'A♥ Q♠ 9♦ T♣');

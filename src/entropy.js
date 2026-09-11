@@ -1,6 +1,6 @@
-// Entropy input handling, ported from iancoleman/bip39 entropy.js, with one
-// deliberate departure: when a word count is chosen, dice rolls are hashed as
-// typed (digits 1-6), the convention hardware wallets that accept dice follow.
+// Entropy input handling. Event encodings follow iancoleman/bip39 entropy.js (MIT).
+// When a word count is chosen, dice rolls are hashed exactly as typed (digits 1-6),
+// the convention hardware wallets that accept dice follow.
 import { sha256 } from '@noble/hashes/sha2.js';
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 

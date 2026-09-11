@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.2.0 — 2026-09-11
+
+**Dice are hashed the hardware-wallet way by default.**
+
+- When dice rolls are detected, the Mnemonic length menu now follows the Words selector automatically (12 to 24 words) instead of defaulting to raw mode, so a dice roller gets a wallet-compatible phrase without touching a menu. Other input types still default to raw. Once you change the menu yourself, KeyPath stops choosing for you until you press Clear.
+- Raw mode is still available and unchanged; selecting it with dice shows a note that no hardware wallet reproduces it.
+- Text, tooltips and the README describe KeyPath's behavior on its own terms. KeyPath does not aim to reproduce results from other tools; the legacy 6-as-0 instructions are gone.
+
+
 ## v1.1.0 — 2026-09-11
 
 **Dice rolls with a word count now match hardware wallets.**
@@ -11,7 +20,7 @@ Example, 76 rolls `5455166441346642362333165523212234151363253263223232553225134
 - now: `youth spot place private target office ice spike brave ginger improve shy` (same as a hardware wallet)
 - before: `rent chase subway they force exact hungry seed powder rice quiz spend`
 
-**If you made a phrase from dice with a word count in an earlier KeyPath (or in Coleman's tool):** the phrase you wrote down still works and has not changed. Only re-deriving it from the rolls gives different words now. To reproduce the old result, type the rolls with every 6 written as 0; KeyPath detects that as base 6 and hashes it the old way.
+A phrase written down from an earlier version still works; only re-deriving it from the same rolls gives different words now.
 
 Not changed:
 

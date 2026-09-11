@@ -7,7 +7,7 @@
 <meta name="description" content="KeyPath: generate or inspect a BIP39 recovery phrase, back it up with SLIP-39 Shamir shares, and derive BIP32 keys and Bitcoin addresses, legacy through Taproot. Single file, runs entirely offline in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-jQQZ1qFHX/mvDcVLXi/Ut8pg6TXCNHk/pVQrw7ktpxQ=' 'sha256-WnVOIf2fNHjsuV7KfLCTegPcj5Rd6f9/bH5z+KLpTo4=' 'sha256-fjMstXczpeIAs//MxNDvtrzPNVR/7HXWp0tyQh0Yblc='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-jQQZ1qFHX/mvDcVLXi/Ut8pg6TXCNHk/pVQrw7ktpxQ=' 'sha256-WnVOIf2fNHjsuV7KfLCTegPcj5Rd6f9/bH5z+KLpTo4=' 'sha256-b5ZDpYGselfSG+ZsKcFTVxCvTbpgc7yVFuLX0bx4IpQ='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <script>document.documentElement.classList.add("hide-secrets");try{if(localStorage.getItem("keypath-tips")==="off")document.documentElement.classList.add("no-tips");}catch(e){}try{var t=localStorage.getItem("keypath-theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}else if(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches){document.documentElement.setAttribute("data-theme","dark");}}catch(e){}</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23d2761a'/><g fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='10' cy='16' r='5'/><path d='M15 16h5'/><path d='M20 16l6-5.5M20 16l6 5.5'/></g><circle cx='27' cy='9.5' r='1.8' fill='%23fff'/><circle cx='27' cy='22.5' r='1.8' fill='%23fff'/></svg>">
 <style>
@@ -482,7 +482,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
 
       <div class="entropy-panel hidden" id="entropyPanel">
         <div class="panel-title">Entropy<button type="button" class="tip" data-tip="entropy" aria-label="What does this mean?">?</button></div>
-        <p class="panel-note">The raw randomness behind the phrase. Generate fills this with the bytes it drew; you can also type your own from dice, coins or cards and the phrase is rebuilt from it. The checksum is added for you. Raw mode keeps only the unbiased bits of each event and needs about 77 dice rolls for 12 words. Choosing a word count instead hashes the input and uses all 2.58 bits per roll, so 50 rolls are enough; for dice, that hash is taken over the rolls exactly as typed, so a wallet that hashes dice the same way will produce the same phrase.</p>
+        <p class="panel-note">The raw randomness behind the phrase. Generate fills this with the bytes it drew; you can also type your own from dice, coins or cards and the phrase is rebuilt from it. The checksum is added for you. Dice are hashed exactly as typed, the way hardware wallets that accept dice do it, with the word count taken from the Words selector: 50 rolls are enough for 12 words, 100 for 24. Other inputs are used raw unless you choose a word count.</p>
         <div class="inputwarn" style="margin:0 0 1rem"><p><strong>Advanced feature.</strong> Entropy must come from something genuinely random: fair dice, fair coins, a well-shuffled deck. Not song lyrics, not key-mashing, not your birthday. You are not a good source of entropy, and a phrase built from weak entropy can be guessed.</p></div>
         <div class="field">
           <label class="field-label" for="entropy">Entropy<button type="button" class="tip" data-tip="entropy" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span></label>
@@ -510,7 +510,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
             </select></label>
         </div>
         <div class="meter" id="entropyStatus"></div>
-        <div class="inputwarn hidden" id="diceRawNote"><p><strong>Making this seed on a hardware wallet that takes dice?</strong> Choose a word count above. Raw mode does not match those wallets; a word count hashes the rolls the way they do.</p></div>
+        <div class="inputwarn hidden" id="diceRawNote"><p><strong>Raw mode does not match hardware wallets.</strong> You chose "Raw entropy" with dice. Pick a word count in the Mnemonic length menu to hash the rolls the way wallets that accept dice do.</p></div>
         <div class="inputwarn bad hidden" id="entropyWeak"><p><strong>The phrase will look more secure than it really is.</strong> A fixed length was chosen with fewer real bits than it needs, so the missing bits are made up by hashing. Only the real bits protect you.</p></div>
         <dl class="kv" id="entropyInfo"></dl>
         <div class="valid-list">
@@ -745,7 +745,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
 
   <section class="section" id="entropy-notes">
     <h2>About entropy</h2>
-    <p class="intro">Notes for the entropy panel, carried over from the original tool because they matter.</p>
+    <p class="intro">Notes for the entropy panel.</p>
     <details class="adv">
       <summary>Show the entropy notes</summary>
       <div class="adv-body" style="padding-top:0.9rem">
@@ -754,7 +754,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
       <div class="limit warn"><span class="lm-tag">Source</span><p>Entropy must come from a strong source of randomness: flipping a fair coin, rolling a fair dice, noise measurements. <strong>Not</strong> phrases from books, song lyrics, your birthday or street address, or keyboard mashing. Chances are overwhelming it is not random enough.</p></div>
       <div class="limit"><span class="lm-tag">Storage</span><p>Do not store entropy. Keeping a deck of cards in a specific shuffled order is unreliable compared to storing the phrase. <strong>Store the mnemonic generated from the entropy instead.</strong></p></div>
       <div class="limit"><span class="lm-tag">Generate</span><p>The Generate button uses the browser's cryptographically secure random number generator, which can generally be trusted more than your own intuition about randomness.</p></div>
-      <div class="limit"><span class="lm-tag">Dice</span><p>With a word count chosen, dice rolls are hashed exactly as typed (digits 1 to 6), which is the convention of hardware wallets that accept dice. <strong>This is the one place KeyPath deliberately differs from Ian Coleman's tool</strong>, which hashes the rolls with every 6 rewritten as 0. To reproduce a phrase made that way (in Coleman's tool or in KeyPath before v1.1.0), type the rolls with each 6 written as 0. Raw mode is unchanged and matches Coleman's tool.</p></div>
+      <div class="limit"><span class="lm-tag">Dice</span><p>When dice are detected, KeyPath hashes the rolls exactly as typed (digits 1 to 6) and takes the word count from the Words selector, which is the convention of hardware wallets that accept dice. <strong>A wallet that hashes dice the same way will produce the same phrase.</strong> Choose "Raw entropy" in the Mnemonic length menu only if you specifically want the unhashed base-6 conversion, which no hardware wallet reproduces.</p></div>
       <div class="limit"><span class="lm-tag">Cards</span><p>Card entropy assumes cards are replaced after each draw, not drawn one after another. A full deck with replacement gives 232 bits of entropy (21 words); without replacement, 225 bits.</p></div>
       <div class="limit"><span class="lm-tag">Time to crack</span><p>The estimate assumes an attacker who knows your method and tries every possibility at ten billion guesses per second. It reflects the number of bits, not whether your dice were fair.</p></div>
     </div>
@@ -791,7 +791,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest/download/SHA256SUMS.txt" rel="noopener noreferrer">SHA256SUMS.txt</a>
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest" target="_blank" rel="noopener noreferrer">Release notes</a>
       </div>
-      <p class="dl-note">This page is KeyPath v1.1.0. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
+      <p class="dl-note">This page is KeyPath v1.2.0. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
     </div>
   </section>
 
@@ -810,7 +810,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
       </div>
     </div>
     <div class="foot-bottom">
-      <span class="credit">KeyPath v1.1.0 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
+      <span class="credit">KeyPath v1.2.0 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
       <span>Provided "as is", without warranty. Verify addresses in a second tool before sending significant funds.</span>
     </div>
   </footer>
@@ -21391,7 +21391,7 @@ window.KEYPATH_GLOSSARY = {
   checksumbits: { t: 'Binary checksum', d: 'The few checksum bits computed from the randomness and tucked into the last word.' },
   indexes: { t: 'Word indexes', d: 'The position of each word in the official 2048-word list, counting from 0. The phrase is really just these numbers.' },
   entropytype: { t: 'Entropy type', d: 'Leave on automatic and the tool works out whether you typed dice rolls, coin flips, cards or hex. Pick one only if it guesses wrong.' },
-  entropylen: { t: 'Mnemonic length', d: 'Raw uses your randomness directly, unchanged, keeping only the unbiased bits of each event; it needs about 77 dice rolls for 12 words and is what the original Coleman tool does. Choosing a word count instead hashes the input, using all 2.58 bits per roll, so 50 rolls are enough. For dice, the hash is taken over the rolls exactly as typed, the way hardware wallets that accept dice do it, so a wallet that hashes dice the same way will reproduce the phrase. Raw mode will not.' },
+  entropylen: { t: 'Mnemonic length', d: 'KeyPath picks this for you: dice are hashed the way hardware wallets that accept dice do it, with the word count from the Words selector, so a wallet that hashes dice the same way will reproduce the phrase; other inputs are used raw. Override it here if you want something else. "Raw entropy" keeps only the unbiased bits of each event with no hashing, needs about 77 dice rolls for 12 words, and is not what hardware wallets do.' },
   split: { t: 'Split into shares', d: 'Make a new set of Shamir shares from the phrase currently shown above.' },
   recover: { t: 'Recover from shares', d: 'Paste shares you made earlier and get the phrase back.' },
 };
@@ -21559,7 +21559,7 @@ $('hideSecrets').addEventListener('click', () => { const on = $('hideSecrets').g
 $('fpValue').addEventListener('click', async () => { if (S.root && (await copyText(fpHex(S.root)))) toast('Fingerprint copied'); });
 $('clearBtn').addEventListener('click', () => {
   for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR']) $(id).value = '';
-  $('entropyLen').value = 'raw'; $('entropyType').value = 'auto'; $('entropyWeak').classList.add('hidden'); $('startIdx').value = '0';
+  $('entropyLen').value = 'raw'; $('entropyType').value = 'auto'; entropyLenTouched = false; $('entropyWeak').classList.add('hidden'); $('startIdx').value = '0';
   S.rootFromKey = false; $('rootOut').textContent = '';
   onPhraseInput(false); shamirClear(); shamirRecover(); toast('Cleared');
 });
@@ -21607,6 +21607,8 @@ function setMnemonicFromEntropy() {
   const raw = $('entropy').value;
   const typeSel = $('entropyType').value;
   const e = entropyFromString(raw, typeSel === 'auto' ? undefined : typeSel);
+  // Until the user picks a mode, dice get hashed the way hardware wallets do (word count from the Words selector); everything else stays raw.
+  if (!entropyLenTouched && e.binaryStr.length) { const want = e.base.str === 'base 6 (dice)' ? String(S.words) : 'raw'; if ($('entropyLen').value !== want) $('entropyLen').value = want; }
   const lenSel = $('entropyLen').value;
   $('entropyWeak').classList.add('hidden');
   $('diceRawNote').classList.toggle('hidden', !(lenSel === 'raw' && e.base.str === 'base 6 (dice)' && e.binaryStr.length));
@@ -21652,7 +21654,8 @@ function renderEntropyDetails(e, entBytes, error) {
   if (error) setMeter('entropyStatus', count(error, 'bad'));
   else {
     const hashed = $('entropyLen').value !== 'raw'; const shown = hashed ? Math.floor(events.length * Math.log2(e.base.asInt)) : e.binaryStr.length;
-    setMeter('entropyStatus', count(`${shown} bits${hashed ? ' (hashed)' : ''}`, shown >= 128 ? 'ok' : 'warn') + note(entBytes ? `${entBytes.length * 8} bits used → ${entBytes.length * 8 * 3 / 32} words` : ''));
+    const auto = hashed && e.base.str === 'base 6 (dice)' && !entropyLenTouched ? ' · dice hashed the way hardware wallets do; the word count follows the Words selector' : '';
+    setMeter('entropyStatus', count(`${shown} bits${hashed ? ' (hashed)' : ''}`, shown >= 128 ? 'ok' : 'warn') + note((entBytes ? `${entBytes.length * 8} bits used → ${entBytes.length * 8 * 3 / 32} words` : '') + auto));
   }
 }
 // When the phrase itself is the source, show its entropy in the panel.
@@ -21665,7 +21668,8 @@ function setEntropyFromPhrase() {
 $('showEntropy').addEventListener('click', () => { const on = $('showEntropy').getAttribute('aria-pressed') !== 'true'; $('showEntropy').setAttribute('aria-pressed', on); $('entropyPanel').classList.toggle('hidden', !on); $('showEntropy').textContent = on ? 'Hide entropy details' : 'Show entropy details'; });
 $('entropy').addEventListener('input', debounce(setMnemonicFromEntropy, 200));
 $('entropyType').addEventListener('change', setMnemonicFromEntropy);
-$('entropyLen').addEventListener('change', setMnemonicFromEntropy);
+let entropyLenTouched = false; // once the user picks a mode, stop choosing for them
+$('entropyLen').addEventListener('change', () => { entropyLenTouched = true; setMnemonicFromEntropy(); });
 
 /* ---------------- mnemonic ---------------- */
 for (const [k, v] of Object.entries(wordlists)) {
@@ -21679,7 +21683,7 @@ $('lang').addEventListener('change', () => {
   }
   S.prevLang = S.lang; onPhraseInput();
 });
-document.querySelectorAll('#wordCount button').forEach((b) => b.addEventListener('click', () => { markWordCount(+b.dataset.n); S.words = +b.dataset.n; }));
+document.querySelectorAll('#wordCount button').forEach((b) => b.addEventListener('click', () => { markWordCount(+b.dataset.n); S.words = +b.dataset.n; if (!entropyLenTouched && $('entropy').value.trim() && entropyFromString($('entropy').value).base.str === 'base 6 (dice)') setMnemonicFromEntropy(); }));
 function markWordCount(n) { document.querySelectorAll('#wordCount button').forEach((x) => x.setAttribute('aria-pressed', +x.dataset.n === n ? 'true' : 'false')); }
 $('generateBtn').addEventListener('click', () => {
   const strength = S.words * 32 / 3;
