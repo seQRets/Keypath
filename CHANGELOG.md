@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.2.4 — 2026-09-11
+
+- The floating buttons (hide/reveal, tooltips, theme) now sit in the bottom-right corner.
+
 ## v1.2.3 — 2026-09-11
 
 - A floating Hide / Reveal private info button appears whenever the one in the phrase card's header is scrolled out of view, so private values can be hidden from anywhere on the page. The floating buttons are stacked vertically, and on wide screens they sit in the margin beside the content so they cover nothing.

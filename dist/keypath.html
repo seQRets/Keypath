@@ -91,8 +91,10 @@ code { font-family: var(--mono); font-size: 0.92em; background: var(--panel-sunk
 /* ---------- theme toggle ---------- */
 /* Floating tools: a vertical stack so it covers as little as possible, and on wide
    screens it sits in the margin beside the content column, covering nothing. */
-.fixed-tools { position: fixed; top: 1rem; right: 1rem; z-index: 20; display: flex; flex-direction: column; gap: 0.5rem; }
+.fixed-tools { position: fixed; bottom: 1rem; right: 1rem; z-index: 20; display: flex; flex-direction: column; gap: 0.5rem; }
 @media (min-width: 1000px) { .fixed-tools { right: auto; left: calc(50% + 420px + 1.25rem); } }
+/* keep the toast clear of the buttons */
+.toast { bottom: 4.5rem; }
 .fab[hidden] { display: none; }
 .fab.eye .ic-eye-off { display: none; }
 .fab.eye[aria-pressed="true"] { color: var(--danger); border-color: var(--danger); background: var(--danger-wash); }
@@ -811,7 +813,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest/download/SHA256SUMS.txt" rel="noopener noreferrer">SHA256SUMS.txt</a>
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest" target="_blank" rel="noopener noreferrer">Release notes</a>
       </div>
-      <p class="dl-note">This page is KeyPath v1.2.3. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
+      <p class="dl-note">This page is KeyPath v1.2.4. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
     </div>
   </section>
 
@@ -830,7 +832,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
       </div>
     </div>
     <div class="foot-bottom">
-      <span class="credit">KeyPath v1.2.3 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
+      <span class="credit">KeyPath v1.2.4 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
       <span>Provided "as is", without warranty. Verify addresses in a second tool before sending significant funds.</span>
     </div>
   </footer>
