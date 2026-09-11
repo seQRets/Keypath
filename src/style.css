@@ -398,3 +398,10 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
 .netstatus .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
 .netstatus.off { color: var(--ok); }
 .netstatus.off .dot { background: var(--ok); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 25%, transparent); }
+
+/* ---------- download strip ---------- */
+.dl-strip { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-lift); padding: 1.4rem 1.5rem; display: grid; gap: 1rem; }
+.dl-strip h2 { margin-bottom: 0.4rem; }
+.dl-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.dl-actions .btn { text-decoration: none; }
+.dl-note { font-size: 0.86rem; color: var(--ink-soft); max-width: 78ch; }

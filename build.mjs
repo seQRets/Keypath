@@ -30,10 +30,14 @@ const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m
 const hashes = scripts.map((t) => "'sha256-" + createHash('sha256').update(t, 'utf8').digest('base64') + "'").join(' ');
 html = html.replace("script-src 'unsafe-inline'", 'script-src ' + hashes);
 if (!html.includes(hashes)) throw new Error('CSP hash injection failed');
+const version = JSON.parse(readFileSync('package.json', 'utf8')).version;
+html = html.replaceAll('__VERSION__', version);
 mkdirSync('dist', { recursive: true });
+// index.html is what GitHub Pages serves; keypath.html is the identical release download.
 writeFileSync('dist/index.html', html);
+writeFileSync('dist/keypath.html', html);
 const fileHash = createHash('sha256').update(html, 'utf8').digest('hex');
-writeFileSync('dist/index.html.sha256', `${fileHash}  index.html\n`);
-console.log(`SHA-256 ${fileHash}`);
+writeFileSync('dist/SHA256SUMS.txt', `${fileHash}  keypath.html\n${fileHash}  index.html\n`);
+console.log(`v${version} SHA-256 ${fileHash}`);
 writeFileSync('dist/lib.bundle.js', lib);
 console.log(`lib ${(lib.length/1024).toFixed(0)} KB, page ${(html.length/1024).toFixed(0)} KB -> dist/index.html`);

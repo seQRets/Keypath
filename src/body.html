@@ -18,7 +18,8 @@
       <a href="#derivation-card">Derivation</a>
       <a href="#addresses-card">Addresses</a>
       <a href="#about">Definitions</a>
-      <a href="#offline" class="tap">Security</a>
+      <a href="#offline">Security</a>
+      <a href="#download" class="tap">Download</a>
     </nav>
   </header>
 
@@ -333,8 +334,23 @@
       <div class="limit"><span class="lm-tag">No storage</span><p>Your phrase, seed and keys are never written to disk. The only things remembered between visits are the theme and the tooltip setting. Fields are wiped when you leave the page, and private values start blurred and re-blur after five minutes without activity.</p></div>
       <div class="limit"><span class="lm-tag">Clipboard</span><p>Copying a secret puts it on your system clipboard, which some clipboard managers and phone-to-computer sync features upload. KeyPath clears its copy from the clipboard after 60 seconds. Copy secrets only when you must, and never on a machine that syncs its clipboard.</p></div>
       <div class="limit"><span class="lm-tag">Randomness</span><p>Generate uses the browser's cryptographically secure random number generator. Cryptography comes from the audited noble and scure libraries; address derivation, Shamir sharing and Seed QR were checked against the official test vectors of each standard.</p></div>
-      <div class="limit warn"><span class="lm-tag">Verify</span><p>Only trust a copy of this file whose SHA-256 hash matches the one published with the release. On a Mac or Linux: <code>shasum -a 256 index.html</code>. On Windows PowerShell: <code>Get-FileHash index.html</code>. A page cannot vouch for itself; the hash is how you know it has not been tampered with.</p></div>
+      <div class="limit warn"><span class="lm-tag">Verify</span><p>Only trust a copy of this file whose SHA-256 hash matches the one published with the release. On a Mac or Linux: <code>shasum -a 256 keypath.html</code>. On Windows PowerShell: <code>Get-FileHash keypath.html</code>. The expected value is in SHA256SUMS.txt next to the download. A page cannot vouch for itself; the hash is how you know it has not been tampered with.</p></div>
       <div class="limit warn"><span class="lm-tag">Your part</span><p>For real funds: save this file, move it to a computer that is <strong>disconnected from the internet</strong>, and open it in a fresh browser profile with no extensions. Extensions can read every page, including this one. Do not print, screenshot or photograph secrets, and close the tab when you are done. Nothing here protects you from malware already on the computer.</p></div>
+    </div>
+  </section>
+
+  <section class="section" id="download">
+    <div class="dl-strip">
+      <div>
+        <h2>Take it offline</h2>
+        <p class="intro" style="margin-bottom:0">Download the file, check its hash, and open it on a computer that is not connected to the internet. The download always comes from the latest GitHub release, saved as <code>keypath.html</code>.</p>
+      </div>
+      <div class="dl-actions">
+        <a class="btn primary" href="https://github.com/seQRets/Keypath/releases/latest/download/keypath.html" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 19h16"/></svg>Download keypath.html</a>
+        <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest/download/SHA256SUMS.txt" rel="noopener noreferrer">SHA256SUMS.txt</a>
+        <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest" target="_blank" rel="noopener noreferrer">Release notes</a>
+      </div>
+      <p class="dl-note">This page is KeyPath v__VERSION__. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
     </div>
   </section>
 
@@ -345,13 +361,14 @@
         <p>A modern re-imagining of Ian Coleman's BIP39 tool, with Taproot. Nothing you type leaves this page.</p>
       </div>
       <div class="foot-links">
+        <a href="https://github.com/seQRets/Keypath" target="_blank" rel="noopener noreferrer">Source on GitHub</a>
         <a href="https://github.com/iancoleman/bip39" target="_blank" rel="noopener noreferrer">Original tool</a>
         <a href="https://paulmillr.com/noble/" target="_blank" rel="noopener noreferrer">noble cryptography</a>
         <a href="https://github.com/bitcoin/bips" target="_blank" rel="noopener noreferrer">The BIPs</a>
       </div>
     </div>
     <div class="foot-bottom">
-      <span class="credit">MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
+      <span class="credit">KeyPath v__VERSION__ · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
       <span>Provided "as is", without warranty. Verify addresses in a second tool before sending significant funds.</span>
     </div>
   </footer>

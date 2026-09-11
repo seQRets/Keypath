@@ -1,0 +1,32 @@
+# On a version tag, publish the committed single file and its hash as release assets.
+# Nothing is built here: the asset is byte-identical to dist/keypath.html in the tagged commit.
+name: Release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify the committed hash matches the committed file
+        run: cd dist && sha256sum -c SHA256SUMS.txt
+      - name: Create the release with keypath.html and SHA256SUMS.txt attached
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          HASH=$(cut -d' ' -f1 dist/SHA256SUMS.txt | head -1)
+          gh release create "$GITHUB_REF_NAME" dist/keypath.html dist/SHA256SUMS.txt \
+            --title "KeyPath $GITHUB_REF_NAME" \
+            --notes "Single-file BIP39 seed phrase generator with SLIP-39 Shamir backup and Taproot support.
+
+Download **keypath.html**, then verify it:
+
+    shasum -a 256 keypath.html        # macOS / Linux
+    Get-FileHash keypath.html         # Windows PowerShell
+
+Expected SHA-256: \`$HASH\`
+
+Open the file on a computer that is disconnected from the internet."

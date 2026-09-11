@@ -8,11 +8,13 @@ KeyPath is a modern re-imagining of Ian Coleman's [BIP39 tool](https://github.co
 
 ## Download and verify
 
-1. Download `dist/index.html` from this repository (the same file is what the hosted page serves).
-2. Check its SHA-256 against `dist/index.html.sha256`:
-   - macOS / Linux: `shasum -a 256 index.html`
-   - Windows PowerShell: `Get-FileHash index.html`
+1. Download `keypath.html` and `SHA256SUMS.txt` from the [latest release](https://github.com/seQRets/Keypath/releases/latest). (Do not use the browser's "Save page as" on the hosted page; browsers rewrite the file and change its hash.)
+2. Check the hash:
+   - macOS / Linux: `shasum -a 256 -c SHA256SUMS.txt` (or `shasum -a 256 keypath.html` and compare by eye)
+   - Windows PowerShell: `Get-FileHash keypath.html` and compare with the line for keypath.html in `SHA256SUMS.txt`
 3. Copy the file to a computer that is disconnected from the internet and open it there in a fresh browser profile with no extensions.
+
+`dist/keypath.html` and `dist/index.html` in this repository are byte-identical to the release asset; `dist/SHA256SUMS.txt` is the committed hash.
 
 ## Features
 
@@ -35,10 +37,21 @@ Styled to match the [OP_RETURN Message Builder](https://seqrets.github.io/op_ret
 
 ## Project layout
 
-- `dist/index.html` — the single-file application (this is the only file users need)
-- `dist/index.html.sha256` — hash of the current build, for verification
+- `dist/keypath.html` — the single-file application, the only file users need (`dist/index.html` is the identical copy GitHub Pages serves)
+- `dist/SHA256SUMS.txt` — hash of the current build, for verification
+- `.github/workflows/` — Pages deployment on every push, and a release on every `v*` tag that attaches `keypath.html` and `SHA256SUMS.txt`
 - `src/` — page shell, markup, styles, application logic, glossary, SLIP-39 port and the library bundle entry
 - `build.mjs` — bundles the libraries with esbuild and assembles the single file
+
+## Releasing
+
+```bash
+npm run build
+git add -A && git commit -m "Release vX.Y.Z"
+git tag vX.Y.Z && git push && git push --tags
+```
+
+The release workflow verifies `dist/SHA256SUMS.txt` against `dist/keypath.html`, then creates the GitHub release with both files attached. Bump `version` in `package.json` first; it is stamped into the page footer.
 
 ## Build
 
@@ -55,7 +68,7 @@ npm run build
 - **No storage of secrets.** Only the theme and the tooltip preference are kept in `localStorage`. All fields are wiped on `pagehide`, private values start blurred and re-blur after five minutes idle.
 - **Clipboard.** Copying a secret clears it from the clipboard after 60 seconds.
 - **XSS.** Every dynamic HTML insertion is escaped; the bundle contains no `eval` or `Function`.
-- **Integrity.** `npm run build` writes `dist/index.html.sha256`. Publish that hash with each release so users can verify their copy with `shasum -a 256 index.html`.
+- **Integrity.** `npm run build` writes `dist/SHA256SUMS.txt`. Tagging `vX.Y.Z` publishes a release whose assets are the committed file and that sums file; the workflow refuses to release if they disagree.
 - **Out of scope.** Malware on the host, browser extensions, screen capture and clipboard sync are outside what a page can defend against; the page tells users to work offline in a fresh browser profile without extensions.
 
 ## Verification
