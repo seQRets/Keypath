@@ -316,7 +316,10 @@
   <section class="section" id="entropy-notes">
     <h2>About entropy</h2>
     <p class="intro">Notes for the entropy panel, carried over from the original tool because they matter.</p>
-    <div class="limits">
+    <details class="adv">
+      <summary>Show the entropy notes</summary>
+      <div class="adv-body" style="padding-top:0.9rem">
+      <div class="limits">
       <div class="limit"><span class="lm-tag">Checksum</span><p>Entropy values should not include the BIP39 checksum. <strong>It is added automatically.</strong></p></div>
       <div class="limit warn"><span class="lm-tag">Source</span><p>Entropy must come from a strong source of randomness: flipping a fair coin, rolling a fair dice, noise measurements. <strong>Not</strong> phrases from books, song lyrics, your birthday or street address, or keyboard mashing. Chances are overwhelming it is not random enough.</p></div>
       <div class="limit"><span class="lm-tag">Storage</span><p>Do not store entropy. Keeping a deck of cards in a specific shuffled order is unreliable compared to storing the phrase. <strong>Store the mnemonic generated from the entropy instead.</strong></p></div>
@@ -324,12 +327,17 @@
       <div class="limit"><span class="lm-tag">Cards</span><p>Card entropy assumes cards are replaced after each draw, not drawn one after another. A full deck with replacement gives 232 bits of entropy (21 words); without replacement, 225 bits.</p></div>
       <div class="limit"><span class="lm-tag">Time to crack</span><p>The estimate assumes an attacker who knows your method and tries every possibility at ten billion guesses per second. It reflects the number of bits, not whether your dice were fair.</p></div>
     </div>
+      </div>
+    </details>
   </section>
 
   <section class="section" id="offline">
     <h2>Security</h2>
-    <p class="intro">What this file does to protect you, and what only you can do.</p>
-    <div class="limits">
+    <p class="intro">What this file does to protect you, and what only you can do. Short version: work offline, verify the hash, keep secrets off the clipboard and off camera.</p>
+    <details class="adv">
+      <summary>Show the security details</summary>
+      <div class="adv-body" style="padding-top:0.9rem">
+      <div class="limits">
       <div class="limit"><span class="lm-tag">No network</span><p>One self-contained file with no external scripts, fonts or images. A Content Security Policy baked into the page blocks every outbound connection and refuses to run any script other than the two it was built with, so an injected script cannot run. <strong>Nothing you type leaves this page.</strong></p></div>
       <div class="limit"><span class="lm-tag">No storage</span><p>Your phrase, seed and keys are never written to disk. The only things remembered between visits are the theme and the tooltip setting. Fields are wiped when you leave the page, and private values start blurred and re-blur after five minutes without activity.</p></div>
       <div class="limit"><span class="lm-tag">Clipboard</span><p>Copying a secret puts it on your system clipboard, which some clipboard managers and phone-to-computer sync features upload. KeyPath clears its copy from the clipboard after 60 seconds. Copy secrets only when you must, and never on a machine that syncs its clipboard.</p></div>
@@ -337,6 +345,8 @@
       <div class="limit warn"><span class="lm-tag">Verify</span><p>Only trust a copy of this file whose SHA-256 hash matches the one published with the release. On a Mac or Linux: <code>shasum -a 256 keypath.html</code>. On Windows PowerShell: <code>Get-FileHash keypath.html</code>. The expected value is in SHA256SUMS.txt next to the download. A page cannot vouch for itself; the hash is how you know it has not been tampered with.</p></div>
       <div class="limit warn"><span class="lm-tag">Your part</span><p>For real funds: save this file, move it to a computer that is <strong>disconnected from the internet</strong>, and open it in a fresh browser profile with no extensions. Extensions can read every page, including this one. Do not print, screenshot or photograph secrets, and close the tab when you are done. Nothing here protects you from malware already on the computer.</p></div>
     </div>
+      </div>
+    </details>
   </section>
 
   <section class="section" id="download">
@@ -365,6 +375,7 @@
         <a href="https://github.com/iancoleman/bip39" target="_blank" rel="noopener noreferrer">Original tool</a>
         <a href="https://paulmillr.com/noble/" target="_blank" rel="noopener noreferrer">noble cryptography</a>
         <a href="https://github.com/bitcoin/bips" target="_blank" rel="noopener noreferrer">The BIPs</a>
+        <a class="donate" href="https://coinos.io/seQRets" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg>Donate</a>
       </div>
     </div>
     <div class="foot-bottom">
