@@ -18,15 +18,16 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           HASH=$(cut -d' ' -f1 dist/SHA256SUMS.txt | head -1)
-          gh release create "$GITHUB_REF_NAME" dist/keypath.html dist/SHA256SUMS.txt \
-            --title "KeyPath $GITHUB_REF_NAME" \
-            --notes "Single-file BIP39 seed phrase generator with SLIP-39 Shamir backup and Taproot support.
-
-Download **keypath.html**, then verify it:
-
-    shasum -a 256 keypath.html        # macOS / Linux
-    Get-FileHash keypath.html         # Windows PowerShell
-
-Expected SHA-256: \`$HASH\`
-
-Open the file on a computer that is disconnected from the internet."
+          {
+            echo "Single-file BIP39 seed phrase generator with SLIP-39 Shamir backup and Taproot support."
+            echo
+            echo "Download **keypath.html**, then verify it:"
+            echo
+            echo '    shasum -a 256 keypath.html        # macOS / Linux'
+            echo '    Get-FileHash keypath.html         # Windows PowerShell'
+            echo
+            echo "Expected SHA-256: \`$HASH\`"
+            echo
+            echo "Open the file on a computer that is disconnected from the internet."
+          } > notes.md
+          gh release create "$GITHUB_REF_NAME" dist/keypath.html dist/SHA256SUMS.txt --title "KeyPath $GITHUB_REF_NAME" --notes-file notes.md
