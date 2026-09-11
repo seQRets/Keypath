@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.3.0 — 2026-09-11
+
+- The floating buttons are replaced by a single menu button in the top-right corner. It opens a small panel with Hide / Reveal private info, Tooltips on / off, Dark / Light mode and Back to top, so private values can be hidden from anywhere on the page without anything covering the content. Larger tap targets on touch screens.
+
 ## v1.2.4 — 2026-09-11
 
 - The floating buttons (hide/reveal, tooltips, theme) now sit in the bottom-right corner.
