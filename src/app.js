@@ -152,20 +152,28 @@ function detectLang(words) {
 }
 
 /* ---------------- chrome ---------------- */
+/* ---------------- top-right menu ---------------- */
+function themeLabel() { $('themeBtn').querySelector('span').textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? 'Light mode' : 'Dark mode'; }
 $('themeBtn').addEventListener('click', () => {
   const cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', cur);
   try { localStorage.setItem('keypath-theme', cur); } catch (e) {}
+  themeLabel();
 });
+themeLabel();
 function setHidden(on) {
   $('hideSecrets').setAttribute('aria-pressed', on); document.documentElement.classList.toggle('hide-secrets', on);
-  $('hideSecrets').querySelector('span').textContent = on ? 'Reveal private info' : 'Hide private info';
-  const fab = $('hideSecretsFab'); fab.setAttribute('aria-pressed', on); fab.title = fab.ariaLabel = on ? 'Reveal private info' : 'Hide private info';
+  const label = on ? 'Reveal private info' : 'Hide private info';
+  $('hideSecrets').querySelector('span').textContent = label;
+  $('menuHide').setAttribute('aria-pressed', on); $('menuHide').querySelector('span').textContent = label;
 }
-$('hideSecretsFab').addEventListener('click', () => setHidden(!document.documentElement.classList.contains('hide-secrets')));
-// The floating eye only exists while the one in the phrase card's header is scrolled out of view.
-new IntersectionObserver(([e]) => { $('hideSecretsFab').hidden = e.isIntersecting; }, { threshold: 0 }).observe($('hideSecrets'));
 $('hideSecrets').addEventListener('click', () => setHidden($('hideSecrets').getAttribute('aria-pressed') !== 'true'));
+$('menuHide').addEventListener('click', () => setHidden(!document.documentElement.classList.contains('hide-secrets')));
+function menuOpen(open) { $('menuBtn').setAttribute('aria-expanded', open); $('menuPanel').hidden = !open; }
+$('menuBtn').addEventListener('click', () => menuOpen($('menuPanel').hidden));
+document.addEventListener('click', (e) => { if (!$('menuPanel').hidden && !e.target.closest('#menuWrap')) menuOpen(false); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('menuPanel').hidden) menuOpen(false); });
+$('menuPanel').querySelectorAll('a').forEach((a) => a.addEventListener('click', () => menuOpen(false)));
 $('fpValue').addEventListener('click', async () => { if (S.root && (await copyText(fpHex(S.root)))) toast('Fingerprint copied'); });
 $('phraseFpVal').addEventListener('click', async () => { if (S.root && (await copyText(fpHex(S.root)))) toast('Fingerprint copied'); });
 $('clearBtn').addEventListener('click', () => {
@@ -636,9 +644,10 @@ function initTips() {
   });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hide(); });
   $('tipsBtn').setAttribute('aria-pressed', !document.documentElement.classList.contains('no-tips'));
+  $('tipsBtn').querySelector('span:last-child').textContent = document.documentElement.classList.contains('no-tips') ? 'Tooltips off' : 'Tooltips on';
   $('tipsBtn').addEventListener('click', () => {
     const off = document.documentElement.classList.toggle('no-tips'); hide();
-    $('tipsBtn').setAttribute('aria-pressed', !off); try { localStorage.setItem('keypath-tips', off ? 'off' : 'on'); } catch (e) {}
+    $('tipsBtn').setAttribute('aria-pressed', !off); $('tipsBtn').querySelector('span:last-child').textContent = off ? 'Tooltips off' : 'Tooltips on'; try { localStorage.setItem('keypath-tips', off ? 'off' : 'on'); } catch (e) {}
     toast(off ? 'Tooltips off' : 'Tooltips on');
   });
   addEventListener('scroll', () => { if (!box.hidden) hide(); }, { passive: true });
