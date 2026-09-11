@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.3.1 — 2026-09-11
+
+- Blurred fields can be clicked into and typed in while they stay blurred, so a passphrase, phrase, entropy or share can be entered without ever appearing on screen. The focused field shows a red ring so you know where you are typing. Copying from blurred values remains blocked.
+- The Seed QR modal has a Hide QR button to blur the code again after revealing it.
+
 ## v1.3.0 — 2026-09-11
 
 - The floating buttons are replaced by a single menu button in the top-right corner. It opens a small panel with Hide / Reveal private info, Tooltips on / off, Dark / Light mode and Back to top, so private values can be hidden from anywhere on the page without anything covering the content. Larger tap targets on touch screens.

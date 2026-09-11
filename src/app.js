@@ -613,6 +613,7 @@ function seedQrRender() {
 }
 $('seedQrBtn').addEventListener('click', seedQrOpen);
 $('qrReveal').addEventListener('click', () => document.querySelector('.qr-stage').classList.remove('covered'));
+$('qrHide').addEventListener('click', () => document.querySelector('.qr-stage').classList.add('covered'));
 $('qrStd').addEventListener('click', () => { qrFormat = 'standard'; seedQrRender(); });
 $('qrCompact').addEventListener('click', () => { qrFormat = 'compact'; seedQrRender(); });
 $('qrModal').addEventListener('click', (e) => { if (e.target.closest('[data-close]')) { $('qrModal').hidden = true; $('qrWrap').innerHTML = ''; } });
