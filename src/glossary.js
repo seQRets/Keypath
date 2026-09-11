@@ -68,7 +68,7 @@ window.KEYPATH_GLOSSARY = {
   checksumbits: { t: 'Binary checksum', d: 'The few checksum bits computed from the randomness and tucked into the last word.' },
   indexes: { t: 'Word indexes', d: 'The position of each word in the official 2048-word list, counting from 0. The phrase is really just these numbers.' },
   entropytype: { t: 'Entropy type', d: 'Leave on automatic and the tool works out whether you typed dice rolls, coin flips, cards or hex. Pick one only if it guesses wrong.' },
-  entropylen: { t: 'Mnemonic length', d: 'Raw uses your randomness directly, unchanged. Choosing a word count instead runs everything through a hash, which uses all the randomness in every roll; that is why 50 dice rolls are enough for 12 words in hashed mode but about 77 are needed in raw mode.' },
+  entropylen: { t: 'Mnemonic length', d: 'Raw uses your randomness directly, unchanged, keeping only the unbiased bits of each event; it needs about 77 dice rolls for 12 words and is what the original Coleman tool does. Choosing a word count instead hashes the input, using all 2.58 bits per roll, so 50 rolls are enough. For dice, the hash is taken over the rolls exactly as typed, the way hardware wallets that accept dice do it, so a wallet that hashes dice the same way will reproduce the phrase. Raw mode will not.' },
   split: { t: 'Split into shares', d: 'Make a new set of Shamir shares from the phrase currently shown above.' },
   recover: { t: 'Recover from shares', d: 'Paste shares you made earlier and get the phrase back.' },
 };

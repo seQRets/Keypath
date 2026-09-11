@@ -175,50 +175,9 @@ document.addEventListener('click', async (e) => {
 });
 if (!(window.crypto && crypto.getRandomValues)) { $('rngWarn').classList.remove('hidden'); $('generateBtn').disabled = true; }
 
-/* ---------------- entropy (ported from iancoleman/bip39 entropy.js) ---------------- */
-// Each event maps to a variable-length bit string so that non-power-of-two
-// sources (dice, base 10, cards) are debiased the same way the original tool does.
-const EVENT_BITS = {
-  binary: { 0: '0', 1: '1' },
-  'base 6': { 0: '00', 1: '01', 2: '10', 3: '11', 4: '0', 5: '1' },
-  'base 6 (dice)': { 0: '00', 1: '01', 2: '10', 3: '11', 4: '0', 5: '1' },
-  'base 10': { 0: '000', 1: '001', 2: '010', 3: '011', 4: '100', 5: '101', 6: '110', 7: '111', 8: '0', 9: '1' },
-  hexadecimal: Object.fromEntries('0123456789abcdef'.split('').map((c, i) => [c, i.toString(2).padStart(4, '0')])),
-  card: (() => { const t = {}; const ranks = 'a23456789tjqk', suits = 'cdhs'; let i = 0;
-    for (const s of suits) for (const r of ranks) { t[r + s] = i < 32 ? i.toString(2).padStart(5, '0') : i < 48 ? (i - 32).toString(2).padStart(4, '0') : (i - 48).toString(2).padStart(2, '0'); i++; }
-    return t; })(),
-};
-const MATCHERS = {
-  binary: (s) => s.match(/[0-1]/gi) || [], base6: (s) => s.match(/[0-5]/gi) || [], dice: (s) => s.match(/[1-6]/gi) || [],
-  base10: (s) => s.match(/[0-9]/gi) || [], hex: (s) => s.match(/[0-9A-F]/gi) || [], card: (s) => s.match(/([A2-9TJQK][CDHS])/gi) || [],
-};
-function getBase(str, baseStr) {
-  const auto = !baseStr;
-  const bin = MATCHERS.binary(str), hx = MATCHERS.hex(str);
-  if ((bin.length === hx.length && hx.length > 0 && auto) || baseStr === 'binary') return { events: bin, asInt: 2, bitsPerEvent: 1, str: 'binary' };
-  const card = MATCHERS.card(str);
-  if ((card.length >= hx.length / 2 && auto) || baseStr === 'card') return { events: card, asInt: 52, bitsPerEvent: (32 * 5 + 16 * 4 + 4 * 2) / 52, str: 'card' };
-  const dice = MATCHERS.dice(str);
-  if ((dice.length === hx.length && hx.length > 0 && auto) || baseStr === 'dice') return { events: dice, asInt: 6, bitsPerEvent: (4 * 2 + 2 * 1) / 6, str: 'dice' };
-  const b6 = MATCHERS.base6(str);
-  if ((b6.length === hx.length && hx.length > 0 && auto) || baseStr === 'base 6') return { events: b6, asInt: 6, bitsPerEvent: (4 * 2 + 2 * 1) / 6, str: 'base 6' };
-  const b10 = MATCHERS.base10(str);
-  if ((b10.length === hx.length && hx.length > 0 && auto) || baseStr === 'base 10') return { events: b10, asInt: 10, bitsPerEvent: (8 * 3 + 2 * 1) / 10, str: 'base 10' };
-  return { events: hx, asInt: 16, bitsPerEvent: 4, str: 'hexadecimal' };
-}
-function entropyFromString(raw, baseStr) {
-  const base = getBase(raw, baseStr);
-  if (base.str === 'dice') { base.events = base.events.map((c) => ('12345'.includes(c) ? c : '0')); base.str = 'base 6 (dice)'; }
-  if (!base.events.length) return { binaryStr: '', cleanStr: '', cleanHtml: '', base, bitsPerEvent: base.bitsPerEvent };
-  const binaryStr = base.events.map((e) => EVENT_BITS[base.str][e.toLowerCase()]).join('');
-  let cleanStr = base.events.join(''), cleanHtml = esc(cleanStr);
-  if (base.asInt === 52) {
-    const up = base.events.join(' ').toUpperCase();
-    cleanStr = up.replace(/C/g, '♣').replace(/D/g, '♦').replace(/H/g, '♥').replace(/S/g, '♠');
-    cleanHtml = esc(up).replace(/C/g, "<span class='club'>♣</span>").replace(/D/g, "<span class='diamond'>♦</span>").replace(/H/g, "<span class='heart'>♥</span>").replace(/S/g, "<span class='spade'>♠</span>");
-  }
-  return { binaryStr, cleanStr, cleanHtml, base, bitsPerEvent: base.bitsPerEvent };
-}
+/* ---------------- entropy: see src/entropy.js ---------------- */
+const { entropyFromString, entropyBits } = BTC.entropy;
+
 function crackTime(bits, events) {
   // Attacker who knows the method, trying every possibility at 1e10 guesses per second.
   const seconds = Math.pow(2, bits) / 1e10;
@@ -252,26 +211,24 @@ function setMnemonicFromEntropy() {
   const e = entropyFromString(raw, typeSel === 'auto' ? undefined : typeSel);
   const lenSel = $('entropyLen').value;
   $('entropyWeak').classList.add('hidden');
+  $('diceRawNote').classList.toggle('hidden', !(lenSel === 'raw' && e.base.str === 'base 6 (dice)' && e.binaryStr.length));
   if (!e.binaryStr.length) { $('phrase').value = ''; renderEntropyDetails(e, null); onPhraseInput(true); return; }
-  let bits = e.binaryStr;
-  const fullBits = Math.floor(e.base.events.length * Math.log2(e.base.asInt));
-  if (lenSel !== 'raw') {
-    const n = parseInt(lenSel, 10) * 32 / 3;
-    bits = BigInt('0x' + hex.encode(sha256(new TextEncoder().encode(e.cleanStr)))).toString(2).padStart(256, '0').substring(0, n);
-    $('entropyWeak').classList.toggle('hidden', n <= fullBits);
-  }
-  const usable = Math.min(256, Math.floor(bits.length / 32) * 32);
-  if (usable < 128) {
-    const per = e.bitsPerEvent, need = Math.ceil((128 - bits.length) / per);
-    const hashedOk = fullBits >= 128;
-    renderEntropyDetails(e, null, `Raw mode has ${bits.length} unbiased bits and needs 128 for 12 words: about ${need} more ${e.base.str === 'card' ? 'cards' : 'events'}.` + (hashedOk ? ` Or choose "12 words" above: hashing uses all ${Math.log2(e.base.asInt).toFixed(2)} bits per event and your ${fullBits} bits are already enough.` : ''));
+  const r = entropyBits(e, lenSel);
+  $('entropyWeak').classList.toggle('hidden', !r.weak);
+  if (!r.entBytes) {
+    const hashedOk = r.fullBits >= 128;
+    renderEntropyDetails(e, null, `Raw mode has ${r.bits.length} unbiased bits and needs 128 for 12 words: about ${r.needMore} more ${e.base.str === 'card' ? 'cards' : 'events'}.` + (hashedOk ? ` Or choose "12 words" above: hashing uses all ${Math.log2(e.base.asInt).toFixed(2)} bits per event and your ${r.fullBits} bits are already enough.` : ''));
     $('phrase').value = ''; onPhraseInput(true); return;
   }
-  const bin = bits.substring(bits.length - usable);
-  const entBytes = new Uint8Array(usable / 8); for (let i = 0; i < entBytes.length; i++) entBytes[i] = parseInt(bin.substring(i * 8, i * 8 + 8), 2);
-  $('phrase').value = bip39.entropyToMnemonic(entBytes, wordlists[S.lang].words);
-  renderEntropyDetails(e, entBytes);
+  $('phrase').value = bip39.entropyToMnemonic(r.entBytes, wordlists[S.lang].words);
+  renderEntropyDetails(e, r.entBytes);
   onPhraseInput(true);
+}
+function filteredRow(e, filtered) {
+  const discarded = filtered ? ' <span class="cs">(some characters were discarded)</span>' : '';
+  if (e.base.str !== 'base 6 (dice)') return e.cleanHtml + discarded;
+  const hashed = $('entropyLen').value !== 'raw';
+  return hashed ? `${esc(e.hashStr)} <span class="cs">(rolls as typed; this is what is hashed)</span>${discarded}` : `${e.cleanHtml} <span class="cs">(each 6 written as 0 for the raw base-6 conversion)</span>${discarded}`;
 }
 function renderEntropyDetails(e, entBytes, error) {
   const el = $('entropyInfo');
@@ -285,7 +242,7 @@ function renderEntropyDetails(e, entBytes, error) {
     ['Bits per event', `${e.bitsPerEvent.toFixed(2)} unbiased (raw mode) · ${Math.log2(e.base.asInt).toFixed(2)} full (hashed)`, '', 'bitsper'],
     ['Raw entropy words', Math.floor(e.binaryStr.length / 32) * 3, '', 'rawwords'],
     ['Total bits', `${e.binaryStr.length} unbiased · ${Math.floor(events.length * Math.log2(e.base.asInt))} full`, '', 'totalbits'],
-    ['Filtered entropy', e.cleanHtml + (filtered ? ' <span class="cs">(some characters were discarded)</span>' : ''), 'html', 'filtered'],
+    ['Filtered entropy', filteredRow(e, filtered), 'html', 'filtered'],
     ['Raw binary', spaceEvery11(e.binaryStr), '', 'rawbinary'],
   ];
   if (entBytes) {
@@ -700,5 +657,5 @@ $('coin').value = S.coin;
 selectTab('bip84');
 shamirInit();
 initTips();
-window.KEYPATH = { S, address, descriptor, descChecksum, serExt, taprootOutputKey, parsePath, entropyFromString, crackTime };
+window.KEYPATH = { S, address, descriptor, descChecksum, serExt, taprootOutputKey, parsePath, entropyFromString, entropyBits, crackTime };
 })();

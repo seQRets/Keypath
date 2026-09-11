@@ -44,3 +44,5 @@ import * as slip39 from './slip39.js';
 export { slip39 };
 import qrcode from 'qrcode-generator';
 export { qrcode };
+import * as entropy from './entropy.js';
+export { entropy };
