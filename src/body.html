@@ -1,0 +1,376 @@
+<div class="wrap">
+
+  <div class="fixed-tools">
+    <button class="fab txt" id="tipsBtn" type="button" aria-pressed="true" aria-label="Turn the ? tooltips on or off" title="Tooltips on / off">?</button>
+  <button class="fab" id="themeBtn" type="button" aria-label="Switch theme" title="Switch theme">
+    <svg class="ic-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.1M12 19.3v2.1M2.6 12h2.1M19.3 12h2.1M5.4 5.4l1.5 1.5M17.1 17.1l1.5 1.5M18.6 5.4l-1.5 1.5M6.9 17.1l-1.5 1.5"/></svg>
+    <svg class="ic-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.6 14.5A8.6 8.6 0 1 1 9.5 3.4a6.9 6.9 0 0 0 11.1 11.1z"/></svg>
+  </button>
+  </div>
+
+  <header class="masthead" id="top">
+    <h1><span class="op"><span class="key">Key</span>Path</span><span class="sub">BIP39 Seed Phrase Generator</span></h1>
+    <p class="lede">Generate or paste a recovery phrase, follow it down the BIP32 tree, and see the Bitcoin addresses it controls, legacy through Taproot. Runs entirely in this file, in your browser.</p>
+    <nav class="topnav" aria-label="Jump to a section">
+      <a href="#phrase-card">Phrase</a>
+      <a href="#shamir-card">Shamir backup</a>
+      <a href="#seed-card">Seed &amp; root key</a>
+      <a href="#derivation-card">Derivation</a>
+      <a href="#addresses-card">Addresses</a>
+      <a href="#about">Definitions</a>
+      <a href="#offline" class="tap">Security</a>
+    </nav>
+  </header>
+
+  <aside class="warnstrip" aria-label="Security warning">
+    <p><strong>Everything on this page controls real money.</strong> Anyone who sees your recovery phrase, seed, root key or private keys can take your coins. Never paste them into a website, chat, or "support" form, and never share them with anyone offering help. For real funds, save this file and open it on an offline computer. Private values start out blurred; use the Reveal private info button to see them.</p>
+  </aside>
+  <div class="netstatus" id="netStatus" hidden><span class="dot"></span><span id="netStatusText"></span></div>
+  <div class="inputwarn bad hidden" id="rngWarn"><p><strong>No secure random source.</strong> This browser does not expose <code>crypto.getRandomValues</code>, so the Generate button is disabled. Type your own phrase or supply entropy instead.</p></div>
+
+  <!-- ===================== 01 Phrase ===================== -->
+  <section class="console" id="phrase-card" aria-label="Recovery phrase">
+    <div class="console-bar"><span class="n">1</span> Recovery phrase<button type="button" class="tip" data-tip="phrase" aria-label="What does this mean?">?</button><div class="bar-actions"><button type="button" class="barbtn" id="showEntropy" aria-pressed="false">Show entropy details</button><button type="button" class="barbtn" id="seedQrBtn" disabled>Seed QR</button><button type="button" class="barbtn eye" id="hideSecrets" aria-pressed="true"><svg class="ic-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.8A9.8 9.8 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3.2 3.9M6.6 6.6C4 8.4 2.5 12 2.5 12s3.5 6.5 9.5 6.5a9.6 9.6 0 0 0 4.1-.9"/></svg><span>Reveal private info</span></button></div></div>
+    <div class="console-body">
+      <p class="console-intro">Generate a fresh phrase or type an existing one. The last word carries a <span class="gloss" data-tip="checksum">checksum</span>, so a phrase invented by hand will almost never validate.</p>
+
+      <div class="row">
+        <div>
+          <span class="small-label">Words<button type="button" class="tip" data-tip="wordcount" aria-label="What does this mean?">?</button></span>
+          <div class="mode-toggle" role="group" aria-label="Word count" id="wordCount">
+            <button type="button" class="mode-btn" data-n="12" aria-pressed="true">12</button>
+            <button type="button" class="mode-btn" data-n="15" aria-pressed="false">15</button>
+            <button type="button" class="mode-btn" data-n="18" aria-pressed="false">18</button>
+            <button type="button" class="mode-btn" data-n="21" aria-pressed="false">21</button>
+            <button type="button" class="mode-btn" data-n="24" aria-pressed="false">24</button>
+          </div>
+        </div>
+        <label class="mid"><span class="small-label">Language<button type="button" class="tip" data-tip="language" aria-label="What does this mean?">?</button></span><select id="lang"></select></label>
+        <button type="button" class="btn primary" id="generateBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"/></svg>Generate</button>
+        <button type="button" class="btn" id="clearBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>Clear</button>
+      </div>
+
+      <div class="entropy-panel hidden" id="entropyPanel">
+        <div class="panel-title">Entropy<button type="button" class="tip" data-tip="entropy" aria-label="What does this mean?">?</button></div>
+        <p class="panel-note">The raw randomness behind the phrase. Generate fills this with the bytes it drew; you can also type your own from dice, coins or cards and the phrase is rebuilt from it. The checksum is added for you. Raw mode keeps only the unbiased bits of each event and needs about 77 dice rolls for 12 words; a fixed length hashes the whole input and uses all 2.58 bits per roll, so 50 rolls are enough.</p>
+        <div class="inputwarn" style="margin:0 0 1rem"><p><strong>Advanced feature.</strong> Entropy must come from something genuinely random: fair dice, fair coins, a well-shuffled deck. Not song lyrics, not key-mashing, not your birthday. You are not a good source of entropy, and a phrase built from weak entropy can be guessed.</p></div>
+        <div class="field">
+          <label class="field-label" for="entropy">Entropy<button type="button" class="tip" data-tip="entropy" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span></label>
+          <textarea id="entropy" class="mono secret" rows="3" spellcheck="false" autocomplete="off" placeholder="e.g. 3512446213564316524352… (dice) or ahqs9dtc… (cards)"></textarea>
+        </div>
+        <div class="row">
+          <label class="grow"><span class="small-label">Entropy type<button type="button" class="tip" data-tip="entropytype" aria-label="What does this mean?">?</button></span>
+            <select id="entropyType">
+              <option value="auto">Detect automatically</option>
+              <option value="binary">Binary [0-1]</option>
+              <option value="base 6">Base 6 [0-5]</option>
+              <option value="dice">Dice [1-6]</option>
+              <option value="base 10">Base 10 [0-9]</option>
+              <option value="hexadecimal">Hex [0-9A-F]</option>
+              <option value="card">Cards [A2-9TJQK][CDHS]</option>
+            </select></label>
+          <label class="grow"><span class="small-label">Mnemonic length<button type="button" class="tip" data-tip="entropylen" aria-label="What does this mean?">?</button></span>
+            <select id="entropyLen">
+              <option value="raw">Raw entropy (no hashing)</option>
+              <option value="12">12 words</option>
+              <option value="15">15 words</option>
+              <option value="18">18 words</option>
+              <option value="21">21 words</option>
+              <option value="24">24 words</option>
+            </select></label>
+        </div>
+        <div class="meter" id="entropyStatus"></div>
+        <div class="inputwarn bad hidden" id="entropyWeak"><p><strong>The phrase will look more secure than it really is.</strong> A fixed length was chosen with fewer real bits than it needs, so the missing bits are made up by hashing. Only the real bits protect you.</p></div>
+        <dl class="kv" id="entropyInfo"></dl>
+        <div class="valid-list">
+          <span><b>Binary</b> [0-1] <code>101010011</code></span>
+          <span><b>Base 6</b> [0-5] <code>123434014</code></span>
+          <span><b>Dice</b> [1-6] <code>62535634</code></span>
+          <span><b>Base 10</b> [0-9] <code>90834528</code></span>
+          <span><b>Hex</b> [0-9A-F] <code>4187a8bfd9</code></span>
+          <span><b>Cards</b> [A2-9TJQK][CDHS] <code>ahqs9dtc</code></span>
+        </div>
+      </div>
+
+      <div class="field" style="margin-top:1.2rem">
+        <label class="field-label" for="phrase">BIP39 mnemonic<button type="button" class="tip" data-tip="mnemonic" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span></label>
+        <textarea id="phrase" class="mono secret" rows="3" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="Click Generate, or type or paste your own phrase here…"></textarea>
+        <div class="meter" id="phraseStatus"></div>
+        <details class="adv phrase-list hidden" id="phraseList">
+          <summary id="phraseListSummary">Show as a numbered list</summary>
+          <div class="adv-body"><ol class="wordlist secret" id="phraseOl"></ol></div>
+        </details>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="passphrase">BIP39 passphrase<button type="button" class="tip" data-tip="passphrase" aria-label="What does this mean?">?</button> <span class="hint">optional, sometimes called the "25th word"</span></label>
+        <input type="text" id="passphrase" class="secret" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Leave empty unless your wallet uses one">
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===================== 02 Shamir backup ===================== -->
+  <section class="console" id="shamir-card" aria-label="Shamir backup">
+    <div class="console-bar"><span class="n">2</span> Shamir backup<button type="button" class="tip" data-tip="shamir" aria-label="What does this mean?">?</button> <span class="right" data-tip="slip39">SLIP-39</span></div>
+    <div class="console-body">
+      <p class="console-intro">Split the entropy behind the phrase into SLIP-39 shares, the Shamir standard used by Trezor. Choose how many shares to make and how many are needed to recover; any set that meets the threshold rebuilds the exact phrase above, while fewer shares reveal nothing at all.</p>
+      <div class="mode-toggle" role="group" aria-label="Shamir mode">
+        <button class="mode-btn" id="shSplit" type="button" aria-pressed="true">Split into shares</button>
+        <button class="mode-btn" id="shRecover" type="button" aria-pressed="false">Recover from shares</button>
+      </div>
+
+      <div id="shamirSplit" class="tabpanel">
+        <div class="row">
+          <label class="narrow"><span class="small-label">Needed<button type="button" class="tip" data-tip="threshold" aria-label="What does this mean?">?</button></span><select id="shThreshold"></select></label>
+          <label class="narrow"><span class="small-label">Of shares<button type="button" class="tip" data-tip="sharecount" aria-label="What does this mean?">?</button></span><select id="shCount"></select></label>
+          <label class="grow"><span class="small-label">Share passphrase<button type="button" class="tip" data-tip="sharepass" aria-label="What does this mean?">?</button> <span class="hint">optional</span></span><input type="text" id="shPass" class="secret" autocomplete="off" spellcheck="false" placeholder="Optional"></label>
+          <button type="button" class="btn primary" id="shMake">Create shares</button>
+        </div>
+        <div class="check-row"><label class="check"><input type="checkbox" id="shExt" checked> Extendable backup<button type="button" class="tip" data-tip="extendable" aria-label="What does this mean?">?</button></label></div>
+        <div class="meter" id="shStatus"></div>
+        <div id="shShares" class="secret"></div>
+        <div class="inputwarn hidden" id="shNote"><p><strong>Write every share down now.</strong> Each click of Create shares makes a brand-new set with its own identifier, and shares from different sets cannot be combined. To confirm the backup works, switch to Recover and paste in a threshold of them.</p><p>Loading these shares straight into a Trezor as a Shamir wallet would create a <strong>different</strong> wallet, because Trezor turns the recovered secret into keys its own way. Always recover through this tool (or any SLIP-39 tool) to get the BIP39 phrase back, then use the phrase.</p></div>
+      </div>
+
+      <div id="shamirRecover" class="tabpanel hidden">
+        <div class="field">
+          <label class="field-label" for="shInput">Shares<button type="button" class="tip" data-tip="shares" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span><span class="hint">one share per line, in any order</span></label>
+          <textarea id="shInput" class="mono secret" rows="5" spellcheck="false" autocomplete="off" placeholder="shadow pistol academic always adequate wildlife fancy gross oasis cylinder mustang wrist rescue view short owner flip making coding armed&#10;shadow pistol academic acid actress prayer class unknown daughter sweater depict flip twice unkind craft early superior advocate guest smoking"></textarea>
+        </div>
+        <div class="field"><label class="field-label" for="shPassR">Share passphrase<button type="button" class="tip" data-tip="sharepass" aria-label="What does this mean?">?</button> <span class="hint">only if one was used when splitting</span></label><input type="text" id="shPassR" class="secret" autocomplete="off" spellcheck="false"></div>
+        <div class="meter" id="shRecStatus"></div>
+        <div class="field" style="margin-top:1rem"><label class="field-label">Recovered entropy<button type="button" class="tip" data-tip="entropy" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span></label>
+          <div class="term hx secret" id="shRecHex"><button class="copy" data-copy="shRecHex" type="button">copy</button><span class="ph">Paste enough shares above.</span></div></div>
+        <div class="field"><label class="field-label">Recovered BIP39 phrase<button type="button" class="tip" data-tip="mnemonic" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span><span class="hint" id="shRecLang"></span></label>
+          <div class="term secret" id="shRecPhrase"><button class="copy" data-copy="shRecPhrase" type="button">copy</button><span class="ph">—</span></div></div>
+        <button type="button" class="btn primary hidden" id="shUse">Use this phrase above</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 03 Seed & root ===================== -->
+  <section class="console" id="seed-card" aria-label="Seed and master key">
+    <div class="console-bar"><span class="n">3</span> Seed &amp; master key<button type="button" class="tip" data-tip="seed" aria-label="What does this mean?">?</button><span class="right" id="fpBar"></span></div>
+    <div class="console-body">
+      <p class="console-intro">The phrase and passphrase are stretched into a 512-bit seed, and the seed becomes the BIP32 master key at the root of the tree.</p>
+      <div class="fp-row">
+        <div class="fp-box" id="fpBox"><span class="fp-label">Master fingerprint<button type="button" class="tip" data-tip="fingerprint" aria-label="What does this mean?">?</button></span><span class="fp-value" id="fpValue">—</span><span class="fp-note">The first four bytes of the master key's hash. Wallets show it so you can confirm a phrase and passphrase are the ones you expect, without revealing anything.</span></div>
+      </div>
+      <div class="field">
+        <label class="field-label">BIP39 seed<button type="button" class="tip" data-tip="seed" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span><span class="hint">64 bytes, <span data-tip="hex" class="gloss">hexadecimal</span></span></label>
+        <div class="term hx secret" id="seedOut"><button class="copy" data-copy="seedOut" type="button">copy</button><span class="ph">Waiting for a valid phrase…</span></div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="network">Network<button type="button" class="tip" data-tip="network" aria-label="What does this mean?">?</button></label>
+        <select id="network"><option value="mainnet">Bitcoin mainnet</option><option value="testnet">Bitcoin testnet / signet</option></select>
+      </div>
+      <div class="field">
+        <label class="field-label">BIP32 root key<button type="button" class="tip" data-tip="rootkey" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span><span class="hint">editable: paste an xprv or xpub to start from a key instead of a phrase</span></label>
+        <div class="term secret" id="rootOut" contenteditable="true" spellcheck="false"></div>
+        <div class="meter" id="rootStatus"></div>
+      </div>
+      <dl class="kv" id="rootInfo"></dl>
+
+      <details class="adv" id="bip85Details">
+        <summary>BIP85: derive child secrets from this master key<button type="button" class="tip" data-tip="bip85" aria-label="What does this mean?">?</button></summary>
+        <div class="adv-body">
+          <p class="help">BIP85 turns one master key into any number of independent secrets: new BIP39 phrases, WIF keys, xprvs or raw bytes. The result is not used anywhere else on this page. To use a derived phrase, paste it into the phrase field above.</p>
+          <div class="row">
+            <label class="mid"><span class="small-label">Application<button type="button" class="tip" data-tip="bip85app" aria-label="What does this mean?">?</button></span>
+              <select id="bip85App"><option value="bip39">BIP39 phrase</option><option value="wif">WIF private key</option><option value="xprv">BIP32 xprv</option><option value="hex">Raw hex bytes</option></select></label>
+            <label class="mid" id="bip85LangWrap"><span class="small-label">Language</span><select id="bip85Lang"></select></label>
+            <label class="narrow" id="bip85WordsWrap"><span class="small-label">Words</span><select id="bip85Words"><option>12</option><option>15</option><option>18</option><option>21</option><option>24</option></select></label>
+            <label class="narrow hidden" id="bip85BytesWrap"><span class="small-label">Bytes</span><input type="number" id="bip85Bytes" value="32" min="16" max="64"></label>
+            <label class="narrow"><span class="small-label">Index<button type="button" class="tip" data-tip="bip85index" aria-label="What does this mean?">?</button></span><input type="number" id="bip85Index" value="0" min="0" step="1"></label>
+          </div>
+          <div class="field" style="margin-top:1rem"><label class="field-label">Derived value <span class="badge secret-badge" data-tip="secret">secret</span><span class="hint" id="bip85Path"></span></label>
+            <div class="term hx secret" id="bip85Out"><button class="copy" data-copy="bip85Out" type="button">copy</button><span class="ph">Needs a private root key.</span></div></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ===================== 03 Derivation ===================== -->
+  <section class="console" id="derivation-card" aria-label="Derivation path">
+    <div class="console-bar"><span class="n">4</span> Derivation path<button type="button" class="tip" data-tip="derivation" aria-label="What does this mean?">?</button></div>
+    <div class="console-body">
+      <p class="console-intro">Pick the <span class="gloss" data-tip="bip">BIP standard</span> your wallet uses. Each one walks a different branch of the same tree and produces a different address format.</p>
+      <div class="mode-toggle" role="tablist" id="tabs" aria-label="Derivation standard">
+        <button class="mode-btn" role="tab" data-tab="bip44" aria-selected="false" aria-pressed="false">BIP44<span class="tsub">1…</span></button>
+        <button class="mode-btn" role="tab" data-tab="bip49" aria-selected="false" aria-pressed="false">BIP49<span class="tsub">3…</span></button>
+        <button class="mode-btn" role="tab" data-tab="bip84" aria-selected="true" aria-pressed="true">BIP84<span class="tsub">bc1q…</span></button>
+        <button class="mode-btn" role="tab" data-tab="bip86" aria-selected="false" aria-pressed="false">BIP86<span class="tsub">bc1p…</span><span class="tnew">TAPROOT</span></button>
+        <button class="mode-btn" role="tab" data-tab="custom" aria-selected="false" aria-pressed="false">Custom<span class="tsub">BIP32 / 141</span></button>
+      </div>
+
+      <div class="tabpanel">
+        <p class="help" id="tabHelp"></p>
+        <div id="stdFields">
+          <div class="row">
+            <label class="narrow"><span class="small-label">Purpose<button type="button" class="tip" data-tip="purpose" aria-label="What does this mean?">?</button></span><input type="text" id="purpose" class="mono" readonly></label>
+            <label class="narrow"><span class="small-label">Coin<button type="button" class="tip" data-tip="coin" aria-label="What does this mean?">?</button></span><input type="number" id="coin" class="mono" min="0" step="1"></label>
+            <label class="narrow"><span class="small-label">Account<button type="button" class="tip" data-tip="account" aria-label="What does this mean?">?</button></span><input type="number" id="account" class="mono" min="0" step="1" value="0"></label>
+            <label class="mid"><span class="small-label">External / internal<button type="button" class="tip" data-tip="chain" aria-label="What does this mean?">?</button></span><select id="change"><option value="0">0 · external (receive)</option><option value="1">1 · internal (change)</option></select></label>
+          </div>
+        </div>
+        <div id="customFields" class="hidden">
+          <div class="row">
+            <label class="mid"><span class="small-label">Client<button type="button" class="tip" data-tip="client" aria-label="What does this mean?">?</button></span>
+              <select id="customPreset">
+                <option value="custom">Custom derivation path</option>
+                <option value="m/0'/0'">Bitcoin Core (m/0'/0', hardened)</option>
+                <option value="m/0'/0">MultiBit HD (m/0'/0)</option>
+                <option value="m/44'/0'/0'">Block explorers (m/44'/0'/0')</option>
+              </select></label>
+            <label class="grow"><span class="small-label">BIP32 derivation path<button type="button" class="tip" data-tip="derivation" aria-label="What does this mean?">?</button></span><input type="text" id="customPath" class="mono" value="m/0'/0" spellcheck="false" autocomplete="off"></label>
+            <label class="mid"><span class="small-label">Script type<button type="button" class="tip" data-tip="script" aria-label="What does this mean?">?</button></span>
+              <select id="customScript">
+                <option value="p2pkh">P2PKH (1…)</option>
+                <option value="p2sh-p2wpkh">P2WPKH nested in P2SH (3…)</option>
+                <option value="p2wpkh" selected>P2WPKH (bc1q…)</option>
+                <option value="p2tr">P2TR Taproot (bc1p…)</option>
+              </select></label>
+          </div>
+        </div>
+
+        <div class="pathline"><span class="lbl">PATH</span><button type="button" class="tip" data-tip="path" aria-label="What does this mean?">?</button><span id="pathOut">m/84'/0'/0'/0</span></div>
+        <div class="inputwarn bad hidden" id="pathWarn"><p></p></div>
+
+        <div id="accountBlock">
+          <h3 class="sec">Account level<button type="button" class="tip" data-tip="accountlevel" aria-label="What does this mean?">?</button> <span class="p" id="accountPathLbl"></span></h3>
+          <p class="help" style="margin-bottom:0.8rem">The account extended keys can be imported into most wallets that follow this standard. Share only the public one.</p>
+          <div class="two">
+            <div class="field"><label class="field-label">Account extended private key<button type="button" class="tip" data-tip="xprv" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span></label>
+              <div class="term secret" id="acctXprv"><button class="copy" data-copy="acctXprv" type="button">copy</button></div></div>
+            <div class="field"><label class="field-label">Account extended public key<button type="button" class="tip" data-tip="xpub" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span></label>
+              <div class="term" id="acctXpub"><button class="copy" data-copy="acctXpub" type="button">copy</button></div></div>
+          </div>
+          <label class="check hidden" id="slipWrap" style="margin-top:0.2rem"><input type="checkbox" id="slip132"> Use SLIP-132 prefixes (<span id="slipNames">ypub / zpub</span>) for the account keys<button type="button" class="tip" data-tip="slip132" aria-label="What does this mean?">?</button></label>
+
+          <h3 class="sec">Output descriptors<button type="button" class="tip" data-tip="descriptor" aria-label="What does this mean?">?</button></h3>
+          <p class="help" style="margin-bottom:0.8rem">Paste into Bitcoin Core (<code>importdescriptors</code>), Sparrow or any descriptor wallet to watch this account. Public keys only, checksum included.</p>
+          <div class="field"><label class="field-label">Receive <span class="badge pub-badge" data-tip="public">public</span></label>
+            <div class="term" id="descRecv"><button class="copy" data-copy="descRecv" type="button">copy</button></div></div>
+          <div class="field"><label class="field-label">Change <span class="badge pub-badge" data-tip="public">public</span></label>
+            <div class="term" id="descChange"><button class="copy" data-copy="descChange" type="button">copy</button></div></div>
+        </div>
+
+        <h3 class="sec">Keys at the derivation path<button type="button" class="tip" data-tip="pathkeys" aria-label="What does this mean?">?</button> <span class="p" id="pathLbl2"></span></h3>
+        <div class="two">
+          <div class="field"><label class="field-label">BIP32 extended private key<button type="button" class="tip" data-tip="xprv" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span></label>
+            <div class="term secret" id="pathXprv"><button class="copy" data-copy="pathXprv" type="button">copy</button></div></div>
+          <div class="field"><label class="field-label">BIP32 extended public key<button type="button" class="tip" data-tip="xpub" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span></label>
+            <div class="term" id="pathXpub"><button class="copy" data-copy="pathXpub" type="button">copy</button></div></div>
+        </div>
+        <div class="field" id="customDescWrap"><label class="field-label">Descriptor at this path<button type="button" class="tip" data-tip="descriptor" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span></label>
+          <div class="term" id="descPath"><button class="copy" data-copy="descPath" type="button">copy</button></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 04 Addresses ===================== -->
+  <section class="console" id="addresses-card" aria-label="Derived addresses">
+    <div class="console-bar"><span class="n">5</span> Derived addresses<button type="button" class="tip" data-tip="addresses" aria-label="What does this mean?">?</button> <span class="right" id="addrTypeNote"></span></div>
+    <div class="console-body">
+      <p class="console-intro">Children of the path above, derived from the extended key. Click any address or key to copy it.</p>
+      <div class="toolbar">
+        <div class="cols" role="group" aria-label="Columns">
+          <button type="button" class="chip" data-col="path" aria-pressed="true">Path</button>
+          <button type="button" class="chip" data-col="addr" aria-pressed="true">Address</button>
+          <button type="button" class="chip" data-col="pub" aria-pressed="true">Public key</button>
+          <button type="button" class="chip" data-col="priv" aria-pressed="true">Private key</button>
+        </div>
+        <label class="check"><input type="checkbox" id="hardened"> Hardened addresses<button type="button" class="tip" data-tip="hardened" aria-label="What does this mean?">?</button></label>
+        <span class="spacer"></span>
+        <button type="button" class="btn small" id="csvBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 19h16"/></svg>Download CSV</button>
+        <button type="button" class="btn small" id="csvCopyBtn">Copy CSV</button>
+      </div>
+      <div class="tablewrap" id="tableWrap">
+        <table id="addrTable">
+          <thead><tr><th class="col-path">Path<button type="button" class="tip" data-tip="pathcol" aria-label="What does this mean?">?</button></th><th class="col-addr">Address<button type="button" class="tip" data-tip="address" aria-label="What does this mean?">?</button></th><th class="col-pub">Public key<button type="button" class="tip" data-tip="pubkey" aria-label="What does this mean?">?</button></th><th class="col-priv">Private key (WIF)<button type="button" class="tip" data-tip="wif" aria-label="What does this mean?">?</button></th></tr></thead>
+          <tbody id="addrBody"></tbody>
+        </table>
+        <div class="none" id="addrNone">Nothing to show yet.</div>
+      </div>
+      <div class="more">
+        <label class="narrow"><span class="small-label">Start index<button type="button" class="tip" data-tip="startindex" aria-label="What does this mean?">?</button></span><input type="number" id="startIdx" class="mono" value="0" min="0" step="1"></label>
+        <label class="narrow"><span class="small-label">Rows<button type="button" class="tip" data-tip="rows" aria-label="What does this mean?">?</button></span><input type="number" id="rowCount" class="mono" value="20" min="1" max="1000" step="1"></label>
+        <button type="button" class="btn" id="moreBtn">Show more rows</button>
+        <span class="meter" id="addrStatus"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== info ===================== -->
+  <section class="section" id="about">
+    <h2>KeyPath definitions</h2>
+    <p class="intro">Every term used on this page, in plain language. The same explanations appear when you click any <span class="tip static" aria-hidden="true">?</span> mark above. The <strong>?</strong> button at the top right turns those marks off if you no longer need them.</p>
+    <details class="adv defs">
+      <summary>Show all definitions</summary>
+      <div class="adv-body"><dl class="deflist" id="defList"></dl></div>
+    </details>
+  </section>
+
+  <section class="section" id="entropy-notes">
+    <h2>About entropy</h2>
+    <p class="intro">Notes for the entropy panel, carried over from the original tool because they matter.</p>
+    <div class="limits">
+      <div class="limit"><span class="lm-tag">Checksum</span><p>Entropy values should not include the BIP39 checksum. <strong>It is added automatically.</strong></p></div>
+      <div class="limit warn"><span class="lm-tag">Source</span><p>Entropy must come from a strong source of randomness: flipping a fair coin, rolling a fair dice, noise measurements. <strong>Not</strong> phrases from books, song lyrics, your birthday or street address, or keyboard mashing. Chances are overwhelming it is not random enough.</p></div>
+      <div class="limit"><span class="lm-tag">Storage</span><p>Do not store entropy. Keeping a deck of cards in a specific shuffled order is unreliable compared to storing the phrase. <strong>Store the mnemonic generated from the entropy instead.</strong></p></div>
+      <div class="limit"><span class="lm-tag">Generate</span><p>The Generate button uses the browser's cryptographically secure random number generator, which can generally be trusted more than your own intuition about randomness.</p></div>
+      <div class="limit"><span class="lm-tag">Cards</span><p>Card entropy assumes cards are replaced after each draw, not drawn one after another. A full deck with replacement gives 232 bits of entropy (21 words); without replacement, 225 bits.</p></div>
+      <div class="limit"><span class="lm-tag">Time to crack</span><p>The estimate assumes an attacker who knows your method and tries every possibility at ten billion guesses per second. It reflects the number of bits, not whether your dice were fair.</p></div>
+    </div>
+  </section>
+
+  <section class="section" id="offline">
+    <h2>Security</h2>
+    <p class="intro">What this file does to protect you, and what only you can do.</p>
+    <div class="limits">
+      <div class="limit"><span class="lm-tag">No network</span><p>One self-contained file with no external scripts, fonts or images. A Content Security Policy baked into the page blocks every outbound connection and refuses to run any script other than the two it was built with, so an injected script cannot run. <strong>Nothing you type leaves this page.</strong></p></div>
+      <div class="limit"><span class="lm-tag">No storage</span><p>Your phrase, seed and keys are never written to disk. The only things remembered between visits are the theme and the tooltip setting. Fields are wiped when you leave the page, and private values start blurred and re-blur after five minutes without activity.</p></div>
+      <div class="limit"><span class="lm-tag">Clipboard</span><p>Copying a secret puts it on your system clipboard, which some clipboard managers and phone-to-computer sync features upload. KeyPath clears its copy from the clipboard after 60 seconds. Copy secrets only when you must, and never on a machine that syncs its clipboard.</p></div>
+      <div class="limit"><span class="lm-tag">Randomness</span><p>Generate uses the browser's cryptographically secure random number generator. Cryptography comes from the audited noble and scure libraries; address derivation, Shamir sharing and Seed QR were checked against the official test vectors of each standard.</p></div>
+      <div class="limit warn"><span class="lm-tag">Verify</span><p>Only trust a copy of this file whose SHA-256 hash matches the one published with the release. On a Mac or Linux: <code>shasum -a 256 index.html</code>. On Windows PowerShell: <code>Get-FileHash index.html</code>. A page cannot vouch for itself; the hash is how you know it has not been tampered with.</p></div>
+      <div class="limit warn"><span class="lm-tag">Your part</span><p>For real funds: save this file, move it to a computer that is <strong>disconnected from the internet</strong>, and open it in a fresh browser profile with no extensions. Extensions can read every page, including this one. Do not print, screenshot or photograph secrets, and close the tab when you are done. Nothing here protects you from malware already on the computer.</p></div>
+    </div>
+  </section>
+
+  <footer class="site">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <div class="fb-name"><span class="op">KeyPath</span></div>
+        <p>A modern re-imagining of Ian Coleman's BIP39 tool, with Taproot. Nothing you type leaves this page.</p>
+      </div>
+      <div class="foot-links">
+        <a href="https://github.com/iancoleman/bip39" target="_blank" rel="noopener noreferrer">Original tool</a>
+        <a href="https://paulmillr.com/noble/" target="_blank" rel="noopener noreferrer">noble cryptography</a>
+        <a href="https://github.com/bitcoin/bips" target="_blank" rel="noopener noreferrer">The BIPs</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span class="credit">MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
+      <span>Provided "as is", without warranty. Verify addresses in a second tool before sending significant funds.</span>
+    </div>
+  </footer>
+</div>
+<div class="modal" id="qrModal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="qrTitle">
+    <div class="modal-head"><h3 id="qrTitle">Seed QR</h3><button type="button" class="barbtn" data-close>Close</button></div>
+    <p class="modal-note">Scan with SeedSigner, Krux, Sparrow, Passport or any wallet that reads SeedQR. <strong>This code is your entire phrase.</strong> Anyone who photographs it owns your coins.</p>
+    <div class="mode-toggle" role="group" aria-label="SeedQR format" style="margin-bottom:1rem">
+      <button class="mode-btn" id="qrStd" type="button" aria-pressed="true">Standard SeedQR</button>
+      <button class="mode-btn" id="qrCompact" type="button" aria-pressed="false">Compact SeedQR</button>
+    </div>
+    <div class="qr-stage">
+      <div class="qr-wrap" id="qrWrap"></div>
+      <button type="button" class="btn primary qr-reveal" id="qrReveal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg>Reveal QR</button>
+    </div>
+    <p class="modal-foot" id="qrFoot"></p>
+  </div>
+</div>
+<div class="tipbox" id="tipBox" role="tooltip" hidden></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
