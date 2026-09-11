@@ -2,11 +2,13 @@
 
 **BIP39 seed phrase generator with Shamir backup and Taproot support, in one offline HTML file.**
 
+**Use it online:** [seqrets.github.io/Keypath](https://seqrets.github.io/Keypath/) (for real funds, download the file and use it offline).
+
 KeyPath is a modern re-imagining of Ian Coleman's [BIP39 tool](https://github.com/iancoleman/bip39). Download `dist/index.html`, move it to an offline computer, open it in a browser, and you have everything needed to create, inspect, back up and verify a Bitcoin recovery phrase.
 
 ## Download and verify
 
-1. Download `dist/index.html` from the latest release (or this repository).
+1. Download `dist/index.html` from this repository (the same file is what the hosted page serves).
 2. Check its SHA-256 against `dist/index.html.sha256`:
    - macOS / Linux: `shasum -a 256 index.html`
    - Windows PowerShell: `Get-FileHash index.html`
