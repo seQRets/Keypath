@@ -410,3 +410,10 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
 .dl-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
 .dl-actions .btn { text-decoration: none; }
 .dl-note { font-size: 0.86rem; color: var(--ink-soft); max-width: 78ch; }
+
+/* ---------- fingerprint under the phrase and in the QR modal ---------- */
+.fp-line { gap: 0.6rem; }
+.fp-line .fp-key { font-family: var(--sans); font-size: 0.82rem; font-weight: 600; color: var(--ink-soft); }
+.fp-line .fp-val { font-family: var(--mono); font-size: 0.95rem; font-weight: 600; letter-spacing: 0.06em; color: var(--accent-ink); background: var(--accent-wash); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); border-radius: 4px; padding: 0.1rem 0.5rem; cursor: copy; }
+.modal-fp { margin-top: 0.9rem; text-align: center; font-size: 0.86rem; color: var(--ink-soft); }
+.modal-fp b { font-family: var(--mono); font-size: 1rem; letter-spacing: 0.06em; color: var(--ink); margin-left: 0.4rem; }

@@ -98,6 +98,7 @@
         <label class="field-label" for="phrase">BIP39 mnemonic<button type="button" class="tip" data-tip="mnemonic" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span></label>
         <textarea id="phrase" class="mono secret" rows="3" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="Click Generate, or type or paste your own phrase here…"></textarea>
         <div class="meter" id="phraseStatus"></div>
+        <div class="meter fp-line hidden" id="phraseFp"><span class="fp-key">Master fingerprint<button type="button" class="tip" data-tip="fingerprint" aria-label="What does this mean?">?</button></span><span class="fp-val" id="phraseFpVal"></span><span class="meter-note" id="phraseFpNote"></span></div>
         <details class="adv phrase-list hidden" id="phraseList">
           <summary id="phraseListSummary">Show as a numbered list</summary>
           <div class="adv-body"><ol class="wordlist secret" id="phraseOl"></ol></div>
@@ -153,7 +154,7 @@
 
   <!-- ===================== 03 Seed & root ===================== -->
   <section class="console" id="seed-card" aria-label="Seed and master key">
-    <div class="console-bar"><span class="n">3</span> Seed &amp; master key<button type="button" class="tip" data-tip="seed" aria-label="What does this mean?">?</button><span class="right" id="fpBar"></span></div>
+    <div class="console-bar"><span class="n">3</span> Seed &amp; master key<button type="button" class="tip" data-tip="seed" aria-label="What does this mean?">?</button></div>
     <div class="console-body">
       <p class="console-intro">The phrase and passphrase are stretched into a 512-bit seed, and the seed becomes the BIP32 master key at the root of the tree.</p>
       <div class="fp-row">
@@ -399,6 +400,7 @@
       <div class="qr-wrap" id="qrWrap"></div>
       <button type="button" class="btn primary qr-reveal" id="qrReveal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg>Reveal QR</button>
     </div>
+    <p class="modal-fp" id="qrFp"></p>
     <p class="modal-foot" id="qrFoot"></p>
   </div>
 </div>

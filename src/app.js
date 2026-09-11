@@ -160,6 +160,7 @@ $('themeBtn').addEventListener('click', () => {
 function setHidden(on) { $('hideSecrets').setAttribute('aria-pressed', on); document.documentElement.classList.toggle('hide-secrets', on); $('hideSecrets').querySelector('span').textContent = on ? 'Reveal private info' : 'Hide private info'; }
 $('hideSecrets').addEventListener('click', () => setHidden($('hideSecrets').getAttribute('aria-pressed') !== 'true'));
 $('fpValue').addEventListener('click', async () => { if (S.root && (await copyText(fpHex(S.root)))) toast('Fingerprint copied'); });
+$('phraseFpVal').addEventListener('click', async () => { if (S.root && (await copyText(fpHex(S.root)))) toast('Fingerprint copied'); });
 $('clearBtn').addEventListener('click', () => {
   for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR']) $(id).value = '';
   $('entropyLen').value = 'raw'; $('entropyType').value = 'auto'; entropyLenTouched = false; $('entropyWeak').classList.add('hidden'); $('startIdx').value = '0';
@@ -353,9 +354,13 @@ function rebuildRoot() {
 }
 function renderRootInfo() {
   const el = $('rootInfo');
-  $('fpValue').textContent = S.root ? fpHex(S.root) : '—'; $('fpBar').textContent = S.root ? 'fingerprint ' + fpHex(S.root) : '';
+  $('fpValue').textContent = S.root ? fpHex(S.root) : '—';
+  // Under the phrase: the fingerprint of the phrase (plus passphrase) currently entered.
+  const showFp = !!(S.root && S.phraseValid && !S.rootFromKey);
+  $('phraseFp').classList.toggle('hidden', !showFp);
+  if (showFp) { $('phraseFpVal').textContent = fpHex(S.root); $('phraseFpNote').textContent = $('passphrase').value ? 'with the passphrase entered below. Check it matches your wallet.' : 'Check it matches what your wallet shows.'; }
   if (!S.root) { el.innerHTML = ''; return; }
-  const rows = [['Master fingerprint', fpHex(S.root)], ['Key material', S.rootPublicOnly ? 'public only: addresses and public keys, no private keys, no hardened paths' : 'private (full derivation)']];
+  const rows = [['Key material', S.rootPublicOnly ? 'public only: addresses and public keys, no private keys, no hardened paths' : 'private (full derivation)']];
   if (S.rootFromKey) rows.push(['Depth', S.root.depth + (S.root.depth ? ' (not a master key: paths below are relative to it)' : '')]);
   el.innerHTML = rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('');
 }
@@ -588,6 +593,7 @@ function seedQrRender() {
   qr.make();
   $('qrWrap').innerHTML = qr.createSvgTag({ cellSize: 4, margin: 2, scalable: true });
   $('qrFoot').textContent = qrFormat === 'standard' ? `${S.phraseWords.length} words as ${S.phraseWords.length * 4} digits · version ${qr.getModuleCount()}×${qr.getModuleCount()}` : `${S.phraseWords.length * 32 / 3 / 8} raw entropy bytes · version ${qr.getModuleCount()}×${qr.getModuleCount()}`;
+  $('qrFp').innerHTML = S.root ? `Master fingerprint${$('passphrase').value ? ' (with your passphrase)' : ''}<b>${esc(fpHex(S.root))}</b>` : '';
   $('qrStd').setAttribute('aria-pressed', qrFormat === 'standard'); $('qrCompact').setAttribute('aria-pressed', qrFormat !== 'standard');
 }
 $('seedQrBtn').addEventListener('click', seedQrOpen);

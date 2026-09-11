@@ -7,7 +7,7 @@
 <meta name="description" content="KeyPath: generate or inspect a BIP39 recovery phrase, back it up with SLIP-39 Shamir shares, and derive BIP32 keys and Bitcoin addresses, legacy through Taproot. Single file, runs entirely offline in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-WnVOIf2fNHjsuV7KfLCTegPcj5Rd6f9/bH5z+KLpTo4=' 'sha256-duMQOoVn1zpX2nh8bjBh16u0EDe+8ikHSxsQ0Lo6rhs='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-WnVOIf2fNHjsuV7KfLCTegPcj5Rd6f9/bH5z+KLpTo4=' 'sha256-1WGz1TIPObiNRsI3lizkPYrPE5A9gZpzNhhAXvBGYrw='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <script>try{if(localStorage.getItem("keypath-tips")==="off")document.documentElement.classList.add("no-tips");}catch(e){}try{var t=localStorage.getItem("keypath-theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}else if(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches){document.documentElement.setAttribute("data-theme","dark");}}catch(e){}</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23d2761a'/><g fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='10' cy='16' r='5'/><path d='M15 16h5'/><path d='M20 16l6-5.5M20 16l6 5.5'/></g><circle cx='27' cy='9.5' r='1.8' fill='%23fff'/><circle cx='27' cy='22.5' r='1.8' fill='%23fff'/></svg>">
 <style>
@@ -424,6 +424,13 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
 .dl-actions .btn { text-decoration: none; }
 .dl-note { font-size: 0.86rem; color: var(--ink-soft); max-width: 78ch; }
 
+/* ---------- fingerprint under the phrase and in the QR modal ---------- */
+.fp-line { gap: 0.6rem; }
+.fp-line .fp-key { font-family: var(--sans); font-size: 0.82rem; font-weight: 600; color: var(--ink-soft); }
+.fp-line .fp-val { font-family: var(--mono); font-size: 0.95rem; font-weight: 600; letter-spacing: 0.06em; color: var(--accent-ink); background: var(--accent-wash); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); border-radius: 4px; padding: 0.1rem 0.5rem; cursor: copy; }
+.modal-fp { margin-top: 0.9rem; text-align: center; font-size: 0.86rem; color: var(--ink-soft); }
+.modal-fp b { font-family: var(--mono); font-size: 1rem; letter-spacing: 0.06em; color: var(--ink); margin-left: 0.4rem; }
+
 </style>
 </head>
 <body>
@@ -527,6 +534,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
         <label class="field-label" for="phrase">BIP39 mnemonic<button type="button" class="tip" data-tip="mnemonic" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span></label>
         <textarea id="phrase" class="mono secret" rows="3" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="Click Generate, or type or paste your own phrase here…"></textarea>
         <div class="meter" id="phraseStatus"></div>
+        <div class="meter fp-line hidden" id="phraseFp"><span class="fp-key">Master fingerprint<button type="button" class="tip" data-tip="fingerprint" aria-label="What does this mean?">?</button></span><span class="fp-val" id="phraseFpVal"></span><span class="meter-note" id="phraseFpNote"></span></div>
         <details class="adv phrase-list hidden" id="phraseList">
           <summary id="phraseListSummary">Show as a numbered list</summary>
           <div class="adv-body"><ol class="wordlist secret" id="phraseOl"></ol></div>
@@ -582,7 +590,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
 
   <!-- ===================== 03 Seed & root ===================== -->
   <section class="console" id="seed-card" aria-label="Seed and master key">
-    <div class="console-bar"><span class="n">3</span> Seed &amp; master key<button type="button" class="tip" data-tip="seed" aria-label="What does this mean?">?</button><span class="right" id="fpBar"></span></div>
+    <div class="console-bar"><span class="n">3</span> Seed &amp; master key<button type="button" class="tip" data-tip="seed" aria-label="What does this mean?">?</button></div>
     <div class="console-body">
       <p class="console-intro">The phrase and passphrase are stretched into a 512-bit seed, and the seed becomes the BIP32 master key at the root of the tree.</p>
       <div class="fp-row">
@@ -791,7 +799,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest/download/SHA256SUMS.txt" rel="noopener noreferrer">SHA256SUMS.txt</a>
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest" target="_blank" rel="noopener noreferrer">Release notes</a>
       </div>
-      <p class="dl-note">This page is KeyPath v1.2.1. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
+      <p class="dl-note">This page is KeyPath v1.2.2. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
     </div>
   </section>
 
@@ -810,7 +818,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
       </div>
     </div>
     <div class="foot-bottom">
-      <span class="credit">KeyPath v1.2.1 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
+      <span class="credit">KeyPath v1.2.2 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
       <span>Provided "as is", without warranty. Verify addresses in a second tool before sending significant funds.</span>
     </div>
   </footer>
@@ -828,6 +836,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
       <div class="qr-wrap" id="qrWrap"></div>
       <button type="button" class="btn primary qr-reveal" id="qrReveal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg>Reveal QR</button>
     </div>
+    <p class="modal-fp" id="qrFp"></p>
     <p class="modal-foot" id="qrFoot"></p>
   </div>
 </div>
@@ -21558,6 +21567,7 @@ $('themeBtn').addEventListener('click', () => {
 function setHidden(on) { $('hideSecrets').setAttribute('aria-pressed', on); document.documentElement.classList.toggle('hide-secrets', on); $('hideSecrets').querySelector('span').textContent = on ? 'Reveal private info' : 'Hide private info'; }
 $('hideSecrets').addEventListener('click', () => setHidden($('hideSecrets').getAttribute('aria-pressed') !== 'true'));
 $('fpValue').addEventListener('click', async () => { if (S.root && (await copyText(fpHex(S.root)))) toast('Fingerprint copied'); });
+$('phraseFpVal').addEventListener('click', async () => { if (S.root && (await copyText(fpHex(S.root)))) toast('Fingerprint copied'); });
 $('clearBtn').addEventListener('click', () => {
   for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR']) $(id).value = '';
   $('entropyLen').value = 'raw'; $('entropyType').value = 'auto'; entropyLenTouched = false; $('entropyWeak').classList.add('hidden'); $('startIdx').value = '0';
@@ -21751,9 +21761,13 @@ function rebuildRoot() {
 }
 function renderRootInfo() {
   const el = $('rootInfo');
-  $('fpValue').textContent = S.root ? fpHex(S.root) : '—'; $('fpBar').textContent = S.root ? 'fingerprint ' + fpHex(S.root) : '';
+  $('fpValue').textContent = S.root ? fpHex(S.root) : '—';
+  // Under the phrase: the fingerprint of the phrase (plus passphrase) currently entered.
+  const showFp = !!(S.root && S.phraseValid && !S.rootFromKey);
+  $('phraseFp').classList.toggle('hidden', !showFp);
+  if (showFp) { $('phraseFpVal').textContent = fpHex(S.root); $('phraseFpNote').textContent = $('passphrase').value ? 'with the passphrase entered below. Check it matches your wallet.' : 'Check it matches what your wallet shows.'; }
   if (!S.root) { el.innerHTML = ''; return; }
-  const rows = [['Master fingerprint', fpHex(S.root)], ['Key material', S.rootPublicOnly ? 'public only: addresses and public keys, no private keys, no hardened paths' : 'private (full derivation)']];
+  const rows = [['Key material', S.rootPublicOnly ? 'public only: addresses and public keys, no private keys, no hardened paths' : 'private (full derivation)']];
   if (S.rootFromKey) rows.push(['Depth', S.root.depth + (S.root.depth ? ' (not a master key: paths below are relative to it)' : '')]);
   el.innerHTML = rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('');
 }
@@ -21986,6 +22000,7 @@ function seedQrRender() {
   qr.make();
   $('qrWrap').innerHTML = qr.createSvgTag({ cellSize: 4, margin: 2, scalable: true });
   $('qrFoot').textContent = qrFormat === 'standard' ? `${S.phraseWords.length} words as ${S.phraseWords.length * 4} digits · version ${qr.getModuleCount()}×${qr.getModuleCount()}` : `${S.phraseWords.length * 32 / 3 / 8} raw entropy bytes · version ${qr.getModuleCount()}×${qr.getModuleCount()}`;
+  $('qrFp').innerHTML = S.root ? `Master fingerprint${$('passphrase').value ? ' (with your passphrase)' : ''}<b>${esc(fpHex(S.root))}</b>` : '';
   $('qrStd').setAttribute('aria-pressed', qrFormat === 'standard'); $('qrCompact').setAttribute('aria-pressed', qrFormat !== 'standard');
 }
 $('seedQrBtn').addEventListener('click', seedQrOpen);
