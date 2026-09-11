@@ -157,7 +157,8 @@ $('themeBtn').addEventListener('click', () => {
   document.documentElement.setAttribute('data-theme', cur);
   try { localStorage.setItem('keypath-theme', cur); } catch (e) {}
 });
-$('hideSecrets').addEventListener('click', () => { const on = $('hideSecrets').getAttribute('aria-pressed') !== 'true'; $('hideSecrets').setAttribute('aria-pressed', on); document.documentElement.classList.toggle('hide-secrets', on); $('hideSecrets').querySelector('span').textContent = on ? 'Reveal private info' : 'Hide private info'; });
+function setHidden(on) { $('hideSecrets').setAttribute('aria-pressed', on); document.documentElement.classList.toggle('hide-secrets', on); $('hideSecrets').querySelector('span').textContent = on ? 'Reveal private info' : 'Hide private info'; }
+$('hideSecrets').addEventListener('click', () => setHidden($('hideSecrets').getAttribute('aria-pressed') !== 'true'));
 $('fpValue').addEventListener('click', async () => { if (S.root && (await copyText(fpHex(S.root)))) toast('Fingerprint copied'); });
 $('clearBtn').addEventListener('click', () => {
   for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR']) $(id).value = '';
@@ -269,6 +270,7 @@ function setEntropyFromPhrase() {
 }
 $('showEntropy').addEventListener('click', () => { const on = $('showEntropy').getAttribute('aria-pressed') !== 'true'; $('showEntropy').setAttribute('aria-pressed', on); $('entropyPanel').classList.toggle('hidden', !on); $('showEntropy').textContent = on ? 'Hide entropy details' : 'Show entropy details'; });
 $('entropy').addEventListener('input', debounce(setMnemonicFromEntropy, 200));
+$('entropy').addEventListener('change', () => { if (S.phraseValid) setHidden(true); });
 $('entropyType').addEventListener('change', setMnemonicFromEntropy);
 let entropyLenTouched = false; // once the user picks a mode, stop choosing for them
 $('entropyLen').addEventListener('change', () => { entropyLenTouched = true; setMnemonicFromEntropy(); });
@@ -295,6 +297,7 @@ $('generateBtn').addEventListener('click', () => {
   $('entropy').value = hex.encode(data); $('entropyLen').value = 'raw'; $('entropyWeak').classList.add('hidden');
   renderEntropyDetails(entropyFromString($('entropy').value, $('entropyType').value === 'auto' ? undefined : $('entropyType').value), data);
   onPhraseInput(true);
+  setHidden(true); // a freshly generated phrase is private from the first moment
 });
 $('phrase').addEventListener('input', debounce(() => onPhraseInput(false), 220));
 $('passphrase').addEventListener('input', debounce(() => { S.rootFromKey = false; recompute(); }, 250));
@@ -520,7 +523,7 @@ function shamirInit() {
   $('shMake').addEventListener('click', shamirMake);
   $('shInput').addEventListener('input', debounce(shamirRecover, 250));
   $('shPassR').addEventListener('input', debounce(shamirRecover, 250));
-  $('shUse').addEventListener('click', () => { if (!S.shRecovered) return; $('phrase').value = S.shRecovered.phrase; onPhraseInput(false); $('phrase-card').scrollIntoView({ behavior: 'smooth' }); toast('Phrase loaded'); });
+  $('shUse').addEventListener('click', () => { if (!S.shRecovered) return; $('phrase').value = S.shRecovered.phrase; onPhraseInput(false); setHidden(true); $('phrase-card').scrollIntoView({ behavior: 'smooth' }); toast('Phrase loaded'); });
   document.addEventListener('click', async (e) => { const b = e.target.closest('.share .copy'); if (!b) return; if (document.documentElement.classList.contains('hide-secrets')) return toast('Private info is hidden'); if (await copyText(b.dataset.text, true)) { b.classList.add('done'); b.textContent = 'copied'; setTimeout(() => { b.classList.remove('done'); b.textContent = 'copy'; }, 1100); } });
   shamirPhraseChanged();
 }
@@ -644,7 +647,7 @@ addEventListener('pagehide', wipeAll);
 let idleTimer;
 function idleReset() {
   clearTimeout(idleTimer);
-  idleTimer = setTimeout(() => { if (!document.documentElement.classList.contains('hide-secrets')) { $('hideSecrets').click(); toast('Private info hidden after 5 minutes idle'); } }, 5 * 60 * 1000);
+  idleTimer = setTimeout(() => { if (!document.documentElement.classList.contains('hide-secrets')) { setHidden(true); toast('Private info hidden after 5 minutes idle'); } }, 5 * 60 * 1000);
 }
 for (const ev of ['pointerdown', 'keydown', 'scroll', 'input']) addEventListener(ev, idleReset, { passive: true });
 idleReset();

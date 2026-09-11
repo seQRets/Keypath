@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.2.1 — 2026-09-11
+
+- Private values are visible when the page opens. They are blurred automatically the moment a phrase is generated (Generate button, dice or other entropy, or a Shamir recovery loaded into the page), and after five minutes idle. Reveal and Hide work as before.
+
 ## v1.2.0 — 2026-09-11
 
 **Dice are hashed the hardware-wallet way by default.**
