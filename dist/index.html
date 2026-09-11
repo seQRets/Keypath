@@ -7,7 +7,7 @@
 <meta name="description" content="KeyPath: generate or inspect a BIP39 recovery phrase, back it up with SLIP-39 Shamir shares, and derive BIP32 keys and Bitcoin addresses, legacy through Taproot. Single file, runs entirely offline in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-WnVOIf2fNHjsuV7KfLCTegPcj5Rd6f9/bH5z+KLpTo4=' 'sha256-lobcCYyWaEeepS7xxJXWwbfznFfJYZw3bH8P7a6b+Fo='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-WnVOIf2fNHjsuV7KfLCTegPcj5Rd6f9/bH5z+KLpTo4=' 'sha256-tKrRjUYzy5XIxPJAnJCJtIqM5PeT7+c3zpee134Jr4k='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <script>try{if(localStorage.getItem("keypath-tips")==="off")document.documentElement.classList.add("no-tips");}catch(e){}try{var t=localStorage.getItem("keypath-theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}else if(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches){document.documentElement.setAttribute("data-theme","dark");}}catch(e){}</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23d2761a'/><g fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='10' cy='16' r='5'/><path d='M15 16h5'/><path d='M20 16l6-5.5M20 16l6 5.5'/></g><circle cx='27' cy='9.5' r='1.8' fill='%23fff'/><circle cx='27' cy='22.5' r='1.8' fill='%23fff'/></svg>">
 <style>
@@ -138,6 +138,9 @@ h1 .sub { display: block; font-family: var(--sans); font-size: 1.15rem; font-wei
 .warnstrip { text-align: center; }
 .warnstrip p { font-size: 0.94rem; color: var(--ink-soft); max-width: 70ch; margin: 0 auto; }
 .warnstrip strong { color: var(--danger); }
+.warnstrip p + p { margin-top: 0.5rem; }
+.linkbtn { font-family: var(--sans); font-size: inherit; font-weight: 600; color: var(--danger); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.linkbtn:hover { color: var(--ink); }
 .inputwarn { margin-top: 0.9rem; background: var(--accent-wash); border: 1px solid color-mix(in srgb, var(--accent) 32%, transparent); border-radius: var(--radius-sm); padding: 0.85rem 1rem; }
 .inputwarn p { font-size: 0.9rem; color: var(--ink-soft); max-width: 66ch; }
 .inputwarn p + p { margin-top: 0.5rem; }
@@ -489,7 +492,8 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
   </header>
 
   <aside class="warnstrip" aria-label="Security warning">
-    <p><strong>Everything on this page controls real money.</strong> Anyone who sees your recovery phrase, seed, root key or private keys can take your coins. Never paste them into a website, chat, or "support" form, and never share them with anyone offering help. For real funds, save this file and open it on an offline computer. Whenever a phrase is generated, its private values are blurred automatically; use the Reveal private info button to see them. You can still type into a blurred field, such as the passphrase, without it ever showing.</p>
+    <p><strong>Everything on this page controls real money.</strong> Anyone who sees your phrase or keys can take your coins. <button type="button" class="linkbtn" id="warnMore" aria-expanded="false" aria-controls="warnDetail">Read more</button></p>
+    <p id="warnDetail" hidden>Never paste them into a website, chat or "support" form, and never share them with anyone offering help. For real funds, save this file and open it on an offline computer. Whenever a phrase is generated, its private values are blurred automatically; use Reveal private info to see them. You can still type into a blurred field, such as the passphrase, without it ever showing.</p>
   </aside>
   <div class="netstatus" id="netStatus" hidden><span class="dot"></span><span id="netStatusText"></span></div>
   <div class="inputwarn bad hidden" id="rngWarn"><p><strong>No secure random source.</strong> This browser does not expose <code>crypto.getRandomValues</code>, so the Generate button is disabled. Type your own phrase or supply entropy instead.</p></div>
@@ -828,7 +832,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest/download/SHA256SUMS.txt" rel="noopener noreferrer">SHA256SUMS.txt</a>
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest" target="_blank" rel="noopener noreferrer">Release notes</a>
       </div>
-      <p class="dl-note">This page is KeyPath v1.3.1. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
+      <p class="dl-note">This page is KeyPath v1.3.2. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
     </div>
   </section>
 
@@ -847,7 +851,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
       </div>
     </div>
     <div class="foot-bottom">
-      <span class="credit">KeyPath v1.3.1 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
+      <span class="credit">KeyPath v1.3.2 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
       <span>Provided "as is", without warranty. Verify addresses in a second tool before sending significant funds.</span>
     </div>
   </footer>
@@ -21619,6 +21623,7 @@ $('clearBtn').addEventListener('click', () => {
   S.rootFromKey = false; $('rootOut').textContent = '';
   onPhraseInput(false); shamirClear(); shamirRecover(); toast('Cleared');
 });
+$('warnMore').addEventListener('click', () => { const open = $('warnDetail').hidden; $('warnDetail').hidden = !open; $('warnMore').setAttribute('aria-expanded', open); $('warnMore').textContent = open ? 'Show less' : 'Read more'; });
 $('network').addEventListener('change', () => { S.net = $('network').value; S.coin = net().coin; $('coin').value = S.coin; rebuildRoot(); });
 document.addEventListener('click', async (e) => {
   const btn = e.target.closest('.copy'); if (!btn) return;

@@ -37,7 +37,8 @@
   </header>
 
   <aside class="warnstrip" aria-label="Security warning">
-    <p><strong>Everything on this page controls real money.</strong> Anyone who sees your recovery phrase, seed, root key or private keys can take your coins. Never paste them into a website, chat, or "support" form, and never share them with anyone offering help. For real funds, save this file and open it on an offline computer. Whenever a phrase is generated, its private values are blurred automatically; use the Reveal private info button to see them. You can still type into a blurred field, such as the passphrase, without it ever showing.</p>
+    <p><strong>Everything on this page controls real money.</strong> Anyone who sees your phrase or keys can take your coins. <button type="button" class="linkbtn" id="warnMore" aria-expanded="false" aria-controls="warnDetail">Read more</button></p>
+    <p id="warnDetail" hidden>Never paste them into a website, chat or "support" form, and never share them with anyone offering help. For real funds, save this file and open it on an offline computer. Whenever a phrase is generated, its private values are blurred automatically; use Reveal private info to see them. You can still type into a blurred field, such as the passphrase, without it ever showing.</p>
   </aside>
   <div class="netstatus" id="netStatus" hidden><span class="dot"></span><span id="netStatusText"></span></div>
   <div class="inputwarn bad hidden" id="rngWarn"><p><strong>No secure random source.</strong> This browser does not expose <code>crypto.getRandomValues</code>, so the Generate button is disabled. Type your own phrase or supply entropy instead.</p></div>

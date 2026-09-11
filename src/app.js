@@ -182,6 +182,7 @@ $('clearBtn').addEventListener('click', () => {
   S.rootFromKey = false; $('rootOut').textContent = '';
   onPhraseInput(false); shamirClear(); shamirRecover(); toast('Cleared');
 });
+$('warnMore').addEventListener('click', () => { const open = $('warnDetail').hidden; $('warnDetail').hidden = !open; $('warnMore').setAttribute('aria-expanded', open); $('warnMore').textContent = open ? 'Show less' : 'Read more'; });
 $('network').addEventListener('change', () => { S.net = $('network').value; S.coin = net().coin; $('coin').value = S.coin; rebuildRoot(); });
 document.addEventListener('click', async (e) => {
   const btn = e.target.closest('.copy'); if (!btn) return;

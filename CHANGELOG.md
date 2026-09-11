@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.3.2 — 2026-09-11
+
+- The warning at the top is now one line with a "Read more" link that expands the rest.
+
 ## v1.3.1 — 2026-09-11
 
 - Blurred fields can be clicked into and typed in while they stay blurred, so a passphrase, phrase, entropy or share can be entered without ever appearing on screen. The focused field shows a red ring so you know where you are typing. Copying from blurred values remains blocked.

@@ -125,6 +125,9 @@ h1 .sub { display: block; font-family: var(--sans); font-size: 1.15rem; font-wei
 .warnstrip { text-align: center; }
 .warnstrip p { font-size: 0.94rem; color: var(--ink-soft); max-width: 70ch; margin: 0 auto; }
 .warnstrip strong { color: var(--danger); }
+.warnstrip p + p { margin-top: 0.5rem; }
+.linkbtn { font-family: var(--sans); font-size: inherit; font-weight: 600; color: var(--danger); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.linkbtn:hover { color: var(--ink); }
 .inputwarn { margin-top: 0.9rem; background: var(--accent-wash); border: 1px solid color-mix(in srgb, var(--accent) 32%, transparent); border-radius: var(--radius-sm); padding: 0.85rem 1rem; }
 .inputwarn p { font-size: 0.9rem; color: var(--ink-soft); max-width: 66ch; }
 .inputwarn p + p { margin-top: 0.5rem; }
