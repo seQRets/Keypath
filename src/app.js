@@ -157,7 +157,14 @@ $('themeBtn').addEventListener('click', () => {
   document.documentElement.setAttribute('data-theme', cur);
   try { localStorage.setItem('keypath-theme', cur); } catch (e) {}
 });
-function setHidden(on) { $('hideSecrets').setAttribute('aria-pressed', on); document.documentElement.classList.toggle('hide-secrets', on); $('hideSecrets').querySelector('span').textContent = on ? 'Reveal private info' : 'Hide private info'; }
+function setHidden(on) {
+  $('hideSecrets').setAttribute('aria-pressed', on); document.documentElement.classList.toggle('hide-secrets', on);
+  $('hideSecrets').querySelector('span').textContent = on ? 'Reveal private info' : 'Hide private info';
+  const fab = $('hideSecretsFab'); fab.setAttribute('aria-pressed', on); fab.title = fab.ariaLabel = on ? 'Reveal private info' : 'Hide private info';
+}
+$('hideSecretsFab').addEventListener('click', () => setHidden(!document.documentElement.classList.contains('hide-secrets')));
+// The floating eye only exists while the one in the phrase card's header is scrolled out of view.
+new IntersectionObserver(([e]) => { $('hideSecretsFab').hidden = e.isIntersecting; }, { threshold: 0 }).observe($('hideSecrets'));
 $('hideSecrets').addEventListener('click', () => setHidden($('hideSecrets').getAttribute('aria-pressed') !== 'true'));
 $('fpValue').addEventListener('click', async () => { if (S.root && (await copyText(fpHex(S.root)))) toast('Fingerprint copied'); });
 $('phraseFpVal').addEventListener('click', async () => { if (S.root && (await copyText(fpHex(S.root)))) toast('Fingerprint copied'); });
