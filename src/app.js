@@ -1,6 +1,6 @@
 (() => {
 'use strict';
-const { bip39, wordlists, HDKey, secp256k1, schnorr, sha256, sha512, hmac, base58check, bech32, bech32m, hex, slip39, qrcode } = BTC;
+const { bip39, wordlists, HDKey, secp256k1, schnorr, sha256, sha512, hmac, base58check, bech32, bech32m, hex, slip39, qrcode, multisig } = BTC;
 const hash160 = BTC.hash160;
 const $ = (id) => document.getElementById(id);
 const H = 0x80000000;
@@ -20,15 +20,17 @@ const NETS = {
 };
 const VERSION_TABLE = [];
 for (const [netName, n] of Object.entries(NETS)) for (const [prv, pub] of [['xprv', 'xpub'], ['yprv', 'ypub'], ['zprv', 'zpub']]) VERSION_TABLE.push({ net: netName, private: n[prv], public: n[pub] });
+for (const [netName, m] of Object.entries(multisig.MS_VERSIONS)) for (const v of Object.values(m)) VERSION_TABLE.push({ net: netName, private: v.prv, public: v.pub });
 
 const TABS = {
   bip44: { purpose: 44, script: 'p2pkh', help: 'Legacy pay-to-pubkey-hash. Addresses start with 1 (m or n on testnet). Understood by every wallet ever written, but transactions cost the most in fees.' },
   bip49: { purpose: 49, script: 'p2sh-p2wpkh', help: 'SegWit wrapped inside a P2SH script so that older wallets can pay to it. Addresses start with 3 (2 on testnet).' },
   bip84: { purpose: 84, script: 'p2wpkh', help: 'Native SegWit (P2WPKH). Addresses start with bc1q (tb1q on testnet). The default in most wallets today, with lower fees than legacy.' },
   bip86: { purpose: 86, script: 'p2tr', help: 'Single-key Taproot (P2TR). Addresses start with bc1p (tb1p on testnet), spend with Schnorr signatures and are the cheapest, most private single-signature type. Supported by Bitcoin Core 22+, Sparrow, Ledger, Trezor and BlueWallet among others.' },
+  bip48: { purpose: 48, script: 'multisig', help: 'Your cosigner key for a multisig wallet. Purpose 48\' keeps multisig keys on their own branch; the last step names the script type. Hand the key line below to whoever sets up the wallet, then build or verify the wallet in the Multisig card.' },
   custom: { purpose: null, script: null, help: 'Any BIP32 path with the script type of your choice. This covers what the original tool split across its BIP32 and BIP141 tabs.' },
 };
-const SCRIPT_NAMES = { p2pkh: 'P2PKH (legacy)', 'p2sh-p2wpkh': 'P2WPKH in P2SH', p2wpkh: 'P2WPKH (native SegWit)', p2tr: 'P2TR (Taproot)' };
+const SCRIPT_NAMES = { p2pkh: 'P2PKH (legacy)', 'p2sh-p2wpkh': 'P2WPKH in P2SH', p2wpkh: 'P2WPKH (native SegWit)', p2tr: 'P2TR (Taproot)', multisig: 'multisig cosigner key' };
 const BIP85_LANG = { english: 0, japanese: 1, korean: 2, spanish: 3, simplifiedChinese: 4, traditionalChinese: 5, french: 6, italian: 7, czech: 8, portuguese: 9 };
 
 /* ---------------- state ---------------- */
@@ -177,7 +179,7 @@ $('menuPanel').querySelectorAll('a').forEach((a) => a.addEventListener('click', 
 $('fpValue').addEventListener('click', async () => { if (S.root && (await copyText(fpHex(S.root)))) toast('Fingerprint copied'); });
 $('phraseFpVal').addEventListener('click', async () => { if (S.root && (await copyText(fpHex(S.root)))) toast('Fingerprint copied'); });
 $('clearBtn').addEventListener('click', () => {
-  for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR']) $(id).value = '';
+  for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR', 'msKeys']) $(id).value = ''; msUpdate();
   $('entropyLen').value = 'raw'; $('entropyType').value = 'auto'; entropyLenTouched = false; $('entropyWeak').classList.add('hidden'); $('startIdx').value = '0';
   S.rootFromKey = false; $('rootOut').textContent = '';
   onPhraseInput(false); shamirClear(); shamirRecover(); toast('Cleared');
@@ -414,7 +416,10 @@ function selectTab(tab) {
   $('stdFields').classList.toggle('hidden', !std); $('customFields').classList.toggle('hidden', std);
   $('accountBlock').classList.toggle('hidden', !std); $('customDescWrap').classList.toggle('hidden', std);
   if (std) $('purpose').value = TABS[tab].purpose + "'";
-  const slip = std && net().slip[tab];
+  const ms = tab === 'bip48';
+  $('msScriptWrap').classList.toggle('hidden', !ms); $('changeWrap').classList.toggle('hidden', ms);
+  $('cosignerWrap').classList.toggle('hidden', !ms); $('descWrap').classList.toggle('hidden', ms); $('pathKeysBlock').classList.toggle('hidden', ms);
+  const slip = ms ? multisig.MS_VERSIONS[S.net][$('msScript').value].names : (std && net().slip[tab]);
   $('slipWrap').classList.toggle('hidden', !slip);
   if (slip) $('slipNames').textContent = slip.join(' / ');
   derive();
@@ -424,13 +429,16 @@ $('customPreset').addEventListener('change', () => { const v = $('customPreset')
 $('customPath').addEventListener('input', debounce(() => { S.customPath = $('customPath').value; $('customPreset').value = 'custom'; derive(); }, 250));
 $('customScript').addEventListener('change', () => { S.customScript = $('customScript').value; derive(); });
 $('slip132').addEventListener('change', () => { S.slip132 = $('slip132').checked; derive(); });
+$('msScript').addEventListener('change', () => selectTab('bip48'));
 
 function derive() {
   const n = net(); const std = S.tab !== 'custom';
   const clear = (msg) => { for (const id of ['acctXprv', 'acctXpub', 'descRecv', 'descChange', 'pathXprv', 'pathXpub', 'descPath']) setBox(id, '', { empty: msg }); S.pathNode = null; renderRows(); };
   $('pathWarn').classList.add('hidden');
   let idx, script, acctIdx = null;
-  if (std) { const p = TABS[S.tab].purpose; script = TABS[S.tab].script; acctIdx = [p + H, S.coin + H, S.account + H]; idx = [...acctIdx, S.change]; }
+  const ms = S.tab === 'bip48';
+  if (ms) { script = 'multisig'; acctIdx = [48 + H, S.coin + H, S.account + H, multisig.SCRIPT_INDEX[$('msScript').value] + H]; idx = acctIdx; }
+  else if (std) { const p = TABS[S.tab].purpose; script = TABS[S.tab].script; acctIdx = [p + H, S.coin + H, S.account + H]; idx = [...acctIdx, S.change]; }
   else {
     idx = parsePath(S.customPath); script = S.customScript;
     $('customPath').classList.toggle('bad', !idx);
@@ -443,6 +451,15 @@ function derive() {
   const fp = fpHex(S.root);
   let pathNode;
   try {
+    if (ms) {
+      const acct = deriveIdx(S.root, acctIdx);
+      $('accountPathLbl').textContent = pathToString(acctIdx);
+      const mv = multisig.MS_VERSIONS[S.net][$('msScript').value];
+      setBox('acctXprv', serExt(acct, S.slip132 ? mv.prv : n.xprv, true), { empty: 'Not available from a public key.' });
+      setBox('acctXpub', serExt(acct, S.slip132 ? mv.pub : n.xpub, false));
+      setBox('cosignerLine', `[${fp}${pathToDesc(acctIdx)}]${serExt(acct, n.xpub, false)}`);
+      S.pathNode = null; renderRows(); return;
+    }
     if (std) {
       const acct = deriveIdx(S.root, acctIdx);
       $('accountPathLbl').textContent = pathToString(acctIdx);
@@ -483,6 +500,7 @@ function renderRows(append = false) {
   const body = $('addrBody'); const token = ++S.renderToken;
   if (!append) { body.innerHTML = ''; S.rows = []; }
   const node = S.pathNode;
+  $('addrNone').textContent = S.tab === 'bip48' ? 'A cosigner key has no addresses of its own. Multisig addresses are built from all cosigner keys in the Multisig wallet card below.' : 'Nothing to show yet.';
   $('addrNone').classList.toggle('hidden', !!node);
   if (!node) { setMeter('addrStatus', ''); return; }
   if (S.hardened && !node.privateKey) { setMeter('addrStatus', count('hardened children need a private key', 'bad')); return; }
@@ -632,6 +650,53 @@ $('qrCompact').addEventListener('click', () => { qrFormat = 'compact'; seedQrRen
 $('qrModal').addEventListener('click', (e) => { if (e.target.closest('[data-close]')) { $('qrModal').hidden = true; $('qrWrap').innerHTML = ''; } });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('qrModal').hidden) { $('qrModal').hidden = true; $('qrWrap').innerHTML = ''; } });
 
+/* ---------------- multisig wallet (BIP48 / BIP67 / descriptors) ---------------- */
+let msLast = null;
+function msInit() {
+  for (let i = 1; i <= 15; i++) $('msThreshold').insertAdjacentHTML('beforeend', `<option>${i}</option>`);
+  $('msThreshold').value = '2';
+  $('msKeys').addEventListener('input', debounce(msUpdate, 250));
+  for (const id of ['msThreshold', 'msScript2', 'msName', 'msChain']) $(id).addEventListener('change', msUpdate);
+  $('msRows').addEventListener('input', debounce(msUpdate, 250));
+  $('cosignerToMs').addEventListener('click', () => {
+    const line = $('cosignerLine').dataset.value; if (!line) return toast('Enter a phrase first');
+    if ($('msKeys').value.includes(line)) { toast('Already in the list'); }
+    else { $('msKeys').value = ($('msKeys').value.trim() ? $('msKeys').value.trim() + '\n' : '') + line; $('msScript2').value = $('msScript').value; msUpdate(); toast('Cosigner key added'); }
+    $('multisig-card').scrollIntoView({ behavior: 'smooth' });
+  });
+  $('msDownload').addEventListener('click', () => {
+    if (!msLast) return;
+    const blob = new Blob([msLast.config], { type: 'text/plain' }); const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = `${msLast.name.replace(/[^A-Za-z0-9_-]+/g, '-').toLowerCase() || 'multisig'}.txt`; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  });
+  $('msAddrBody').addEventListener('click', async (e) => { const sp = e.target.closest('span[data-c]'); if (sp && (await copyText(sp.dataset.c))) toast('Copied'); });
+  $('network').addEventListener('change', msUpdate);
+  msUpdate();
+}
+function msUpdate() {
+  msLast = null; $('msOut').classList.add('hidden'); $('msWarnings').innerHTML = '';
+  const text = $('msKeys').value;
+  if (!text.trim()) { setMeter('msStatus', note('Paste the cosigner keys, or use the BIP48 tab above to add this page\'s key.')); return; }
+  const parsed = multisig.parseCosigners(text, VERSION_TABLE);
+  if (parsed.meta.threshold) $('msThreshold').value = String(parsed.meta.threshold);
+  if (parsed.meta.script) $('msScript2').value = parsed.meta.script;
+  if (parsed.meta.name && $('msName').value === 'KeyPath multisig') $('msName').value = parsed.meta.name;
+  const threshold = +$('msThreshold').value, script = $('msScript2').value, cos = parsed.cosigners, n = net();
+  const problems = [...parsed.errors.map((e) => ({ level: 'bad', text: e })), ...multisig.validate(threshold, cos, S.net)];
+  $('msWarnings').innerHTML = problems.map((p) => `<div class="inputwarn${p.level === 'bad' ? ' bad' : ''}"><p>${esc(p.text)}</p></div>`).join('');
+  if (problems.some((p) => p.level === 'bad')) { setMeter('msStatus', count(`${cos.length} key${cos.length === 1 ? '' : 's'} read`, 'bad')); return; }
+  const d = multisig.buildDescriptors(threshold, cos, script, n.xpub);
+  const name = $('msName').value.trim() || 'KeyPath multisig';
+  const config = multisig.coldcardConfig(name, threshold, cos, script, n.xpub);
+  msLast = { config, name };
+  setBox('msDesc', d.combined); setBox('msDescRecv', d.receive); setBox('msDescChange', d.change); setBox('msConfig', config);
+  const chain = +$('msChain').value, rows = Math.min(100, Math.max(1, parseInt($('msRows').value, 10) || 5));
+  $('msAddrBody').innerHTML = Array.from({ length: rows }, (_, i) => { const a = multisig.multisigAddress(threshold, cos, script, chain, i, n); return `<tr><td class="idx">${chain}/${i}</td><td><span data-c="${esc(a)}">${esc(a)}</span></td></tr>`; }).join('');
+  setMeter('msStatus', count(`${threshold} of ${cos.length} · ${script === 'p2wsh' ? 'P2WSH' : 'P2SH-P2WSH'}`, 'ok') + note(`${n.name}. Compare the first address with every cosigner's device.`));
+  $('msOut').classList.remove('hidden');
+}
+
 /* ---------------- tooltips & definitions ---------------- */
 const GLOSS = window.KEYPATH_GLOSSARY || {};
 function initTips() {
@@ -672,7 +737,7 @@ function initTips() {
 
 /* ---------------- session hygiene ---------------- */
 function wipeAll() {
-  for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR']) $(id).value = '';
+  for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR', 'msKeys']) $(id).value = ''; msUpdate();
   $('rootOut').textContent = ''; S.rootFromKey = false; S.seed = null; S.root = null; S.shRecovered = null;
   onPhraseInput(false); shamirClear(); shamirRecover();
   $('qrModal').hidden = true; $('qrWrap').innerHTML = '';
@@ -699,6 +764,7 @@ addEventListener('online', netStatus); addEventListener('offline', netStatus); n
 $('coin').value = S.coin;
 selectTab('bip84');
 shamirInit();
+msInit();
 initTips();
 window.KEYPATH = { S, address, descriptor, descChecksum, serExt, taprootOutputKey, parsePath, entropyFromString, entropyBits, crackTime };
 })();

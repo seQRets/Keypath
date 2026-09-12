@@ -437,3 +437,10 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
 
 .qr-actions { display: flex; justify-content: center; margin-top: 0.7rem; min-height: 2rem; }
 .qr-stage.covered + .qr-actions { visibility: hidden; }
+
+/* ---------- multisig ---------- */
+#msWarnings .inputwarn { margin-top: 0.7rem; }
+#msWarnings .inputwarn p { max-width: none; }
+#msAddrBody td.idx { color: var(--ink-soft); white-space: nowrap; }
+#msAddrBody td span { cursor: copy; }
+#msAddrBody td span:hover { color: var(--accent-ink); }

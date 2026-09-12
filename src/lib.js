@@ -46,3 +46,5 @@ import qrcode from 'qrcode-generator';
 export { qrcode };
 import * as entropy from './entropy.js';
 export { entropy };
+import * as multisig from './multisig.js';
+export { multisig };

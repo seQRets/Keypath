@@ -1,5 +1,17 @@
 # Changelog
 
+## v2.0.0 — 2026-09-12
+
+**Multisig.**
+
+- **BIP48 tab** in the Derivation card: your multisig cosigner key at m/48'/coin'/account'/script', with the P2WSH (2') or P2SH-P2WSH (1') choice, SLIP-132 Zpub/Ypub prefixes, and the one-line key-with-origin (`[fingerprint/path]xpub`) that Sparrow, Bitcoin Core and Coldcard accept. One click adds it to the multisig builder.
+- **Multisig wallet card**: paste any number of cosigner keys (origin lines, bare xpubs, or a whole Coldcard setup file), choose the threshold and script type, and get the `sortedmulti` descriptor with checksum (combined and separate receive/change), a downloadable setup file for Coldcard, Passport, Keystone and Sparrow, and the wallet's first receive and change addresses so every cosigner can verify their device shows the same one. Keys are sorted per BIP67, so listing order does not matter.
+- **Checks**: mixed networks, duplicate keys, missing key origin, unusual key depth, 1-of-N and N-of-N are flagged in plain language.
+- **Guidance**: a five-step walkthrough of setting up a multisig wallet, and definitions for multisig, cosigner, threshold, BIP48, script type, key origin, sortedmulti and the setup file.
+- Signing is deliberately not included; that belongs on each cosigner's device. Taproot multisig will follow.
+- Tests: multisig addresses were cross-checked against an independent Python implementation; the suite now has 120 checks.
+
+
 ## v1.3.5 — 2026-09-12
 
 - Numbered word lists (the phrase and each Shamir share) now read down each column and then across, the way words are written on a backup card.

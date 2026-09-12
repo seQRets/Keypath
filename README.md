@@ -1,6 +1,6 @@
 # KeyPath
 
-**BIP39 seed phrase generator with Shamir backup and Taproot support, in one offline HTML file.**
+**BIP39 seed phrase generator with Shamir backup, multisig wallet builder and Taproot support, in one offline HTML file.**
 
 **Use it online:** [seqrets.github.io/Keypath](https://seqrets.github.io/Keypath/) (for real funds, download the file and use it offline).
 
@@ -24,10 +24,11 @@ KeyPath is a modern re-imagining of Ian Coleman's [BIP39 tool](https://github.co
 - "Show entropy details" panel, ported from the original: entropy input (binary, base 6, dice, base 10, hex, playing cards) with the same debiased bit encoding, time-to-crack estimate, event count, bits per event, raw binary, checksum bits and word indexes. Generate fills the panel with the bytes it drew; a typed phrase shows its own entropy. Raw mode keeps only the unbiased bits per event (1.67 per die roll, so about 77 rolls for 12 words); fixed lengths hash the input and count the full 2.58 bits per roll, so 50 rolls suffice
 - SeedQR export (Standard and Compact SeedQR, as read by SeedSigner, Krux, Sparrow and Passport) shown in a modal
 - BIP39 seed, BIP32 root key, master fingerprint shown prominently. Paste an xprv/xpub (or ypub/zpub/tpub…) to derive from a key instead of a phrase
-- Derivation tabs: BIP44 (P2PKH), BIP49 (P2SH-P2WPKH), BIP84 (P2WPKH), **BIP86 (P2TR Taproot, bech32m)**, and Custom (any path plus any script type, covering the original BIP32 and BIP141 tabs)
+- Derivation tabs: BIP44 (P2PKH), BIP49 (P2SH-P2WPKH), BIP84 (P2WPKH), **BIP86 (P2TR Taproot, bech32m)**, **BIP48 (multisig cosigner key, with Zpub/Ypub prefixes and the key-origin line)**, and Custom (any path plus any script type, covering the original BIP32 and BIP141 tabs)
 - Account extended keys with optional SLIP-132 prefixes (ypub/zpub/upub/vpub), extended keys at the derivation path
 - Output descriptors with checksums for Bitcoin Core / Sparrow
 - Address table with path / address / public key / WIF columns, hardened children, paging, click-to-copy, CSV download and copy
+- **Multisig wallet builder**: paste cosigner keys (origin lines, bare xpubs or a Coldcard setup file), pick the threshold and P2WSH or P2SH-P2WSH, and get the `sortedmulti` descriptor with checksum, a Coldcard-style setup file, and the wallet's first addresses for cross-device verification (BIP48, BIP67)
 - BIP85 child secrets (BIP39 phrase, WIF, xprv, raw hex)
 - Bitcoin mainnet and testnet/signet, light and dark themes, "Hide all private info" blur for screen sharing
 
@@ -83,7 +84,7 @@ The Mnemonic length menu can be switched to **Raw entropy (no hashing)**, an unb
 npm test
 ```
 
-Builds, then runs `test/run.mjs`: the dice vectors (hashed and raw), the event encodings for every input type, the BIP44/49/84/86 vectors, and all 45 official SLIP-39 vectors including share re-encoding.
+Builds, then runs `test/run.mjs`: the dice vectors (hashed and raw), the event encodings for every input type, the BIP44/49/84/86 vectors, multisig (BIP48 keys, BIP67 sorting, P2WSH and P2SH-P2WSH addresses cross-checked against an independent Python implementation, descriptor checksums, setup-file round trips), and all 45 official SLIP-39 vectors including share re-encoding.
 
 ## Verification
 

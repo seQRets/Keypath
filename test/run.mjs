@@ -1,7 +1,7 @@
 // Test vectors for KeyPath. Run with `npm test` (builds first, then checks dist/lib.bundle.js).
 import { readFileSync } from 'node:fs';
 const BTC = new Function(readFileSync(new URL('../dist/lib.bundle.js', import.meta.url), 'utf8') + '; return BTC;')();
-const { bip39, wordlists, HDKey, schnorr, secp256k1, hash160, base58check, bech32, bech32m, hex, slip39, entropy } = BTC;
+const { bip39, wordlists, HDKey, schnorr, secp256k1, hash160, base58check, bech32, bech32m, hex, slip39, entropy, multisig } = BTC;
 const en = wordlists.english.words;
 let pass = 0, fail = 0;
 const check = (name, got, want) => { if (got === want) pass++; else { fail++; console.log(`FAIL ${name}\n  got:  ${got}\n  want: ${want}`); } };
@@ -44,6 +44,33 @@ check('BIP44', base58check.encode(cat([0], hash160(root.derive("m/44'/0'/0'/0/0"
 check('BIP49', base58check.encode(cat([5], hash160(cat([0, 0x14], hash160(root.derive("m/49'/0'/0'/0/0").publicKey))))), '37VucYSaXLCAsxYyAPfbSi9eh4iEcbShgf');
 check('BIP84', bech32.encode('bc', [0, ...bech32.toWords(hash160(root.derive("m/84'/0'/0'/0/0").publicKey))]), 'bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu');
 check('BIP86', p2tr(root.derive("m/86'/0'/0'/0/0").publicKey), 'bc1p5cyxnuxmeuwuvkwfem96lqzszd02n6xdcjrs20cac6yqjjwudpxqkedrcr');
+
+/* ---- multisig (BIP48 / BIP67 / descriptors); addresses cross-checked against an independent Python implementation ---- */
+{
+  const H = 0x80000000, netM = { hrp: 'bc', p2sh: 5 };
+  const cos = [0, 1, 2].map((a) => multisig.cosignerFromNode(root, [48 + H, 0 + H, a + H, 2 + H]));
+  check('BIP48 cosigner xpub (account 0, P2WSH)', multisig.serExt(cos[0].node, 0x0488b21e, false), 'xpub6DkFAXWQ2dHxq2vatrt9qyA3bXYU4ToWQwCHbf5XB2mSTexcHZCeKS1VZYcPoBd5X8yVcbXFHJR9R8UCVpt82VX1VhR28mCyxUFL4r6KFrf');
+  check('BIP48 Zpub prefix', multisig.serExt(cos[0].node, multisig.MS_VERSIONS.mainnet.p2wsh.pub, false).slice(0, 4), 'Zpub');
+  check('2-of-3 P2WSH address 0/0', multisig.multisigAddress(2, cos, 'p2wsh', 0, 0, netM), 'bc1q2sz6vvu6k7y9gtc6kfgfe0p6xkhmvmdlu97eecjkykpdktvps08scdjgr5');
+  check('2-of-3 P2SH-P2WSH address 1/3', multisig.multisigAddress(2, cos, 'p2sh-p2wsh', 1, 3, netM), '3AdiZaJHF2NREUYbbhewvYWKgQ2d5zAqUz');
+  check('BIP67: key order does not matter', multisig.multisigAddress(2, [...cos].reverse(), 'p2wsh', 0, 0, netM), multisig.multisigAddress(2, cos, 'p2wsh', 0, 0, netM));
+  const d = multisig.buildDescriptors(2, cos, 'p2wsh', 0x0488b21e);
+  check('descriptor form', d.combined.slice(0, 41), 'wsh(sortedmulti(2,[73c5da0a/48h/0h/0h/2h]');
+  check('descriptor checksum', d.combined.split('#')[1], multisig.descChecksum(d.combined.split('#')[0]));
+  check('descriptor checksum reference (Core docs)', multisig.descChecksum('wpkh([d34db33f/84h/0h/0h]xpub6DJ2dNUysrn5Vt36jH2KLBT2i1auw1tTSSomg8PhqNiUtx8QX2SvC9nrHu81fT41fvDUnhMjEzQgXnQjKEu3oaqMSzhSrHMxyyoEAmUHQbY/0/*)'), 'cjjspncu');
+  const table = [{ net: 'mainnet', private: 0x0488ade4, public: 0x0488b21e }];
+  const cc = multisig.coldcardConfig('KeyPath 2of3', 2, cos, 'p2wsh', 0x0488b21e);
+  const back = multisig.parseCosigners(cc, table);
+  check('setup file round trip: keys', back.cosigners.length, 3);
+  check('setup file round trip: policy', back.meta.threshold, 2);
+  check('setup file round trip: address', multisig.multisigAddress(2, back.cosigners, 'p2wsh', 0, 0, netM), 'bc1q2sz6vvu6k7y9gtc6kfgfe0p6xkhmvmdlu97eecjkykpdktvps08scdjgr5');
+  const lines = cos.map((c) => `[${c.fp}${c.path}]${multisig.serExt(c.node, 0x0488b21e, false)}`).join('\n');
+  const back2 = multisig.parseCosigners(lines, table);
+  check('origin lines round trip', back2.cosigners.map((c) => c.path).join(','), '/48h/0h/0h/2h,/48h/0h/1h/2h,/48h/0h/2h/2h');
+  check('validate: too few keys', multisig.validate(2, cos.slice(0, 1), 'mainnet').some((p) => p.level === 'bad'), true);
+  check('validate: duplicate key', multisig.validate(2, [cos[0], cos[0]], 'mainnet').some((p) => p.text.includes('twice')), true);
+  check('validate: ok', multisig.validate(2, cos, 'mainnet').filter((p) => p.level === 'bad').length, 0);
+}
 
 /* ---- SLIP-39 official vectors ---- */
 const vectors = JSON.parse(readFileSync(new URL('./slip39-vectors.json', import.meta.url), 'utf8'));

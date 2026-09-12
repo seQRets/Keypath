@@ -30,6 +30,7 @@
       <a href="#seed-card">Seed &amp; root key</a>
       <a href="#derivation-card">Derivation</a>
       <a href="#addresses-card">Addresses</a>
+      <a href="#multisig-card">Multisig</a>
       <a href="#about">Definitions</a>
       <a href="#offline">Security</a>
       <a href="#download" class="tap">Download</a>
@@ -218,6 +219,7 @@
         <button class="mode-btn" role="tab" data-tab="bip49" aria-selected="false" aria-pressed="false">BIP49<span class="tsub">3…</span></button>
         <button class="mode-btn" role="tab" data-tab="bip84" aria-selected="true" aria-pressed="true">BIP84<span class="tsub">bc1q…</span></button>
         <button class="mode-btn" role="tab" data-tab="bip86" aria-selected="false" aria-pressed="false">BIP86<span class="tsub">bc1p…</span><span class="tnew">TAPROOT</span></button>
+        <button class="mode-btn" role="tab" data-tab="bip48" aria-selected="false" aria-pressed="false">BIP48<span class="tsub">multisig</span></button>
         <button class="mode-btn" role="tab" data-tab="custom" aria-selected="false" aria-pressed="false">Custom<span class="tsub">BIP32 / 141</span></button>
       </div>
 
@@ -228,7 +230,8 @@
             <label class="narrow"><span class="small-label">Purpose<button type="button" class="tip" data-tip="purpose" aria-label="What does this mean?">?</button></span><input type="text" id="purpose" class="mono" readonly></label>
             <label class="narrow"><span class="small-label">Coin<button type="button" class="tip" data-tip="coin" aria-label="What does this mean?">?</button></span><input type="number" id="coin" class="mono" min="0" step="1"></label>
             <label class="narrow"><span class="small-label">Account<button type="button" class="tip" data-tip="account" aria-label="What does this mean?">?</button></span><input type="number" id="account" class="mono" min="0" step="1" value="0"></label>
-            <label class="mid"><span class="small-label">External / internal<button type="button" class="tip" data-tip="chain" aria-label="What does this mean?">?</button></span><select id="change"><option value="0">0 · external (receive)</option><option value="1">1 · internal (change)</option></select></label>
+            <label class="mid hidden" id="msScriptWrap"><span class="small-label">Multisig script type<button type="button" class="tip" data-tip="msscript" aria-label="What does this mean?">?</button></span><select id="msScript"><option value="p2wsh">P2WSH (native SegWit, 2')</option><option value="p2sh-p2wsh">P2SH-P2WSH (nested, 1')</option></select></label>
+            <label class="mid" id="changeWrap"><span class="small-label">External / internal<button type="button" class="tip" data-tip="chain" aria-label="What does this mean?">?</button></span><select id="change"><option value="0">0 · external (receive)</option><option value="1">1 · internal (change)</option></select></label>
           </div>
         </div>
         <div id="customFields" class="hidden">
@@ -265,14 +268,24 @@
           </div>
           <label class="check hidden" id="slipWrap" style="margin-top:0.2rem"><input type="checkbox" id="slip132"> Use SLIP-132 prefixes (<span id="slipNames">ypub / zpub</span>) for the account keys<button type="button" class="tip" data-tip="slip132" aria-label="What does this mean?">?</button></label>
 
+          <div id="descWrap">
           <h3 class="sec">Output descriptors<button type="button" class="tip" data-tip="descriptor" aria-label="What does this mean?">?</button></h3>
           <p class="help" style="margin-bottom:0.8rem">Paste into Bitcoin Core (<code>importdescriptors</code>), Sparrow or any descriptor wallet to watch this account. Public keys only, checksum included.</p>
           <div class="field"><label class="field-label">Receive <span class="badge pub-badge" data-tip="public">public</span></label>
             <div class="term" id="descRecv"><button class="copy" data-copy="descRecv" type="button">copy</button></div></div>
           <div class="field"><label class="field-label">Change <span class="badge pub-badge" data-tip="public">public</span></label>
             <div class="term" id="descChange"><button class="copy" data-copy="descChange" type="button">copy</button></div></div>
+          </div>
+          <div id="cosignerWrap" class="hidden">
+            <h3 class="sec">Your cosigner key<button type="button" class="tip" data-tip="cosigner" aria-label="What does this mean?">?</button></h3>
+            <p class="help" style="margin-bottom:0.8rem">This is what you hand to the person setting up the multisig wallet: your master fingerprint, the path, and the public account key. It cannot spend anything. Share it; never share the private one.</p>
+            <div class="field"><label class="field-label">Key with origin <span class="badge pub-badge" data-tip="public">public</span><span class="hint">the format Sparrow, Core and Coldcard accept</span></label>
+              <div class="term" id="cosignerLine"><button class="copy" data-copy="cosignerLine" type="button">copy</button></div></div>
+            <button type="button" class="btn" id="cosignerToMs">Use this key in the multisig wallet below</button>
+          </div>
         </div>
 
+        <div id="pathKeysBlock">
         <h3 class="sec">Keys at the derivation path<button type="button" class="tip" data-tip="pathkeys" aria-label="What does this mean?">?</button> <span class="p" id="pathLbl2"></span></h3>
         <div class="two">
           <div class="field"><label class="field-label">BIP32 extended private key<button type="button" class="tip" data-tip="xprv" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span></label>
@@ -282,6 +295,7 @@
         </div>
         <div class="field" id="customDescWrap"><label class="field-label">Descriptor at this path<button type="button" class="tip" data-tip="descriptor" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span></label>
           <div class="term" id="descPath"><button class="copy" data-copy="descPath" type="button">copy</button></div></div>
+        </div>
       </div>
     </div>
   </section>
@@ -315,6 +329,60 @@
         <label class="narrow"><span class="small-label">Rows<button type="button" class="tip" data-tip="rows" aria-label="What does this mean?">?</button></span><input type="number" id="rowCount" class="mono" value="20" min="1" max="1000" step="1"></label>
         <button type="button" class="btn" id="moreBtn">Show more rows</button>
         <span class="meter" id="addrStatus"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 6 Multisig wallet ===================== -->
+  <section class="console" id="multisig-card" aria-label="Multisig wallet">
+    <div class="console-bar"><span class="n">6</span> Multisig wallet<button type="button" class="tip" data-tip="multisig" aria-label="What does this mean?">?</button><span class="right">BIP48 · BIP67</span></div>
+    <div class="console-body">
+      <p class="console-intro">Combine the cosigner keys of several people or devices into one wallet that needs, say, 2 of 3 of them to spend. KeyPath builds the descriptor every wallet app needs, a Coldcard-style setup file, and the first addresses so every cosigner can confirm they match.</p>
+      <details class="adv" id="msHowto">
+        <summary>How a multisig wallet is set up</summary>
+        <div class="adv-body">
+          <div class="limits" style="margin-top:0.9rem">
+            <div class="limit"><span class="lm-tag">1 · Keys</span><p>Each cosigner makes their <strong>own</strong> recovery phrase on their own device, ideally a hardware wallet. Nobody ever sees anyone else's phrase.</p></div>
+            <div class="limit"><span class="lm-tag">2 · Export</span><p>Each cosigner exports their multisig <strong>public</strong> key: the BIP48 tab above shows yours as one line with the fingerprint and path. Public keys are safe to send by email or chat.</p></div>
+            <div class="limit"><span class="lm-tag">3 · Combine</span><p>One person pastes every cosigner line below, picks how many signatures are needed, and gets the descriptor and setup file. Load the descriptor into Sparrow, Bitcoin Core, Nunchuk or the setup file into a Coldcard.</p></div>
+            <div class="limit warn"><span class="lm-tag">4 · Verify</span><p>Every cosigner checks that the <strong>first receive address</strong> shown here is the one their own device shows for the wallet. If one device disagrees, stop: a key or the threshold is wrong.</p></div>
+            <div class="limit warn"><span class="lm-tag">5 · Back up</span><p>Keep a copy of the <strong>descriptor or setup file with every phrase backup</strong>. Recovering a multisig wallet needs the threshold of phrases <em>and</em> the descriptor; with all the phrases but no descriptor the coins are still lost.</p></div>
+          </div>
+        </div>
+      </details>
+
+      <div class="row" style="margin-top:1.1rem">
+        <label class="narrow"><span class="small-label">Needed<button type="button" class="tip" data-tip="msthreshold" aria-label="What does this mean?">?</button></span><select id="msThreshold"></select></label>
+        <label class="mid"><span class="small-label">Script type<button type="button" class="tip" data-tip="msscript" aria-label="What does this mean?">?</button></span><select id="msScript2"><option value="p2wsh">P2WSH (native SegWit)</option><option value="p2sh-p2wsh">P2SH-P2WSH (nested)</option></select></label>
+        <label class="grow"><span class="small-label">Wallet name <span class="hint">for the setup file</span></span><input type="text" id="msName" value="KeyPath multisig" maxlength="40" spellcheck="false"></label>
+      </div>
+      <div class="field" style="margin-top:1rem">
+        <label class="field-label" for="msKeys">Cosigner keys<button type="button" class="tip" data-tip="cosigner" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span><span class="hint">one per line, in any order; a pasted Coldcard setup file works too</span></label>
+        <textarea id="msKeys" class="mono" rows="5" spellcheck="false" autocomplete="off" placeholder="[73c5da0a/48h/0h/0h/2h]xpub6E64WfdQwBGz…&#10;[a1b2c3d4/48h/0h/0h/2h]xpub6Dk3…"></textarea>
+      </div>
+      <div class="meter" id="msStatus"></div>
+      <div id="msWarnings"></div>
+
+      <div id="msOut" class="hidden">
+        <h3 class="sec">Wallet descriptor<button type="button" class="tip" data-tip="descriptor" aria-label="What does this mean?">?</button></h3>
+        <p class="help" style="margin-bottom:0.8rem">Paste into Sparrow (New wallet → Import), Bitcoin Core (<code>importdescriptors</code>) or Nunchuk. One line covers both receive and change addresses; the two separate lines are for software that wants them apart.</p>
+        <div class="field"><label class="field-label">Descriptor <span class="badge pub-badge" data-tip="public">public</span></label>
+          <div class="term" id="msDesc"><button class="copy" data-copy="msDesc" type="button">copy</button></div></div>
+        <details class="adv"><summary>Separate receive and change descriptors</summary><div class="adv-body" style="padding-top:0.8rem">
+          <div class="field"><label class="field-label">Receive</label><div class="term" id="msDescRecv"><button class="copy" data-copy="msDescRecv" type="button">copy</button></div></div>
+          <div class="field"><label class="field-label">Change</label><div class="term" id="msDescChange"><button class="copy" data-copy="msDescChange" type="button">copy</button></div></div>
+        </div></details>
+        <h3 class="sec">Setup file<button type="button" class="tip" data-tip="coldcardfile" aria-label="What does this mean?">?</button></h3>
+        <p class="help" style="margin-bottom:0.8rem">The text format Coldcard, Passport, Keystone and Sparrow import. Save it as <code>multisig.txt</code>.</p>
+        <div class="field"><div class="term" id="msConfig"><button class="copy" data-copy="msConfig" type="button">copy</button></div></div>
+        <div class="row"><button type="button" class="btn small" id="msDownload"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 19h16"/></svg>Download setup file</button></div>
+        <h3 class="sec">Wallet addresses<button type="button" class="tip" data-tip="msaddresses" aria-label="What does this mean?">?</button></h3>
+        <p class="help" style="margin-bottom:0.8rem">Every cosigner should see this exact first address on their own device. If they do, the wallet is set up correctly.</p>
+        <div class="toolbar">
+          <label class="mid"><span class="small-label">Chain</span><select id="msChain"><option value="0">0 · receive</option><option value="1">1 · change</option></select></label>
+          <label class="narrow"><span class="small-label">Rows</span><input type="number" id="msRows" class="mono" value="5" min="1" max="100"></label>
+        </div>
+        <div class="tablewrap"><table><thead><tr><th>Index</th><th>Address</th></tr></thead><tbody id="msAddrBody"></tbody></table></div>
       </div>
     </div>
   </section>
