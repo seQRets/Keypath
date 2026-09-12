@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KeyPath — BIP39 seed phrase generator</title>
+<title>KeyPath — BIP39 seed phrase generator with Shamir backup</title>
 <meta name="description" content="KeyPath: generate or inspect a BIP39 recovery phrase, back it up with SLIP-39 Shamir shares, and derive BIP32 keys and Bitcoin addresses, legacy through Taproot. Single file, runs entirely offline in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
@@ -478,7 +478,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
 
   <header class="masthead" id="top">
     <h1><span class="op"><span class="key">Key</span>Path</span><span class="sub">BIP39 Seed Phrase Generator</span></h1>
-    <p class="lede">Generate or paste a recovery phrase, follow it down the BIP32 tree, and see the Bitcoin addresses it controls, legacy through Taproot. Runs entirely in this file, in your browser.</p>
+    <p class="lede">Generate or paste a recovery phrase, split it into Shamir backup shares, follow it down the BIP32 tree, and see the Bitcoin addresses it controls, legacy through Taproot. Runs entirely in this file, in your browser.</p>
     <nav class="topnav" aria-label="Jump to a section">
       <a href="#phrase-card">Phrase</a>
       <a href="#shamir-card">Shamir backup</a>
@@ -832,7 +832,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest/download/SHA256SUMS.txt" rel="noopener noreferrer">SHA256SUMS.txt</a>
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest" target="_blank" rel="noopener noreferrer">Release notes</a>
       </div>
-      <p class="dl-note">This page is KeyPath v1.3.3. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
+      <p class="dl-note">This page is KeyPath v1.3.4. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
     </div>
   </section>
 
@@ -851,7 +851,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
       </div>
     </div>
     <div class="foot-bottom">
-      <span class="credit">KeyPath v1.3.3 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
+      <span class="credit">KeyPath v1.3.4 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
       <span>Provided "as is", without warranty. Verify addresses in a second tool before sending significant funds.</span>
     </div>
   </footer>
