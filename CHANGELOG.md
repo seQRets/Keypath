@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.3.1 — 2026-09-13
+
+- Generated multisig phrases have their own cover, independent of the page-wide Hide private info. Revealing the page (for example with the demo phrase) no longer exposes them; a Reveal phrases / Hide phrases button beside Generate controls them, and copy is refused while they are covered.
+- Clear moved next to Generate; in the paste and check modes a small Clear sits on the Cosigner xpubs field instead.
+
 ## v2.3.0 — 2026-09-12
 
 **Multisig card reorganised around what you are doing.**

@@ -7,7 +7,7 @@
 <meta name="description" content="KeyPath: generate or inspect a BIP39 recovery phrase, back it up with SLIP-39 Shamir shares, and derive BIP32 keys and Bitcoin addresses, legacy through Taproot. Single file, runs entirely offline in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-vYyDb5uMWZp2Iq0QRYqmjsVW/FeakHaJw9FolE2Bsdk=' 'sha256-A8pvumfnLgS7RofcMh4nUM6hpKNRvG4wsOekmObWMhg='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-vYyDb5uMWZp2Iq0QRYqmjsVW/FeakHaJw9FolE2Bsdk=' 'sha256-n7H8NzsdO5whuxTbF9U4nwZurY1cjujGaYZgIp0PYYY='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <script>try{if(localStorage.getItem("keypath-tips")==="off")document.documentElement.classList.add("no-tips");}catch(e){}try{var t=localStorage.getItem("keypath-theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}else if(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches){document.documentElement.setAttribute("data-theme","dark");}}catch(e){}</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23d2761a'/><g fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='10' cy='16' r='5'/><path d='M15 16h5'/><path d='M20 16l6-5.5M20 16l6 5.5'/></g><circle cx='27' cy='9.5' r='1.8' fill='%23fff'/><circle cx='27' cy='22.5' r='1.8' fill='%23fff'/></svg>">
 <style>
@@ -461,6 +461,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
 /* ---------- generated multisig wallet ---------- */
 .gen-strip { background: var(--panel-sunk); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem 1.1rem; margin-top: 1.1rem; }
 .gen-strip select, .gen-strip input { background: var(--panel); }
+#msGen.covered .share-list { filter: blur(7px); user-select: none; pointer-events: none; }
 .row .of { align-self: flex-end; height: 44px; line-height: 44px; margin: 0 -0.3rem; font-weight: 600; color: var(--ink-soft); }
 #msGen .share-list { margin-top: 0.9rem; }
 #msGen .share { background: var(--panel); }
@@ -843,6 +844,8 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
         <div class="gen-strip ms-gen">
           <div class="row">
             <button type="button" class="btn primary" id="msGenBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"/></svg>Generate a complete multisig wallet</button>
+            <button type="button" class="btn" id="msClearBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>Clear</button>
+            <button type="button" class="btn hidden" id="msGenEye" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg>Reveal phrases</button>
           </div>
           <p class="help" style="margin:0.6rem 0 0">Creates a fresh recovery phrase (seed) for every cosigner with the settings above, fills in their xpubs below and builds the wallet. Write each phrase down separately and store them apart. <strong>For the strongest setup, make each phrase on its own device instead</strong>; creating them all here puts every key on this one computer for a moment.</p>
           <div id="msGen" class="secret"></div>
@@ -852,10 +855,9 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
 
       <div class="row" style="margin-top:1.1rem">
         <label class="grow"><span class="small-label">Wallet name <span class="hint">for the setup file</span></span><input type="text" id="msName" value="KeyPath multisig" maxlength="40" spellcheck="false"></label>
-        <button type="button" class="btn" id="msClearBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>Clear</button>
       </div>
       <div class="field" style="margin-top:1rem">
-        <label class="field-label" for="msKeys">Cosigner xpubs<button type="button" class="tip" data-tip="xpub" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span><span class="hint">one per seed, one per line, in any order; a pasted setup file works too. Public keys only: a seed phrase or xprv does not belong here.</span></label>
+        <div class="field-head"><label class="field-label" for="msKeys">Cosigner xpubs<button type="button" class="tip" data-tip="xpub" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span><span class="hint">one per seed, one per line, in any order; a pasted setup file works too. Public keys only: a seed phrase or xprv does not belong here.</span></label><button type="button" class="barbtn ms-notgen" id="msClearBtn2">Clear</button></div>
         <textarea id="msKeys" class="mono" rows="5" spellcheck="false" autocomplete="off" placeholder="[73c5da0a/48h/0h/0h/2h]xpub6E64WfdQwBGz…&#10;[a1b2c3d4/48h/0h/0h/2h]xpub6Dk3…&#10;Each cosigner exports this line from their wallet, or from the BIP48 tab above."></textarea>
       </div>
       <div class="meter" id="msStatus"></div>
@@ -934,7 +936,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest/download/SHA256SUMS.txt" rel="noopener noreferrer">SHA256SUMS.txt</a>
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest" target="_blank" rel="noopener noreferrer">Release notes</a>
       </div>
-      <p class="dl-note">This page is KeyPath v2.3.0. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
+      <p class="dl-note">This page is KeyPath v2.3.1. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
     </div>
   </section>
 
@@ -961,7 +963,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
       </div>
     </div>
     <div class="foot-bottom">
-      <span class="credit">KeyPath v2.3.0 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
+      <span class="credit">KeyPath v2.3.1 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
       <span>Provided "as is", without warranty. Verify addresses in a second tool before sending significant funds.</span>
     </div>
   </footer>
@@ -22217,6 +22219,7 @@ function msRefreshMode() {
   card.querySelectorAll('.ms-check').forEach((el) => el.classList.toggle('hidden', create));
   card.querySelectorAll('.ms-gen').forEach((el) => el.classList.toggle('hidden', !gen));
   card.querySelectorAll('.ms-paste').forEach((el) => el.classList.toggle('hidden', !paste));
+  card.querySelectorAll('.ms-notgen').forEach((el) => el.classList.toggle('hidden', gen));
   $('msHowto').classList.toggle('hidden', !create);
   msUpdate();
 }
@@ -22247,10 +22250,18 @@ function msInit() {
   for (let i = 2; i <= 15; i++) $('msGenCount').insertAdjacentHTML('beforeend', `<option>${i}</option>`);
   $('msGenCount').value = '3';
   $('msGenBtn').addEventListener('click', msGenerate);
-  $('msClearBtn').addEventListener('click', () => { $('msKeys').value = ''; $('msGen').innerHTML = ''; $('msName').value = 'KeyPath multisig'; $('msThreshold').value = '2'; $('msGenCount').value = '3'; msUpdate(); toast('Multisig wallet cleared'); });
+  const msClear = () => { $('msKeys').value = ''; msGenCover(false); $('msGen').innerHTML = ''; $('msGenEye').classList.add('hidden'); $('msName').value = 'KeyPath multisig'; $('msThreshold').value = '2'; $('msGenCount').value = '3'; msUpdate(); toast('Multisig wallet cleared'); };
+  $('msClearBtn').addEventListener('click', msClear); $('msClearBtn2').addEventListener('click', msClear);
+  $('msGenEye').addEventListener('click', () => msGenCover(!$('msGen').classList.contains('covered')));
   $('msGenCount').addEventListener('change', () => { if (+$('msThreshold').value > +$('msGenCount').value) $('msThreshold').value = $('msGenCount').value; msUpdate(); });
-  document.addEventListener('click', async (e) => { const b = e.target.closest('#msGen .copy'); if (!b) return; if (document.documentElement.classList.contains('hide-secrets')) return toast('Private info is hidden'); if (await copyText(b.dataset.text, true)) { b.classList.add('done'); b.textContent = 'copied'; setTimeout(() => { b.classList.remove('done'); b.textContent = 'copy'; }, 1100); } });
+  document.addEventListener('click', async (e) => { const b = e.target.closest('#msGen .copy'); if (!b) return; if (document.documentElement.classList.contains('hide-secrets') || $('msGen').classList.contains('covered')) return toast('Private info is hidden'); if (await copyText(b.dataset.text, true)) { b.classList.add('done'); b.textContent = 'copied'; setTimeout(() => { b.classList.remove('done'); b.textContent = 'copy'; }, 1100); } });
   msRefreshMode();
+}
+// The generated phrases have their own cover, independent of the page-wide Hide private info, so revealing
+// the page (for example with the demo phrase) never exposes them by accident.
+function msGenCover(on) {
+  $('msGen').classList.toggle('covered', on);
+  const b = $('msGenEye'); b.setAttribute('aria-pressed', on); b.lastChild.textContent = on ? 'Reveal phrases' : 'Hide phrases';
 }
 // A complete wallet: one fresh phrase per cosigner, keys filled in, threshold kept sensible.
 function msGenerate() {
@@ -22267,6 +22278,7 @@ function msGenerate() {
   $('msName').value = `KeyPath ${t}-of-${n}`;
   $('msKeys').value = cosigners.map((c) => c.line).join('\n');
   $('msGen').innerHTML = `<div class="share-list">${cosigners.map((c, i) => `<div class="share"><button class="copy" type="button" data-text="${esc(c.phrase)}">copy</button><h4>Cosigner ${i + 1} of ${n}<small>fingerprint ${esc(c.fp)}</small></h4><ol>${c.phrase.split(' ').map((w, j) => `<li><i>${j + 1}</i><b>${esc(w)}</b></li>`).join('')}</ol></div>`).join('')}</div>`;
+  msGenCover(true); $('msGenEye').classList.remove('hidden');
   msUpdate(); setHidden(true);
   toast(`${n} cosigner phrases created and hidden`);
 }

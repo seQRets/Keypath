@@ -656,6 +656,7 @@ function msRefreshMode() {
   card.querySelectorAll('.ms-check').forEach((el) => el.classList.toggle('hidden', create));
   card.querySelectorAll('.ms-gen').forEach((el) => el.classList.toggle('hidden', !gen));
   card.querySelectorAll('.ms-paste').forEach((el) => el.classList.toggle('hidden', !paste));
+  card.querySelectorAll('.ms-notgen').forEach((el) => el.classList.toggle('hidden', gen));
   $('msHowto').classList.toggle('hidden', !create);
   msUpdate();
 }
@@ -686,10 +687,18 @@ function msInit() {
   for (let i = 2; i <= 15; i++) $('msGenCount').insertAdjacentHTML('beforeend', `<option>${i}</option>`);
   $('msGenCount').value = '3';
   $('msGenBtn').addEventListener('click', msGenerate);
-  $('msClearBtn').addEventListener('click', () => { $('msKeys').value = ''; $('msGen').innerHTML = ''; $('msName').value = 'KeyPath multisig'; $('msThreshold').value = '2'; $('msGenCount').value = '3'; msUpdate(); toast('Multisig wallet cleared'); });
+  const msClear = () => { $('msKeys').value = ''; msGenCover(false); $('msGen').innerHTML = ''; $('msGenEye').classList.add('hidden'); $('msName').value = 'KeyPath multisig'; $('msThreshold').value = '2'; $('msGenCount').value = '3'; msUpdate(); toast('Multisig wallet cleared'); };
+  $('msClearBtn').addEventListener('click', msClear); $('msClearBtn2').addEventListener('click', msClear);
+  $('msGenEye').addEventListener('click', () => msGenCover(!$('msGen').classList.contains('covered')));
   $('msGenCount').addEventListener('change', () => { if (+$('msThreshold').value > +$('msGenCount').value) $('msThreshold').value = $('msGenCount').value; msUpdate(); });
-  document.addEventListener('click', async (e) => { const b = e.target.closest('#msGen .copy'); if (!b) return; if (document.documentElement.classList.contains('hide-secrets')) return toast('Private info is hidden'); if (await copyText(b.dataset.text, true)) { b.classList.add('done'); b.textContent = 'copied'; setTimeout(() => { b.classList.remove('done'); b.textContent = 'copy'; }, 1100); } });
+  document.addEventListener('click', async (e) => { const b = e.target.closest('#msGen .copy'); if (!b) return; if (document.documentElement.classList.contains('hide-secrets') || $('msGen').classList.contains('covered')) return toast('Private info is hidden'); if (await copyText(b.dataset.text, true)) { b.classList.add('done'); b.textContent = 'copied'; setTimeout(() => { b.classList.remove('done'); b.textContent = 'copy'; }, 1100); } });
   msRefreshMode();
+}
+// The generated phrases have their own cover, independent of the page-wide Hide private info, so revealing
+// the page (for example with the demo phrase) never exposes them by accident.
+function msGenCover(on) {
+  $('msGen').classList.toggle('covered', on);
+  const b = $('msGenEye'); b.setAttribute('aria-pressed', on); b.lastChild.textContent = on ? 'Reveal phrases' : 'Hide phrases';
 }
 // A complete wallet: one fresh phrase per cosigner, keys filled in, threshold kept sensible.
 function msGenerate() {
@@ -706,6 +715,7 @@ function msGenerate() {
   $('msName').value = `KeyPath ${t}-of-${n}`;
   $('msKeys').value = cosigners.map((c) => c.line).join('\n');
   $('msGen').innerHTML = `<div class="share-list">${cosigners.map((c, i) => `<div class="share"><button class="copy" type="button" data-text="${esc(c.phrase)}">copy</button><h4>Cosigner ${i + 1} of ${n}<small>fingerprint ${esc(c.fp)}</small></h4><ol>${c.phrase.split(' ').map((w, j) => `<li><i>${j + 1}</i><b>${esc(w)}</b></li>`).join('')}</ol></div>`).join('')}</div>`;
+  msGenCover(true); $('msGenEye').classList.remove('hidden');
   msUpdate(); setHidden(true);
   toast(`${n} cosigner phrases created and hidden`);
 }
