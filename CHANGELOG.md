@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.3.0 — 2026-09-12
+
+**Multisig card reorganised around what you are doing.**
+
+- A switch at the top: **Create a new wallet** or **Check or restore an existing wallet**. Create shows the policy row (signatures needed of how many seeds, script type) and asks where the cosigner keys come from: **paste the xpubs from each cosigner's device** (the default and safest way) or **generate the phrases here**. Check shows only signatures needed and script type, and asks for the existing wallet's xpubs or setup file.
+- The introduction and the output headings now say what each result is for: the descriptor goes into your software wallet, which becomes a watch-only wallet that also prepares spends for the cosigners to sign; the setup file goes onto every cosigner's hardware wallet so the device can verify addresses and sign. The Setup file definition says the same.
+- The empty-state line under the xpubs box changes with the mode, Clear sits beside the wallet name, and the "Why paste xpubs here?" tip is gone because the switch answers it. "Use this key in the multisig wallet below" in the BIP48 tab lands in Create / Paste.
+
 ## v2.2.1 — 2026-09-12
 
 - Multisig card reordered the way people think about a multisig wallet: "Signatures needed of Cosigners / seeds", then Words and Script type, then the Generate and Clear buttons, then the wallet name and the cosigner xpubs. Generate now uses the threshold you chose (clamped to the number of seeds) instead of picking one; lowering the seed count pulls the threshold down; pasting keys sets the seed count to match them.

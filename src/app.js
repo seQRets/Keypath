@@ -645,8 +645,25 @@ $('qrModal').addEventListener('click', (e) => { if (e.target.closest('[data-clos
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('qrModal').hidden) { $('qrModal').hidden = true; $('qrWrap').innerHTML = ''; } });
 
 /* ---------------- multisig wallet (BIP48 / BIP67 / descriptors) ---------------- */
-let msLast = null, msKeysSeen = '';
+let msLast = null, msKeysSeen = '', msModeV = 'create', msSrcV = 'paste';
+// Show the parts of the card that belong to the chosen mode (create / check) and key source (paste / generate).
+function msRefreshMode() {
+  const create = msModeV === 'create', gen = create && msSrcV === 'gen', paste = create && msSrcV === 'paste';
+  $('msModeCreate').setAttribute('aria-pressed', create); $('msModeCheck').setAttribute('aria-pressed', !create);
+  $('msSrcPaste').setAttribute('aria-pressed', msSrcV === 'paste'); $('msSrcGen').setAttribute('aria-pressed', msSrcV === 'gen');
+  const card = $('multisig-card');
+  card.querySelectorAll('.ms-create').forEach((el) => el.classList.toggle('hidden', !create));
+  card.querySelectorAll('.ms-check').forEach((el) => el.classList.toggle('hidden', create));
+  card.querySelectorAll('.ms-gen').forEach((el) => el.classList.toggle('hidden', !gen));
+  card.querySelectorAll('.ms-paste').forEach((el) => el.classList.toggle('hidden', !paste));
+  $('msHowto').classList.toggle('hidden', !create);
+  msUpdate();
+}
+function msMode(m) { msModeV = m; msRefreshMode(); }
+function msSource(src) { msSrcV = src; msRefreshMode(); }
 function msInit() {
+  $('msModeCreate').addEventListener('click', () => msMode('create')); $('msModeCheck').addEventListener('click', () => msMode('check'));
+  $('msSrcPaste').addEventListener('click', () => msSource('paste')); $('msSrcGen').addEventListener('click', () => msSource('gen'));
   for (let i = 1; i <= 15; i++) $('msThreshold').insertAdjacentHTML('beforeend', `<option>${i}</option>`);
   $('msThreshold').value = '2';
   $('msKeys').addEventListener('input', debounce(msUpdate, 250));
@@ -655,7 +672,7 @@ function msInit() {
   $('cosignerToMs').addEventListener('click', () => {
     const line = $('cosignerLine').dataset.value; if (!line) return toast('Enter a phrase first');
     if ($('msKeys').value.includes(line)) { toast('Already in the list'); }
-    else { $('msKeys').value = ($('msKeys').value.trim() ? $('msKeys').value.trim() + '\n' : '') + line; $('msScript2').value = $('msScript').value; msUpdate(); toast('Cosigner key added'); }
+    else { $('msKeys').value = ($('msKeys').value.trim() ? $('msKeys').value.trim() + '\n' : '') + line; $('msScript2').value = $('msScript').value; if (msModeV === 'create') { msSrcV = 'paste'; msRefreshMode(); } else msUpdate(); toast('Cosigner key added'); }
     $('multisig-card').scrollIntoView({ behavior: 'smooth' });
   });
   $('msDownload').addEventListener('click', () => {
@@ -672,7 +689,7 @@ function msInit() {
   $('msClearBtn').addEventListener('click', () => { $('msKeys').value = ''; $('msGen').innerHTML = ''; $('msName').value = 'KeyPath multisig'; $('msThreshold').value = '2'; $('msGenCount').value = '3'; msUpdate(); toast('Multisig wallet cleared'); });
   $('msGenCount').addEventListener('change', () => { if (+$('msThreshold').value > +$('msGenCount').value) $('msThreshold').value = $('msGenCount').value; msUpdate(); });
   document.addEventListener('click', async (e) => { const b = e.target.closest('#msGen .copy'); if (!b) return; if (document.documentElement.classList.contains('hide-secrets')) return toast('Private info is hidden'); if (await copyText(b.dataset.text, true)) { b.classList.add('done'); b.textContent = 'copied'; setTimeout(() => { b.classList.remove('done'); b.textContent = 'copy'; }, 1100); } });
-  msUpdate();
+  msRefreshMode();
 }
 // A complete wallet: one fresh phrase per cosigner, keys filled in, threshold kept sensible.
 function msGenerate() {
@@ -696,7 +713,10 @@ function msUpdate() {
   msLast = null; $('msOut').classList.add('hidden'); $('msWarnings').innerHTML = '';
   $('msTrNote').classList.toggle('hidden', $('msScript2').value !== 'p2tr');
   const text = $('msKeys').value;
-  if (!text.trim()) { setMeter('msStatus', note('Paste each cosigner\'s xpub line to build a new wallet, or paste an existing wallet\'s xpubs or setup file to rebuild its addresses and check them. The BIP48 tab above adds this page\'s own key.') + '<button type="button" class="tip" data-tip="mswhy" aria-label="Why paste xpubs here?">?</button>'); return; }
+  if (!text.trim()) {
+    const msg = msModeV === 'check' ? 'Waiting for the existing wallet\'s xpubs or setup file.' : msSrcV === 'gen' ? 'Press Generate to create a phrase for every cosigner. Their xpubs appear above and the wallet is built from them.' : 'Waiting for the cosigner xpub lines. The wallet is built as soon as two or more are pasted.';
+    setMeter('msStatus', note(msg)); return;
+  }
   const parsed = multisig.parseCosigners(text, VERSION_TABLE);
   if (parsed.meta.threshold) $('msThreshold').value = String(parsed.meta.threshold);
   if (text !== msKeysSeen) { msKeysSeen = text; if (parsed.cosigners.length >= 2 && parsed.cosigners.length <= 15) $('msGenCount').value = String(parsed.cosigners.length); } // "of N" follows newly pasted keys, but never overrides a later choice
