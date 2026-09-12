@@ -63,7 +63,12 @@ export function parseCosigners(text, table) {
       errors.push(`line ${i + 1}: unrecognised "${kv[1]}:" line`); return;
     }
     const m = /^(?:\[([0-9a-fA-F]{8})((?:\/[0-9]+['hH]?)*)\])?\s*([A-Za-z0-9]{100,120})(\/.*)?$/.exec(line);
-    if (!m) { errors.push(`line ${i + 1}: not a cosigner key`); return; }
+    if (!m) {
+      const words = line.split(/\s+/).length;
+      if (words >= 12 && /^[a-z\s]+$/i.test(line)) errors.push(`line ${i + 1}: that looks like a recovery phrase. Never paste phrases here; paste each cosigner's public xpub line instead (the BIP48 tab makes yours).`);
+      else errors.push(`line ${i + 1}: not a cosigner xpub`);
+      return;
+    }
     const d = decodeExtended(m[3], table); if (!d) { errors.push(`line ${i + 1}: not a valid extended key (check the prefix and for typos)`); return; }
     const pathIdx = m[2] ? parsePathStr(m[2]) : (curPath || null);
     cosigners.push({ fp: m[1] ? m[1].toLowerCase() : fpHex(d.node), path: pathIdx ? pathToH(pathIdx) : '', originKnown: !!m[1], node: d.isPrivate ? publicOnly(d.node) : d.node, net: d.net, isPrivate: d.isPrivate, source: `line ${i + 1}`, trailing: m[4] || '' });

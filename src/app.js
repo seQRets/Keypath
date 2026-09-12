@@ -700,7 +700,7 @@ function msGenerate() {
 function msUpdate() {
   msLast = null; $('msOut').classList.add('hidden'); $('msWarnings').innerHTML = '';
   const text = $('msKeys').value;
-  if (!text.trim()) { setMeter('msStatus', note('Paste the cosigner keys, or use the BIP48 tab above to add this page\'s key.')); return; }
+  if (!text.trim()) { setMeter('msStatus', note('Paste each cosigner\'s xpub line, or use the BIP48 tab above to add this page\'s key.')); return; }
   const parsed = multisig.parseCosigners(text, VERSION_TABLE);
   if (parsed.meta.threshold) $('msThreshold').value = String(parsed.meta.threshold);
   if (parsed.meta.script) $('msScript2').value = parsed.meta.script;
@@ -708,7 +708,7 @@ function msUpdate() {
   const threshold = +$('msThreshold').value, script = $('msScript2').value, cos = parsed.cosigners, n = net();
   const problems = [...parsed.errors.map((e) => ({ level: 'bad', text: e })), ...multisig.validate(threshold, cos, S.net)];
   $('msWarnings').innerHTML = problems.map((p) => `<div class="inputwarn${p.level === 'bad' ? ' bad' : ''}"><p>${esc(p.text)}</p></div>`).join('');
-  if (problems.some((p) => p.level === 'bad')) { setMeter('msStatus', count(`${cos.length} key${cos.length === 1 ? '' : 's'} read`, 'bad')); return; }
+  if (problems.some((p) => p.level === 'bad')) { setMeter('msStatus', count(`${cos.length} xpub${cos.length === 1 ? '' : 's'} read`, 'bad')); return; }
   const d = multisig.buildDescriptors(threshold, cos, script, n.xpub);
   const name = $('msName').value.trim() || 'KeyPath multisig';
   const config = multisig.coldcardConfig(name, threshold, cos, script, n.xpub);

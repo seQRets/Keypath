@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.1.2 — 2026-09-12
+
+- Multisig card: "Signatures needed" and "Cosigner xpubs" labels; the xpubs field says plainly that phrases and private keys do not belong there, and a pasted phrase gets a specific message.
+
 ## v2.1.1 — 2026-09-12
 
 - Multisig card: a Clear button beside Generate wipes the generated phrases and cosigner keys; the count is labelled "Cosigners / seeds" and the definition explains that a cosigner is one person or device with its own seed.
