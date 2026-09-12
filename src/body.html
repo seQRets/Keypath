@@ -191,19 +191,16 @@
       <dl class="kv" id="rootInfo"></dl>
 
       <details class="adv" id="bip85Details">
-        <summary>BIP85: derive child secrets from this master key<button type="button" class="tip" data-tip="bip85" aria-label="What does this mean?">?</button></summary>
+        <summary>BIP85: derive a new phrase from this master key<button type="button" class="tip" data-tip="bip85" aria-label="What does this mean?">?</button></summary>
         <div class="adv-body">
-          <p class="help">BIP85 turns one master key into any number of independent secrets: new BIP39 phrases, WIF keys, xprvs or raw bytes. The result is not used anywhere else on this page. To use a derived phrase, paste it into the phrase field above.</p>
+          <p class="help">BIP85 turns one master phrase into any number of independent child phrases, one per index. Back up only the master; every child can be recreated from it. The result is not used anywhere else on this page. To use a derived phrase, paste it into the phrase field above.</p>
           <div class="row">
-            <label class="mid"><span class="small-label">Application<button type="button" class="tip" data-tip="bip85app" aria-label="What does this mean?">?</button></span>
-              <select id="bip85App"><option value="bip39">BIP39 phrase</option><option value="wif">WIF private key</option><option value="xprv">BIP32 xprv</option><option value="hex">Raw hex bytes</option></select></label>
-            <label class="mid" id="bip85LangWrap"><span class="small-label">Language</span><select id="bip85Lang"></select></label>
-            <label class="narrow" id="bip85WordsWrap"><span class="small-label">Words</span><select id="bip85Words"><option>12</option><option>15</option><option>18</option><option>21</option><option>24</option></select></label>
-            <label class="narrow hidden" id="bip85BytesWrap"><span class="small-label">Bytes</span><input type="number" id="bip85Bytes" value="32" min="16" max="64"></label>
+            <label class="mid"><span class="small-label">Language<button type="button" class="tip" data-tip="language" aria-label="What does this mean?">?</button></span><select id="bip85Lang"></select></label>
+            <label class="narrow"><span class="small-label">Words<button type="button" class="tip" data-tip="wordcount" aria-label="What does this mean?">?</button></span><select id="bip85Words"><option>12</option><option>15</option><option>18</option><option>21</option><option>24</option></select></label>
             <label class="narrow"><span class="small-label">Index<button type="button" class="tip" data-tip="bip85index" aria-label="What does this mean?">?</button></span><input type="number" id="bip85Index" value="0" min="0" step="1"></label>
           </div>
-          <div class="field" style="margin-top:1rem"><label class="field-label">Derived value <span class="badge secret-badge" data-tip="secret">secret</span><span class="hint" id="bip85Path"></span></label>
-            <div class="term hx secret" id="bip85Out"><button class="copy" data-copy="bip85Out" type="button">copy</button><span class="ph">Needs a private root key.</span></div></div>
+          <div class="field" style="margin-top:1rem"><label class="field-label">Derived phrase <span class="badge secret-badge" data-tip="secret">secret</span><span class="hint" id="bip85Path"></span></label>
+            <div class="term secret" id="bip85Out"><button class="copy" data-copy="bip85Out" type="button">copy</button><span class="ph">Needs a private root key.</span></div></div>
         </div>
       </details>
     </div>

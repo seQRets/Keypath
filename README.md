@@ -29,7 +29,7 @@ KeyPath is a modern re-imagining of Ian Coleman's [BIP39 tool](https://github.co
 - Output descriptors with checksums for Bitcoin Core / Sparrow
 - Address table with path / address / public key / WIF columns, hardened children, paging, click-to-copy, CSV download and copy
 - **Multisig wallet builder**: paste cosigner keys (origin lines, bare xpubs or a setup file), or generate a complete wallet with a fresh phrase per cosigner, pick the threshold and P2WSH or P2SH-P2WSH, and get the `sortedmulti` descriptor with checksum, a hardware-wallet setup file, and the wallet's first addresses for cross-device verification (BIP48, BIP67)
-- BIP85 child secrets (BIP39 phrase, WIF, xprv, raw hex)
+- BIP85 child phrases (one master phrase, many independent child phrases by index)
 - Bitcoin mainnet and testnet/signet, light and dark themes, "Hide all private info" blur for screen sharing
 
 Styled to match the [OP_RETURN Message Builder](https://seqrets.github.io/op_return/): parchment palette, orange accent, IBM Plex type, pill navigation and terminal-style output boxes.
@@ -88,7 +88,7 @@ Builds, then runs `test/run.mjs`: the dice vectors (hashed and raw), the event e
 
 ## Verification
 
-Address derivation was checked against the official test vectors in BIP44/49/84/86 (the `abandon … about` phrase), BIP85 (all four applications), the descriptor checksum example from Bitcoin Core's documentation, and all 45 SLIP-39 vectors from the trezor/python-shamir-mnemonic reference (the share encoder also reproduces every reference share string byte for byte).
+Address derivation was checked against the official test vectors in BIP44/49/84/86 (the `abandon … about` phrase), BIP85 (BIP39 application), the descriptor checksum example from Bitcoin Core's documentation, and all 45 SLIP-39 vectors from the trezor/python-shamir-mnemonic reference (the share encoder also reproduces every reference share string byte for byte).
 
 ## License
 

@@ -542,24 +542,17 @@ $('csvBtn').addEventListener('click', () => {
 });
 $('csvCopyBtn').addEventListener('click', async () => { if (!S.rows.length) return toast('No rows yet'); if (await copyText(csv(), true)) toast('CSV copied · clipboard clears in 60 s'); });
 
-/* ---------------- BIP85 ---------------- */
-for (const id of ['bip85App', 'bip85Lang', 'bip85Words', 'bip85Bytes', 'bip85Index']) $(id).addEventListener('input', bip85);
+/* ---------------- BIP85: child phrases ---------------- */
+for (const id of ['bip85Lang', 'bip85Words', 'bip85Index']) $(id).addEventListener('input', bip85);
 function bip85() {
-  const app = $('bip85App').value;
-  $('bip85LangWrap').classList.toggle('hidden', app !== 'bip39'); $('bip85WordsWrap').classList.toggle('hidden', app !== 'bip39'); $('bip85BytesWrap').classList.toggle('hidden', app !== 'hex');
   const index = Math.max(0, parseInt($('bip85Index').value, 10) || 0);
-  const words = +$('bip85Words').value, lang = $('bip85Lang').value, nbytes = Math.min(64, Math.max(16, parseInt($('bip85Bytes').value, 10) || 32));
-  const path = { bip39: [83696968, 39, BIP85_LANG[lang], words, index], wif: [83696968, 2, index], xprv: [83696968, 32, index], hex: [83696968, 128169, nbytes, index] }[app];
+  const words = +$('bip85Words').value, lang = $('bip85Lang').value;
+  const path = [83696968, 39, BIP85_LANG[lang], words, index];
   $('bip85Path').textContent = 'm' + path.map((i) => `/${i}'`).join('');
   if (!S.root || !S.root.privateKey) return setBox('bip85Out', '', { empty: 'Needs a private root key.' });
   const node = deriveIdx(S.root, path.map((i) => i + H));
   const ent = hmac(sha512, new TextEncoder().encode('bip-entropy-from-k'), node.privateKey);
-  const n = net(); let out;
-  if (app === 'bip39') out = bip39.entropyToMnemonic(ent.slice(0, words * 4 / 3), wordlists[lang].words);
-  else if (app === 'wif') out = wif(ent.slice(0, 32), n);
-  else if (app === 'xprv') out = base58check.encode(concat(new Uint8Array([(n.xprv >>> 24) & 255, (n.xprv >>> 16) & 255, (n.xprv >>> 8) & 255, n.xprv & 255, 0, 0, 0, 0, 0, 0, 0, 0, 0]), ent.slice(0, 32), new Uint8Array([0]), ent.slice(32, 64)));
-  else out = hex.encode(ent.slice(0, nbytes));
-  setBox('bip85Out', out);
+  setBox('bip85Out', bip39.entropyToMnemonic(ent.slice(0, words * 4 / 3), wordlists[lang].words));
 }
 
 /* ---------------- Shamir backup (SLIP-39) ---------------- */

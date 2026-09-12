@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.1.4 — 2026-09-12
+
+- BIP85 is now simply "derive a new phrase from this master key": language, word count and index. The WIF, xprv and raw-hex applications are gone from the page (they were for developers; the derivation code and its test vectors remain).
+
 ## v2.1.3 — 2026-09-12
 
 - Multisig card: the empty state and a new "?" explain why you would paste xpubs: to build a new wallet from each cosigner's exported key, or to check or recover an existing wallet by rebuilding its addresses and descriptor.
