@@ -7,7 +7,7 @@
 <meta name="description" content="KeyPath: generate or inspect a BIP39 recovery phrase, back it up with SLIP-39 Shamir shares, and derive BIP32 keys and Bitcoin addresses, legacy through Taproot. Single file, runs entirely offline in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-WnVOIf2fNHjsuV7KfLCTegPcj5Rd6f9/bH5z+KLpTo4=' 'sha256-tKrRjUYzy5XIxPJAnJCJtIqM5PeT7+c3zpee134Jr4k='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-WnVOIf2fNHjsuV7KfLCTegPcj5Rd6f9/bH5z+KLpTo4=' 'sha256-j9wkEWmhB+VjskX2OJRJSMM+lMA6EB1NqJXSzMj5F1Y='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <script>try{if(localStorage.getItem("keypath-tips")==="off")document.documentElement.classList.add("no-tips");}catch(e){}try{var t=localStorage.getItem("keypath-theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}else if(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches){document.documentElement.setAttribute("data-theme","dark");}}catch(e){}</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23d2761a'/><g fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='10' cy='16' r='5'/><path d='M15 16h5'/><path d='M20 16l6-5.5M20 16l6 5.5'/></g><circle cx='27' cy='9.5' r='1.8' fill='%23fff'/><circle cx='27' cy='22.5' r='1.8' fill='%23fff'/></svg>">
 <style>
@@ -564,7 +564,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
       </div>
 
       <div class="field" style="margin-top:1.2rem">
-        <label class="field-label" for="phrase">BIP39 mnemonic<button type="button" class="tip" data-tip="mnemonic" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span></label>
+        <div class="field-head"><label class="field-label" for="phrase">BIP39 mnemonic<button type="button" class="tip" data-tip="mnemonic" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span></label><button type="button" class="barbtn" id="demoBtn" title="Fill in the well-known test phrase so you can explore the whole page without creating a real seed">Try the demo phrase</button></div>
         <textarea id="phrase" class="mono secret" rows="3" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="Click Generate, or type or paste your own phrase here…"></textarea>
         <div class="meter" id="phraseStatus"></div>
         <div class="meter fp-line hidden" id="phraseFp"><span class="fp-key">Master fingerprint<button type="button" class="tip" data-tip="fingerprint" aria-label="What does this mean?">?</button></span><span class="fp-val" id="phraseFpVal"></span><span class="meter-note" id="phraseFpNote"></span></div>
@@ -832,7 +832,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest/download/SHA256SUMS.txt" rel="noopener noreferrer">SHA256SUMS.txt</a>
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest" target="_blank" rel="noopener noreferrer">Release notes</a>
       </div>
-      <p class="dl-note">This page is KeyPath v1.3.2. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
+      <p class="dl-note">This page is KeyPath v1.3.3. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
     </div>
   </section>
 
@@ -851,7 +851,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
       </div>
     </div>
     <div class="foot-bottom">
-      <span class="credit">KeyPath v1.3.2 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
+      <span class="credit">KeyPath v1.3.3 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
       <span>Provided "as is", without warranty. Verify addresses in a second tool before sending significant funds.</span>
     </div>
   </footer>
@@ -21758,6 +21758,13 @@ $('generateBtn').addEventListener('click', () => {
   setHidden(true); // a freshly generated phrase is private from the first moment
 });
 $('phrase').addEventListener('input', debounce(() => onPhraseInput(false), 220));
+// Demo: the well-known BIP39 test phrase, so people can explore every feature without creating a real seed.
+const DEMO_PHRASE = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
+$('demoBtn').addEventListener('click', () => {
+  $('lang').value = 'english'; S.lang = S.prevLang = 'english'; $('passphrase').value = '';
+  $('phrase').value = DEMO_PHRASE; onPhraseInput(false); setHidden(false);
+  toast('Demo phrase loaded: explore freely, never fund it');
+});
 $('passphrase').addEventListener('input', debounce(() => { S.rootFromKey = false; recompute(); }, 250));
 
 function onPhraseInput(fromEntropy) {
@@ -21780,7 +21787,12 @@ function onPhraseInput(fromEntropy) {
   if (badWords.length) msg = count(`${badWords.length} word${badWords.length > 1 ? 's' : ''} not in the ${wordlists[S.lang].name} list`, 'bad') + note(`Not recognised: ${badWords.slice(0, 6).join(', ')}${badWords.length > 6 ? '…' : ''} (${words.length} words entered)`);
   else if (![12, 15, 18, 21, 24].includes(words.length)) msg = count(`${words.length} words`, 'bad') + note('A phrase needs 12, 15, 18, 21 or 24 words.');
   else if (!bip39.validateMnemonic(words.join(' '), wordlists[S.lang].words)) msg = count('checksum failed', 'bad') + note('The last word does not match the rest of the phrase.');
-  else { S.phraseValid = true; msg = count('valid', 'ok') + note(`${words.length} words · ${words.length * 32 / 3} bits of entropy · ${wordlists[S.lang].name}`); markWordCount(words.length); S.words = words.length; }
+  else {
+    S.phraseValid = true; markWordCount(words.length); S.words = words.length;
+    msg = words.join(' ') === DEMO_PHRASE
+      ? count('demo phrase', 'warn') + note('The well-known test phrase. Everyone on earth knows it, so never send coins to its addresses. Everything else on the page works normally.')
+      : count('valid', 'ok') + note(`${words.length} words · ${words.length * 32 / 3} bits of entropy · ${wordlists[S.lang].name}`);
+  }
   $('phrase').classList.toggle('bad', !S.phraseValid);
   setMeter('phraseStatus', msg);
   if (!fromEntropy) setEntropyFromPhrase();

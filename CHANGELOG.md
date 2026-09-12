@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.3.3 — 2026-09-12
+
+- A "Try the demo phrase" button beside the mnemonic field fills in the well-known BIP39 test phrase (abandon × 11, about) so the whole page can be explored without creating a real seed. The status line marks it as the demo phrase and warns never to fund it.
+
 ## v1.3.2 — 2026-09-11
 
 - The warning at the top is now one line with a "Read more" link that expands the rest.

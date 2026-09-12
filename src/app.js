@@ -317,6 +317,13 @@ $('generateBtn').addEventListener('click', () => {
   setHidden(true); // a freshly generated phrase is private from the first moment
 });
 $('phrase').addEventListener('input', debounce(() => onPhraseInput(false), 220));
+// Demo: the well-known BIP39 test phrase, so people can explore every feature without creating a real seed.
+const DEMO_PHRASE = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
+$('demoBtn').addEventListener('click', () => {
+  $('lang').value = 'english'; S.lang = S.prevLang = 'english'; $('passphrase').value = '';
+  $('phrase').value = DEMO_PHRASE; onPhraseInput(false); setHidden(false);
+  toast('Demo phrase loaded: explore freely, never fund it');
+});
 $('passphrase').addEventListener('input', debounce(() => { S.rootFromKey = false; recompute(); }, 250));
 
 function onPhraseInput(fromEntropy) {
@@ -339,7 +346,12 @@ function onPhraseInput(fromEntropy) {
   if (badWords.length) msg = count(`${badWords.length} word${badWords.length > 1 ? 's' : ''} not in the ${wordlists[S.lang].name} list`, 'bad') + note(`Not recognised: ${badWords.slice(0, 6).join(', ')}${badWords.length > 6 ? '…' : ''} (${words.length} words entered)`);
   else if (![12, 15, 18, 21, 24].includes(words.length)) msg = count(`${words.length} words`, 'bad') + note('A phrase needs 12, 15, 18, 21 or 24 words.');
   else if (!bip39.validateMnemonic(words.join(' '), wordlists[S.lang].words)) msg = count('checksum failed', 'bad') + note('The last word does not match the rest of the phrase.');
-  else { S.phraseValid = true; msg = count('valid', 'ok') + note(`${words.length} words · ${words.length * 32 / 3} bits of entropy · ${wordlists[S.lang].name}`); markWordCount(words.length); S.words = words.length; }
+  else {
+    S.phraseValid = true; markWordCount(words.length); S.words = words.length;
+    msg = words.join(' ') === DEMO_PHRASE
+      ? count('demo phrase', 'warn') + note('The well-known test phrase. Everyone on earth knows it, so never send coins to its addresses. Everything else on the page works normally.')
+      : count('valid', 'ok') + note(`${words.length} words · ${words.length * 32 / 3} bits of entropy · ${wordlists[S.lang].name}`);
+  }
   $('phrase').classList.toggle('bad', !S.phraseValid);
   setMeter('phraseStatus', msg);
   if (!fromEntropy) setEntropyFromPhrase();

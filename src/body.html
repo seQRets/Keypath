@@ -109,7 +109,7 @@
       </div>
 
       <div class="field" style="margin-top:1.2rem">
-        <label class="field-label" for="phrase">BIP39 mnemonic<button type="button" class="tip" data-tip="mnemonic" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span></label>
+        <div class="field-head"><label class="field-label" for="phrase">BIP39 mnemonic<button type="button" class="tip" data-tip="mnemonic" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span></label><button type="button" class="barbtn" id="demoBtn" title="Fill in the well-known test phrase so you can explore the whole page without creating a real seed">Try the demo phrase</button></div>
         <textarea id="phrase" class="mono secret" rows="3" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="Click Generate, or type or paste your own phrase here…"></textarea>
         <div class="meter" id="phraseStatus"></div>
         <div class="meter fp-line hidden" id="phraseFp"><span class="fp-key">Master fingerprint<button type="button" class="tip" data-tip="fingerprint" aria-label="What does this mean?">?</button></span><span class="fp-val" id="phraseFpVal"></span><span class="meter-note" id="phraseFpNote"></span></div>
