@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.3.5 — 2026-09-12
+
+- Numbered word lists (the phrase and each Shamir share) now read down each column and then across, the way words are written on a backup card.
+
 ## v1.3.4 — 2026-09-12
 
 - The subtitle and page title now mention Shamir backup.

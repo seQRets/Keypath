@@ -353,8 +353,8 @@ footer.site { margin-top: 4.5rem; border-top: 1px solid var(--line); padding: 2.
 .share .copy { border-color: var(--line); color: var(--ink-faint); background: var(--panel); }
 .share .copy:hover { color: var(--ink); border-color: var(--ink-faint); }
 .share .copy.done { color: var(--ok); border-color: var(--ok); }
-.share ol { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(108px, 1fr)); gap: 0.15rem 0.6rem; font-family: var(--mono); font-size: 0.8rem; }
-.share ol li { display: flex; gap: 0.35rem; align-items: baseline; min-width: 0; }
+.share ol { list-style: none; column-width: 108px; column-gap: 0.6rem; font-family: var(--mono); font-size: 0.8rem; }
+.share ol li { display: flex; gap: 0.35rem; align-items: baseline; min-width: 0; break-inside: avoid; padding: 0.08rem 0; }
 .share ol li i { font-style: normal; color: var(--ink-faint); font-size: 0.68rem; width: 1.3rem; flex-shrink: 0; text-align: right; }
 .share ol li b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .share-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.9rem; }
@@ -384,8 +384,9 @@ footer.site { margin-top: 4.5rem; border-top: 1px solid var(--line); padding: 2.
 /* ---------- phrase numbered list ---------- */
 details.phrase-list { margin-top: 0.7rem; }
 details.phrase-list .adv-body { padding-top: 0.9rem; }
-.wordlist { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 0.25rem 0.7rem; font-family: var(--mono); font-size: 0.84rem; }
-.wordlist li { display: flex; gap: 0.4rem; align-items: baseline; min-width: 0; }
+/* Numbered words read down each column, then across (column flow), like a paper backup card. */
+.wordlist { list-style: none; column-width: 118px; column-gap: 0.7rem; font-family: var(--mono); font-size: 0.84rem; }
+.wordlist li { display: flex; gap: 0.4rem; align-items: baseline; min-width: 0; break-inside: avoid; padding: 0.12rem 0; }
 .wordlist li i { font-style: normal; color: var(--ink-faint); font-size: 0.7rem; width: 1.4rem; flex-shrink: 0; text-align: right; }
 .wordlist li b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .wordlist li.bad b { color: var(--danger); }
