@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.1.3 — 2026-09-12
+
+- Multisig card: the empty state and a new "?" explain why you would paste xpubs: to build a new wallet from each cosigner's exported key, or to check or recover an existing wallet by rebuilding its addresses and descriptor.
+
 ## v2.1.2 — 2026-09-12
 
 - Multisig card: "Signatures needed" and "Cosigner xpubs" labels; the xpubs field says plainly that phrases and private keys do not belong there, and a pasted phrase gets a specific message.

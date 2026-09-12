@@ -7,7 +7,7 @@
 <meta name="description" content="KeyPath: generate or inspect a BIP39 recovery phrase, back it up with SLIP-39 Shamir shares, and derive BIP32 keys and Bitcoin addresses, legacy through Taproot. Single file, runs entirely offline in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-PwaP1cj1lnnUuy0ZHZn/yaaq/+neUVdyyLStFEzEJ8s=' 'sha256-DvI0n9MhEn1lRkNHplXrPFKdPKCXb9ebYpMZ0NhuxMo='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-PwaP1cj1lnnUuy0ZHZn/yaaq/+neUVdyyLStFEzEJ8s=' 'sha256-9dLEkMnc+BQbRkfMX2ba5GbVlurn7t6tTyQo9W+RZ8M='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <script>try{if(localStorage.getItem("keypath-tips")==="off")document.documentElement.classList.add("no-tips");}catch(e){}try{var t=localStorage.getItem("keypath-theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}else if(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches){document.documentElement.setAttribute("data-theme","dark");}}catch(e){}</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23d2761a'/><g fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='10' cy='16' r='5'/><path d='M15 16h5'/><path d='M20 16l6-5.5M20 16l6 5.5'/></g><circle cx='27' cy='9.5' r='1.8' fill='%23fff'/><circle cx='27' cy='22.5' r='1.8' fill='%23fff'/></svg>">
 <style>
@@ -807,7 +807,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
   <section class="console" id="multisig-card" aria-label="Multisig wallet">
     <div class="console-bar"><span class="n">6</span> Multisig wallet<button type="button" class="tip" data-tip="multisig" aria-label="What does this mean?">?</button><span class="right">BIP48 · BIP67</span></div>
     <div class="console-body">
-      <p class="console-intro">Combine the cosigner keys of several people or devices into one wallet that needs, say, 2 of 3 of them to spend. KeyPath builds the descriptor every wallet app needs, a setup file for hardware wallets, and the first addresses so every cosigner can confirm they match.</p>
+      <p class="console-intro">Combine the cosigner xpubs of several people or devices into one wallet that needs, say, 2 of 3 of them to spend. KeyPath builds the descriptor every wallet app needs, a setup file for hardware wallets, and the first addresses so every cosigner can confirm they match. Paste the xpubs of a wallet you already have to check its addresses or recover its descriptor.</p>
       <details class="adv" id="msHowto">
         <summary>How a multisig wallet is set up</summary>
         <div class="adv-body">
@@ -926,7 +926,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest/download/SHA256SUMS.txt" rel="noopener noreferrer">SHA256SUMS.txt</a>
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest" target="_blank" rel="noopener noreferrer">Release notes</a>
       </div>
-      <p class="dl-note">This page is KeyPath v2.1.2. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
+      <p class="dl-note">This page is KeyPath v2.1.3. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
     </div>
   </section>
 
@@ -945,7 +945,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
       </div>
     </div>
     <div class="foot-bottom">
-      <span class="credit">KeyPath v2.1.2 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
+      <span class="credit">KeyPath v2.1.3 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
       <span>Provided "as is", without warranty. Verify addresses in a second tool before sending significant funds.</span>
     </div>
   </footer>
@@ -21539,6 +21539,7 @@ window.KEYPATH_GLOSSARY = {
   keyorigin: { t: 'Key origin', d: 'The part in square brackets before an xpub: the master fingerprint and the path the key was derived along. It lets a hardware wallet recognise which of its keys is being asked to sign. Always share your cosigner key with its origin.' },
   sortedmulti: { t: 'sortedmulti', d: 'In the descriptor, sortedmulti means the keys are put in a fixed order (BIP67) before building each address, so it does not matter in what order the cosigners were listed. Every wallet app agrees on the same addresses.' },
   coldcardfile: { t: 'Setup file', d: 'A small text file listing the policy (2 of 3), the script type, the derivation path and each cosigner\'s fingerprint and xpub. Most hardware and desktop wallets import it, so it is the easiest way to load the same wallet on every device.' },
+  mswhy: { t: 'Why paste xpubs here?', d: 'Two reasons. To build a new wallet: each cosigner sends you the xpub line their own device exported, you paste them all, and KeyPath produces the descriptor and setup file to load into every wallet app. To check or recover an existing wallet: paste its xpubs or its setup file and KeyPath rebuilds the same addresses, so you can confirm a device shows the right first address, or regenerate a lost descriptor. Nothing here can spend; xpubs only watch.' },
   msaddresses: { t: 'Wallet addresses', d: 'The receive addresses of the multisig wallet, built from all cosigner keys. They are the same on every device that has the same keys and threshold, which is why comparing the first one is the standard check that the wallet was set up correctly.' },
   split: { t: 'Split into shares', d: 'Make a new set of Shamir shares from the phrase currently shown above.' },
   recover: { t: 'Recover from shares', d: 'Paste shares you made earlier and get the phrase back.' },
@@ -22246,7 +22247,7 @@ function msGenerate() {
 function msUpdate() {
   msLast = null; $('msOut').classList.add('hidden'); $('msWarnings').innerHTML = '';
   const text = $('msKeys').value;
-  if (!text.trim()) { setMeter('msStatus', note('Paste each cosigner\'s xpub line, or use the BIP48 tab above to add this page\'s key.')); return; }
+  if (!text.trim()) { setMeter('msStatus', note('Paste each cosigner\'s xpub line to build a new wallet, or paste an existing wallet\'s xpubs or setup file to rebuild its addresses and check them. The BIP48 tab above adds this page\'s own key.') + '<button type="button" class="tip" data-tip="mswhy" aria-label="Why paste xpubs here?">?</button>'); return; }
   const parsed = multisig.parseCosigners(text, VERSION_TABLE);
   if (parsed.meta.threshold) $('msThreshold').value = String(parsed.meta.threshold);
   if (parsed.meta.script) $('msScript2').value = parsed.meta.script;

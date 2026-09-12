@@ -700,7 +700,7 @@ function msGenerate() {
 function msUpdate() {
   msLast = null; $('msOut').classList.add('hidden'); $('msWarnings').innerHTML = '';
   const text = $('msKeys').value;
-  if (!text.trim()) { setMeter('msStatus', note('Paste each cosigner\'s xpub line, or use the BIP48 tab above to add this page\'s key.')); return; }
+  if (!text.trim()) { setMeter('msStatus', note('Paste each cosigner\'s xpub line to build a new wallet, or paste an existing wallet\'s xpubs or setup file to rebuild its addresses and check them. The BIP48 tab above adds this page\'s own key.') + '<button type="button" class="tip" data-tip="mswhy" aria-label="Why paste xpubs here?">?</button>'); return; }
   const parsed = multisig.parseCosigners(text, VERSION_TABLE);
   if (parsed.meta.threshold) $('msThreshold').value = String(parsed.meta.threshold);
   if (parsed.meta.script) $('msScript2').value = parsed.meta.script;
