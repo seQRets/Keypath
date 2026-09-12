@@ -24,11 +24,11 @@ KeyPath is a modern re-imagining of Ian Coleman's [BIP39 tool](https://github.co
 - "Show entropy details" panel, ported from the original: entropy input (binary, base 6, dice, base 10, hex, playing cards) with the same debiased bit encoding, time-to-crack estimate, event count, bits per event, raw binary, checksum bits and word indexes. Generate fills the panel with the bytes it drew; a typed phrase shows its own entropy. Raw mode keeps only the unbiased bits per event (1.67 per die roll, so about 77 rolls for 12 words); fixed lengths hash the input and count the full 2.58 bits per roll, so 50 rolls suffice
 - SeedQR export (Standard and Compact SeedQR, as read by SeedSigner, Krux, Sparrow and Passport) shown in a modal
 - BIP39 seed, BIP32 root key, master fingerprint shown prominently. Paste an xprv/xpub (or ypub/zpub/tpub…) to derive from a key instead of a phrase
-- Derivation tabs: BIP44 (P2PKH), BIP49 (P2SH-P2WPKH), BIP84 (P2WPKH), **BIP86 (P2TR Taproot, bech32m)**, **BIP48 (multisig cosigner key, with Zpub/Ypub prefixes and the key-origin line)**, and Custom (any path plus any script type, covering the original BIP32 and BIP141 tabs)
+- Derivation tabs: BIP44 (P2PKH), BIP49 (P2SH-P2WPKH), BIP84 (P2WPKH), **BIP86 (P2TR Taproot, bech32m)**, **BIP48 (multisig cosigner key for P2WSH, P2SH-P2WSH or Taproot multisig, with Zpub/Ypub prefixes and the key-origin line)**, and Custom (any path plus any script type, covering the original BIP32 and BIP141 tabs)
 - Account extended keys with optional SLIP-132 prefixes (ypub/zpub/upub/vpub), extended keys at the derivation path
 - Output descriptors with checksums for Bitcoin Core / Sparrow
 - Address table with path / address / public key / WIF columns, hardened children, paging, click-to-copy, CSV download and copy
-- **Multisig wallet builder**: paste cosigner keys (origin lines, bare xpubs or a setup file), or generate a complete wallet with a fresh phrase per cosigner, pick the threshold and P2WSH or P2SH-P2WSH, and get the `sortedmulti` descriptor with checksum, a hardware-wallet setup file, and the wallet's first addresses for cross-device verification (BIP48, BIP67)
+- **Multisig wallet builder**: paste cosigner keys (origin lines, bare xpubs or a setup file), or generate a complete wallet with a fresh phrase per cosigner, pick the threshold and P2WSH, P2SH-P2WSH or **P2TR (Taproot multisig)**, and get the `sortedmulti` or `tr(NUMS, sortedmulti_a(…))` descriptor with checksum, a hardware-wallet setup file, and the wallet's first addresses for cross-device verification (BIP48, BIP67, BIP341)
 - BIP85 child phrases (one master phrase, many independent child phrases by index)
 - Bitcoin mainnet and testnet/signet, light and dark themes, "Hide all private info" blur for screen sharing
 
@@ -84,11 +84,11 @@ The Mnemonic length menu can be switched to **Raw entropy (no hashing)**, an unb
 npm test
 ```
 
-Builds, then runs `test/run.mjs`: the dice vectors (hashed and raw), the event encodings for every input type, the BIP44/49/84/86 vectors, multisig (BIP48 keys, BIP67 sorting, P2WSH and P2SH-P2WSH addresses cross-checked against an independent Python implementation, descriptor checksums, setup-file round trips), and all 45 official SLIP-39 vectors including share re-encoding.
+Builds, then runs `test/run.mjs`: the dice vectors (hashed and raw), the event encodings for every input type, the BIP44/49/84/86 vectors, multisig (BIP48 keys, BIP67 sorting, P2WSH and P2SH-P2WSH addresses cross-checked against an independent Python implementation, Taproot multisig addresses cross-checked against `@scure/btc-signer` and the BIP341 wallet vectors, descriptor checksums, setup-file round trips), and all 45 official SLIP-39 vectors including share re-encoding.
 
 ## Verification
 
-Address derivation was checked against the official test vectors in BIP44/49/84/86 (the `abandon … about` phrase), BIP85 (BIP39 application), the descriptor checksum example from Bitcoin Core's documentation, and all 45 SLIP-39 vectors from the trezor/python-shamir-mnemonic reference (the share encoder also reproduces every reference share string byte for byte).
+Address derivation was checked against the official test vectors in BIP44/49/84/86 (the `abandon … about` phrase), BIP85 (BIP39 application), the descriptor checksum example from Bitcoin Core's documentation, the BIP341 wallet test vectors (single-leaf script trees), `@scure/btc-signer` for Taproot multisig addresses (a test-only dependency; nothing of it is bundled), and all 45 SLIP-39 vectors from the trezor/python-shamir-mnemonic reference (the share encoder also reproduces every reference share string byte for byte).
 
 ## License
 

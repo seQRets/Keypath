@@ -1,9 +1,10 @@
-// Multisig wallet helpers: parse cosigner keys, build sortedmulti descriptors and
-// Coldcard config text, and derive P2WSH / P2SH-P2WSH addresses (BIP48, BIP67).
+// Multisig wallet helpers: parse cosigner keys, build sortedmulti / sortedmulti_a descriptors
+// and setup-file text, and derive P2WSH / P2SH-P2WSH / P2TR addresses (BIP48, BIP67, BIP341).
 import { HDKey } from '@scure/bip32';
 import { sha256 } from '@noble/hashes/sha2.js';
 import { ripemd160 } from '@noble/hashes/legacy.js';
-import { base58check as mkBase58check, bech32 } from '@scure/base';
+import { base58check as mkBase58check, bech32, bech32m, hex } from '@scure/base';
+import { secp256k1, schnorr } from '@noble/curves/secp256k1.js';
 
 const base58check = mkBase58check(sha256);
 const hash160 = (b) => ripemd160(sha256(b));
@@ -16,7 +17,10 @@ export const MS_VERSIONS = {
   mainnet: { p2wsh: { prv: 0x02aa7a99, pub: 0x02aa7ed3, names: ['Zprv', 'Zpub'] }, 'p2sh-p2wsh': { prv: 0x0295b005, pub: 0x0295b43f, names: ['Yprv', 'Ypub'] } },
   testnet: { p2wsh: { prv: 0x02575048, pub: 0x02575483, names: ['Vprv', 'Vpub'] }, 'p2sh-p2wsh': { prv: 0x024285b5, pub: 0x024289ef, names: ['Uprv', 'Upub'] } },
 };
-export const SCRIPT_INDEX = { p2wsh: 2, 'p2sh-p2wsh': 1 }; // BIP48 script_type level
+export const SCRIPT_INDEX = { p2wsh: 2, 'p2sh-p2wsh': 1, p2tr: 3 }; // BIP48 script_type level (3' for Taproot, as Sparrow uses)
+export const MS_FORMAT = { p2wsh: 'P2WSH', 'p2sh-p2wsh': 'P2SH-P2WSH', p2tr: 'P2TR' }; // setup-file "Format:" names
+// BIP341 unspendable internal key (the "NUMS" point), used by tr() multisig descriptors.
+export const NUMS_HEX = '50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0';
 
 export function serExt(node, version, priv) {
   if (priv && !node.privateKey) return null;
@@ -57,7 +61,7 @@ export function parseCosigners(text, table) {
       const k = kv[1].trim().toLowerCase(), v = kv[2].trim();
       if (k === 'derivation') { curPath = parsePathStr(v); if (!curPath) errors.push(`line ${i + 1}: cannot read derivation path`); return; }
       if (k === 'policy') { const m = /(\d+)\s*of\s*(\d+)/i.exec(v); if (m) meta.threshold = +m[1]; return; }
-      if (k === 'format') { const f = v.toUpperCase(); meta.script = f === 'P2WSH' ? 'p2wsh' : f.includes('P2SH') ? 'p2sh-p2wsh' : undefined; return; }
+      if (k === 'format') { const f = v.toUpperCase(); meta.script = f === 'P2WSH' ? 'p2wsh' : f === 'P2TR' ? 'p2tr' : f.includes('P2SH') ? 'p2sh-p2wsh' : undefined; return; }
       if (k === 'name') { meta.name = v; return; }
       if (/^[0-9a-f]{8}$/i.test(k)) { const d = decodeExtended(v, table); if (!d) { errors.push(`line ${i + 1}: not a valid extended key`); return; } cosigners.push({ fp: k.toLowerCase(), path: curPath ? pathToH(curPath) : '', node: d.isPrivate ? publicOnly(d.node) : d.node, net: d.net, isPrivate: d.isPrivate, source: `line ${i + 1}` }); return; }
       errors.push(`line ${i + 1}: unrecognised "${kv[1]}:" line`); return;
@@ -93,8 +97,8 @@ const withChecksum = (d) => d + '#' + descChecksum(d);
 // Build descriptors. xpubVersion: the plain xpub/tpub version for the network (descriptors never use SLIP-132 prefixes).
 export function buildDescriptors(threshold, cosigners, script, xpubVersion) {
   const key = (c, tail) => `[${c.fp}${c.path}]${serExt(c.node, xpubVersion, false)}${tail}`;
-  const inner = (tail) => `sortedmulti(${threshold},${cosigners.map((c) => key(c, tail)).join(',')})`;
-  const wrap = (s) => (script === 'p2wsh' ? `wsh(${s})` : `sh(wsh(${s}))`);
+  const inner = (tail) => `${script === 'p2tr' ? 'sortedmulti_a' : 'sortedmulti'}(${threshold},${cosigners.map((c) => key(c, tail)).join(',')})`;
+  const wrap = (s) => (script === 'p2tr' ? `tr(${NUMS_HEX},${s})` : script === 'p2wsh' ? `wsh(${s})` : `sh(wsh(${s}))`);
   return { combined: withChecksum(wrap(inner('/<0;1>/*'))), receive: withChecksum(wrap(inner('/0/*'))), change: withChecksum(wrap(inner('/1/*'))) };
 }
 
@@ -103,21 +107,37 @@ export function multisigScript(threshold, pubkeys) {
   const sorted = [...pubkeys].sort((a, b) => { for (let i = 0; i < 33; i++) if (a[i] !== b[i]) return a[i] - b[i]; return 0; });
   return concat(new Uint8Array([0x50 + threshold]), ...sorted.map((p) => concat(new Uint8Array([0x21]), p)), new Uint8Array([0x50 + sorted.length, 0xae]));
 }
+// Taproot multisig (BIP341/342): one multi_a leaf under the NUMS internal key, keys sorted as x-only (sortedmulti_a).
+const bytesToBig = (b) => BigInt('0x' + hex.encode(b));
+const compactSize = (n) => (n < 0xfd ? new Uint8Array([n]) : new Uint8Array([0xfd, n & 0xff, n >> 8]));
+export function multiAScript(threshold, pubkeys) {
+  const xonly = pubkeys.map((p) => p.slice(1)).sort((a, b) => { for (let i = 0; i < 32; i++) if (a[i] !== b[i]) return a[i] - b[i]; return 0; });
+  const push = (p) => concat(new Uint8Array([0x20]), p);
+  const kPush = threshold <= 16 ? new Uint8Array([0x50 + threshold]) : new Uint8Array([0x01, threshold]);
+  return concat(...xonly.map((p, i) => concat(push(p), new Uint8Array([i === 0 ? 0xac : 0xba]))), kPush, new Uint8Array([0x9c]));
+}
+export function tapLeafHash(script) { return schnorr.utils.taggedHash('TapLeaf', concat(new Uint8Array([0xc0]), compactSize(script.length), script)); }
+export function taprootTweakedKey(internalX, merkleRoot) {
+  const P = schnorr.utils.lift_x(bytesToBig(internalX));
+  const t = schnorr.utils.taggedHash('TapTweak', merkleRoot ? concat(internalX, merkleRoot) : internalX);
+  return schnorr.utils.pointToBytes(P.add(secp256k1.Point.BASE.multiply(bytesToBig(t))));
+}
 export function multisigAddress(threshold, cosigners, script, chain, index, net) {
   const pubs = cosigners.map((c) => c.node.deriveChild(chain).deriveChild(index).publicKey);
+  if (script === 'p2tr') return bech32m.encode(net.hrp, [1, ...bech32m.toWords(taprootTweakedKey(hex.decode(NUMS_HEX), tapLeafHash(multiAScript(threshold, pubs))))]);
   const redeem = multisigScript(threshold, pubs);
   const wsh = sha256(redeem);
   if (script === 'p2wsh') return bech32.encode(net.hrp, [0, ...bech32.toWords(wsh)]);
   return base58check.encode(concat(new Uint8Array([net.p2sh]), hash160(concat(new Uint8Array([0x00, 0x20]), wsh))));
 }
 
-// Coldcard / generic multisig config text (also imported by Sparrow, Nunchuk, Keystone, Passport).
+// Coldcard / generic multisig config text (also imported by Sparrow, Nunchuk, Keystone, Passport). "Format: P2TR" is the line those wallets use for Taproot multisig.
 export function coldcardConfig(name, threshold, cosigners, script, xpubVersion) {
   const paths = new Set(cosigners.map((c) => c.path));
   const fmtPath = (p) => 'm' + p.replace(/h/g, "'");
   const lines = [`# ${name}`, `Name: ${name.slice(0, 20)}`, `Policy: ${threshold} of ${cosigners.length}`];
   if (paths.size === 1 && cosigners[0].path) lines.push(`Derivation: ${fmtPath(cosigners[0].path)}`);
-  lines.push(`Format: ${script === 'p2wsh' ? 'P2WSH' : 'P2SH-P2WSH'}`, '');
+  lines.push(`Format: ${MS_FORMAT[script]}`, '');
   for (const c of cosigners) { if (paths.size > 1 && c.path) lines.push(`Derivation: ${fmtPath(c.path)}`); lines.push(`${c.fp}: ${serExt(c.node, xpubVersion, false)}`); }
   return lines.join('\n') + '\n';
 }

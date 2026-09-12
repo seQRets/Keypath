@@ -419,8 +419,9 @@ function selectTab(tab) {
   const ms = tab === 'bip48';
   $('msScriptWrap').classList.toggle('hidden', !ms); $('changeWrap').classList.toggle('hidden', ms);
   $('cosignerWrap').classList.toggle('hidden', !ms); $('descWrap').classList.toggle('hidden', ms); $('pathKeysBlock').classList.toggle('hidden', ms);
-  const slip = ms ? multisig.MS_VERSIONS[S.net][$('msScript').value].names : (std && net().slip[tab]);
+  const slip = ms ? (multisig.MS_VERSIONS[S.net][$('msScript').value] || {}).names : (std && net().slip[tab]);
   $('slipWrap').classList.toggle('hidden', !slip);
+  $('msTrNote48').classList.toggle('hidden', !(ms && $('msScript').value === 'p2tr'));
   if (slip) $('slipNames').textContent = slip.join(' / ');
   derive();
 }
@@ -454,9 +455,9 @@ function derive() {
     if (ms) {
       const acct = deriveIdx(S.root, acctIdx);
       $('accountPathLbl').textContent = pathToString(acctIdx);
-      const mv = multisig.MS_VERSIONS[S.net][$('msScript').value];
-      setBox('acctXprv', serExt(acct, S.slip132 ? mv.prv : n.xprv, true), { empty: 'Not available from a public key.' });
-      setBox('acctXpub', serExt(acct, S.slip132 ? mv.pub : n.xpub, false));
+      const mv = S.slip132 && multisig.MS_VERSIONS[S.net][$('msScript').value]; // no SLIP-132 prefix for Taproot: xpub only
+      setBox('acctXprv', serExt(acct, mv ? mv.prv : n.xprv, true), { empty: 'Not available from a public key.' });
+      setBox('acctXpub', serExt(acct, mv ? mv.pub : n.xpub, false));
       setBox('cosignerLine', `[${fp}${pathToDesc(acctIdx)}]${serExt(acct, n.xpub, false)}`);
       S.pathNode = null; renderRows(); return;
     }
@@ -692,6 +693,7 @@ function msGenerate() {
 }
 function msUpdate() {
   msLast = null; $('msOut').classList.add('hidden'); $('msWarnings').innerHTML = '';
+  $('msTrNote').classList.toggle('hidden', $('msScript2').value !== 'p2tr');
   const text = $('msKeys').value;
   if (!text.trim()) { setMeter('msStatus', note('Paste each cosigner\'s xpub line to build a new wallet, or paste an existing wallet\'s xpubs or setup file to rebuild its addresses and check them. The BIP48 tab above adds this page\'s own key.') + '<button type="button" class="tip" data-tip="mswhy" aria-label="Why paste xpubs here?">?</button>'); return; }
   const parsed = multisig.parseCosigners(text, VERSION_TABLE);
@@ -699,6 +701,7 @@ function msUpdate() {
   if (parsed.meta.script) $('msScript2').value = parsed.meta.script;
   if (parsed.meta.name && $('msName').value === 'KeyPath multisig') $('msName').value = parsed.meta.name;
   const threshold = +$('msThreshold').value, script = $('msScript2').value, cos = parsed.cosigners, n = net();
+  $('msTrNote').classList.toggle('hidden', script !== 'p2tr');
   const problems = [...parsed.errors.map((e) => ({ level: 'bad', text: e })), ...multisig.validate(threshold, cos, S.net)];
   $('msWarnings').innerHTML = problems.map((p) => `<div class="inputwarn${p.level === 'bad' ? ' bad' : ''}"><p>${esc(p.text)}</p></div>`).join('');
   if (problems.some((p) => p.level === 'bad')) { setMeter('msStatus', count(`${cos.length} xpub${cos.length === 1 ? '' : 's'} read`, 'bad')); return; }
@@ -709,7 +712,7 @@ function msUpdate() {
   setBox('msDesc', d.combined); setBox('msDescRecv', d.receive); setBox('msDescChange', d.change); setBox('msConfig', config);
   const chain = +$('msChain').value, rows = Math.min(100, Math.max(1, parseInt($('msRows').value, 10) || 5));
   $('msAddrBody').innerHTML = Array.from({ length: rows }, (_, i) => { const a = multisig.multisigAddress(threshold, cos, script, chain, i, n); return `<tr><td class="idx">${chain}/${i}</td><td><span data-c="${esc(a)}">${esc(a)}</span></td></tr>`; }).join('');
-  setMeter('msStatus', count(`${threshold} of ${cos.length} · ${script === 'p2wsh' ? 'P2WSH' : 'P2SH-P2WSH'}`, 'ok') + note(`${n.name}. Compare the first address with every cosigner's device.`));
+  setMeter('msStatus', count(`${threshold} of ${cos.length} · ${multisig.MS_FORMAT[script]}`, 'ok') + note(`${n.name}. Compare the first address with every cosigner's device.`));
   $('msOut').classList.remove('hidden');
 }
 

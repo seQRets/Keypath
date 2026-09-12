@@ -1,5 +1,15 @@
 # Changelog
 
+## v2.2.0 — 2026-09-12
+
+**Taproot multisig.**
+
+- **P2TR (Taproot multisig)** is a third script type in the BIP48 tab and in the Multisig wallet card. The cosigner key lives at m/48'/coin'/account'/3' (the path Sparrow uses) and is a plain xpub; there is no SLIP-132 prefix for it.
+- The descriptor is `tr(NUMS, sortedmulti_a(k, …))` with the BIP341 unspendable internal key, combined and as separate receive/change lines, each with its checksum. Addresses start with bc1p (tb1p on testnet): one `multi_a` leaf with the keys sorted as x-only keys, the way `sortedmulti_a` does it.
+- The setup file says `Format: P2TR`, the line hardware wallets use for Taproot multisig, and a pasted file with that line selects the type.
+- A short note explains that Taproot multisig is newer, with cheaper and more private spends, supported by Sparrow, Bitcoin Core 24 and later and recent hardware wallets, and that older wallets cannot import it. Definitions for BIP48, script type and sortedmulti mention it.
+- Tests: Taproot addresses are cross-checked against @scure/btc-signer (a test-only dependency, not bundled), including a 5-of-9 wallet and testnet, plus the BIP341 single-leaf wallet vectors for the leaf hash and tweak; key order, descriptor checksums and the setup-file round trip are checked too. The suite now has 146 checks.
+
 ## v2.1.4 — 2026-09-12
 
 - BIP85 is now simply "derive a new phrase from this master key": language, word count and index. The WIF, xprv and raw-hex applications are gone from the page (they were for developers; the derivation code and its test vectors remain).
