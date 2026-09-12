@@ -645,7 +645,7 @@ $('qrModal').addEventListener('click', (e) => { if (e.target.closest('[data-clos
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('qrModal').hidden) { $('qrModal').hidden = true; $('qrWrap').innerHTML = ''; } });
 
 /* ---------------- multisig wallet (BIP48 / BIP67 / descriptors) ---------------- */
-let msLast = null;
+let msLast = null, msKeysSeen = '';
 function msInit() {
   for (let i = 1; i <= 15; i++) $('msThreshold').insertAdjacentHTML('beforeend', `<option>${i}</option>`);
   $('msThreshold').value = '2';
@@ -669,7 +669,8 @@ function msInit() {
   for (let i = 2; i <= 15; i++) $('msGenCount').insertAdjacentHTML('beforeend', `<option>${i}</option>`);
   $('msGenCount').value = '3';
   $('msGenBtn').addEventListener('click', msGenerate);
-  $('msClearBtn').addEventListener('click', () => { $('msKeys').value = ''; $('msGen').innerHTML = ''; $('msName').value = 'KeyPath multisig'; $('msThreshold').value = '2'; msUpdate(); toast('Multisig wallet cleared'); });
+  $('msClearBtn').addEventListener('click', () => { $('msKeys').value = ''; $('msGen').innerHTML = ''; $('msName').value = 'KeyPath multisig'; $('msThreshold').value = '2'; $('msGenCount').value = '3'; msUpdate(); toast('Multisig wallet cleared'); });
+  $('msGenCount').addEventListener('change', () => { if (+$('msThreshold').value > +$('msGenCount').value) $('msThreshold').value = $('msGenCount').value; msUpdate(); });
   document.addEventListener('click', async (e) => { const b = e.target.closest('#msGen .copy'); if (!b) return; if (document.documentElement.classList.contains('hide-secrets')) return toast('Private info is hidden'); if (await copyText(b.dataset.text, true)) { b.classList.add('done'); b.textContent = 'copied'; setTimeout(() => { b.classList.remove('done'); b.textContent = 'copy'; }, 1100); } });
   msUpdate();
 }
@@ -683,9 +684,9 @@ function msGenerate() {
     const c = multisig.cosignerFromNode(root, [48 + H, netc.coin + H, 0 + H, multisig.SCRIPT_INDEX[script] + H]);
     cosigners.push({ phrase, fp: c.fp, line: `[${c.fp}${c.path}]${serExt(c.node, netc.xpub, false)}` });
   }
-  const t = Math.min(Math.max(2, Math.ceil(n / 2) + (n > 2 ? 0 : 0)), n); // 2-of-2, 2-of-3, 3-of-4, 3-of-5, 4-of-6 …
-  $('msThreshold').value = String(n === 2 ? 2 : Math.max(2, Math.ceil(n / 2)));
-  $('msName').value = `KeyPath ${$('msThreshold').value}-of-${n}`;
+  const t = Math.min(Math.max(1, +$('msThreshold').value || 2), n); // the policy chosen above, clamped to the number of seeds
+  $('msThreshold').value = String(t);
+  $('msName').value = `KeyPath ${t}-of-${n}`;
   $('msKeys').value = cosigners.map((c) => c.line).join('\n');
   $('msGen').innerHTML = `<div class="share-list">${cosigners.map((c, i) => `<div class="share"><button class="copy" type="button" data-text="${esc(c.phrase)}">copy</button><h4>Cosigner ${i + 1} of ${n}<small>fingerprint ${esc(c.fp)}</small></h4><ol>${c.phrase.split(' ').map((w, j) => `<li><i>${j + 1}</i><b>${esc(w)}</b></li>`).join('')}</ol></div>`).join('')}</div>`;
   msUpdate(); setHidden(true);
@@ -698,6 +699,7 @@ function msUpdate() {
   if (!text.trim()) { setMeter('msStatus', note('Paste each cosigner\'s xpub line to build a new wallet, or paste an existing wallet\'s xpubs or setup file to rebuild its addresses and check them. The BIP48 tab above adds this page\'s own key.') + '<button type="button" class="tip" data-tip="mswhy" aria-label="Why paste xpubs here?">?</button>'); return; }
   const parsed = multisig.parseCosigners(text, VERSION_TABLE);
   if (parsed.meta.threshold) $('msThreshold').value = String(parsed.meta.threshold);
+  if (text !== msKeysSeen) { msKeysSeen = text; if (parsed.cosigners.length >= 2 && parsed.cosigners.length <= 15) $('msGenCount').value = String(parsed.cosigners.length); } // "of N" follows newly pasted keys, but never overrides a later choice
   if (parsed.meta.script) $('msScript2').value = parsed.meta.script;
   if (parsed.meta.name && $('msName').value === 'KeyPath multisig') $('msName').value = parsed.meta.name;
   const threshold = +$('msThreshold').value, script = $('msScript2').value, cos = parsed.cosigners, n = net();

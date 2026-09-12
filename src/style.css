@@ -448,6 +448,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
 /* ---------- generated multisig wallet ---------- */
 .gen-strip { background: var(--panel-sunk); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem 1.1rem; margin-top: 1.1rem; }
 .gen-strip select, .gen-strip input { background: var(--panel); }
+.row .of { align-self: flex-end; height: 44px; line-height: 44px; margin: 0 -0.3rem; font-weight: 600; color: var(--ink-soft); }
 #msGen .share-list { margin-top: 0.9rem; }
 #msGen .share { background: var(--panel); }
 #msGen .share h4 small { display: block; margin: 0.15rem 0 0; font-family: var(--mono); letter-spacing: 0.04em; }

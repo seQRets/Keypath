@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.2.1 — 2026-09-12
+
+- Multisig card reordered the way people think about a multisig wallet: "Signatures needed of Cosigners / seeds", then Words and Script type, then the Generate and Clear buttons, then the wallet name and the cosigner xpubs. Generate now uses the threshold you chose (clamped to the number of seeds) instead of picking one; lowering the seed count pulls the threshold down; pasting keys sets the seed count to match them.
+- The card's introduction now describes both ways to create a wallet: generate a complete one here, or paste each cosigner's exported xpubs.
+- The KeyPath definitions section moved to the end of the page, below Take it offline, and lost its intro paragraph; it is the same collapsed list.
+
 ## v2.2.0 — 2026-09-12
 
 **Taproot multisig.**
