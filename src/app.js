@@ -179,7 +179,7 @@ $('menuPanel').querySelectorAll('a').forEach((a) => a.addEventListener('click', 
 $('fpValue').addEventListener('click', async () => { if (S.root && (await copyText(fpHex(S.root)))) toast('Fingerprint copied'); });
 $('phraseFpVal').addEventListener('click', async () => { if (S.root && (await copyText(fpHex(S.root)))) toast('Fingerprint copied'); });
 $('clearBtn').addEventListener('click', () => {
-  for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR', 'msKeys']) $(id).value = ''; msUpdate();
+  for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR', 'msKeys']) $(id).value = ''; $('msGen').innerHTML = ''; msUpdate();
   $('entropyLen').value = 'raw'; $('entropyType').value = 'auto'; entropyLenTouched = false; $('entropyWeak').classList.add('hidden'); $('startIdx').value = '0';
   S.rootFromKey = false; $('rootOut').textContent = '';
   onPhraseInput(false); shamirClear(); shamirRecover(); toast('Cleared');
@@ -672,7 +672,29 @@ function msInit() {
   });
   $('msAddrBody').addEventListener('click', async (e) => { const sp = e.target.closest('span[data-c]'); if (sp && (await copyText(sp.dataset.c))) toast('Copied'); });
   $('network').addEventListener('change', msUpdate);
+  for (let i = 2; i <= 15; i++) $('msGenCount').insertAdjacentHTML('beforeend', `<option>${i}</option>`);
+  $('msGenCount').value = '3';
+  $('msGenBtn').addEventListener('click', msGenerate);
+  document.addEventListener('click', async (e) => { const b = e.target.closest('#msGen .copy'); if (!b) return; if (document.documentElement.classList.contains('hide-secrets')) return toast('Private info is hidden'); if (await copyText(b.dataset.text, true)) { b.classList.add('done'); b.textContent = 'copied'; setTimeout(() => { b.classList.remove('done'); b.textContent = 'copy'; }, 1100); } });
   msUpdate();
+}
+// A complete wallet: one fresh phrase per cosigner, keys filled in, threshold kept sensible.
+function msGenerate() {
+  const n = +$('msGenCount').value, words = +$('msGenWords').value, script = $('msScript2').value, netc = net();
+  const H = 0x80000000, wl = wordlists[S.lang].words, cosigners = [];
+  for (let i = 0; i < n; i++) {
+    const phrase = bip39.entropyToMnemonic(crypto.getRandomValues(new Uint8Array(words * 4 / 3)), wl);
+    const root = HDKey.fromMasterSeed(bip39.mnemonicToSeedSync(phrase, ''), { private: netc.xprv, public: netc.xpub });
+    const c = multisig.cosignerFromNode(root, [48 + H, netc.coin + H, 0 + H, multisig.SCRIPT_INDEX[script] + H]);
+    cosigners.push({ phrase, fp: c.fp, line: `[${c.fp}${c.path}]${serExt(c.node, netc.xpub, false)}` });
+  }
+  const t = Math.min(Math.max(2, Math.ceil(n / 2) + (n > 2 ? 0 : 0)), n); // 2-of-2, 2-of-3, 3-of-4, 3-of-5, 4-of-6 …
+  $('msThreshold').value = String(n === 2 ? 2 : Math.max(2, Math.ceil(n / 2)));
+  $('msName').value = `KeyPath ${$('msThreshold').value}-of-${n}`;
+  $('msKeys').value = cosigners.map((c) => c.line).join('\n');
+  $('msGen').innerHTML = `<div class="share-list">${cosigners.map((c, i) => `<div class="share"><button class="copy" type="button" data-text="${esc(c.phrase)}">copy</button><h4>Cosigner ${i + 1} of ${n}<small>fingerprint ${esc(c.fp)}</small></h4><ol>${c.phrase.split(' ').map((w, j) => `<li><i>${j + 1}</i><b>${esc(w)}</b></li>`).join('')}</ol></div>`).join('')}</div>`;
+  msUpdate(); setHidden(true);
+  toast(`${n} cosigner phrases created and hidden`);
 }
 function msUpdate() {
   msLast = null; $('msOut').classList.add('hidden'); $('msWarnings').innerHTML = '';
@@ -737,7 +759,7 @@ function initTips() {
 
 /* ---------------- session hygiene ---------------- */
 function wipeAll() {
-  for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR', 'msKeys']) $(id).value = ''; msUpdate();
+  for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR', 'msKeys']) $(id).value = ''; $('msGen').innerHTML = ''; msUpdate();
   $('rootOut').textContent = ''; S.rootFromKey = false; S.seed = null; S.root = null; S.shRecovered = null;
   onPhraseInput(false); shamirClear(); shamirRecover();
   $('qrModal').hidden = true; $('qrWrap').innerHTML = '';

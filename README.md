@@ -28,7 +28,7 @@ KeyPath is a modern re-imagining of Ian Coleman's [BIP39 tool](https://github.co
 - Account extended keys with optional SLIP-132 prefixes (ypub/zpub/upub/vpub), extended keys at the derivation path
 - Output descriptors with checksums for Bitcoin Core / Sparrow
 - Address table with path / address / public key / WIF columns, hardened children, paging, click-to-copy, CSV download and copy
-- **Multisig wallet builder**: paste cosigner keys (origin lines, bare xpubs or a Coldcard setup file), pick the threshold and P2WSH or P2SH-P2WSH, and get the `sortedmulti` descriptor with checksum, a Coldcard-style setup file, and the wallet's first addresses for cross-device verification (BIP48, BIP67)
+- **Multisig wallet builder**: paste cosigner keys (origin lines, bare xpubs or a setup file), or generate a complete wallet with a fresh phrase per cosigner, pick the threshold and P2WSH or P2SH-P2WSH, and get the `sortedmulti` descriptor with checksum, a hardware-wallet setup file, and the wallet's first addresses for cross-device verification (BIP48, BIP67)
 - BIP85 child secrets (BIP39 phrase, WIF, xprv, raw hex)
 - Bitcoin mainnet and testnet/signet, light and dark themes, "Hide all private info" blur for screen sharing
 

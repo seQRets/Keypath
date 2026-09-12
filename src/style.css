@@ -444,3 +444,10 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
 #msAddrBody td.idx { color: var(--ink-soft); white-space: nowrap; }
 #msAddrBody td span { cursor: copy; }
 #msAddrBody td span:hover { color: var(--accent-ink); }
+
+/* ---------- generated multisig wallet ---------- */
+.gen-strip { background: var(--panel-sunk); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem 1.1rem; margin-top: 1.1rem; }
+.gen-strip select, .gen-strip input { background: var(--panel); }
+#msGen .share-list { margin-top: 0.9rem; }
+#msGen .share { background: var(--panel); }
+#msGen .share h4 small { display: block; margin: 0.15rem 0 0; font-family: var(--mono); letter-spacing: 0.04em; }

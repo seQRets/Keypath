@@ -7,7 +7,7 @@
 <meta name="description" content="KeyPath: generate or inspect a BIP39 recovery phrase, back it up with SLIP-39 Shamir shares, and derive BIP32 keys and Bitcoin addresses, legacy through Taproot. Single file, runs entirely offline in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-AhkeokeainGfq1oVN4msNkm2R6waGStAUgO1OFINY94=' 'sha256-arC3pFWpsMU25nktUrnRUfGbF4DB0d9h0fD6t9OknKI='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-AhkeokeainGfq1oVN4msNkm2R6waGStAUgO1OFINY94=' 'sha256-IqOVh2BwPvPvZW7TXLCg/2WyCNyvUHMlaPHzLIdIr60='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <script>try{if(localStorage.getItem("keypath-tips")==="off")document.documentElement.classList.add("no-tips");}catch(e){}try{var t=localStorage.getItem("keypath-theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}else if(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches){document.documentElement.setAttribute("data-theme","dark");}}catch(e){}</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23d2761a'/><g fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='10' cy='16' r='5'/><path d='M15 16h5'/><path d='M20 16l6-5.5M20 16l6 5.5'/></g><circle cx='27' cy='9.5' r='1.8' fill='%23fff'/><circle cx='27' cy='22.5' r='1.8' fill='%23fff'/></svg>">
 <style>
@@ -458,6 +458,13 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
 #msAddrBody td span { cursor: copy; }
 #msAddrBody td span:hover { color: var(--accent-ink); }
 
+/* ---------- generated multisig wallet ---------- */
+.gen-strip { background: var(--panel-sunk); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem 1.1rem; margin-top: 1.1rem; }
+.gen-strip select, .gen-strip input { background: var(--panel); }
+#msGen .share-list { margin-top: 0.9rem; }
+#msGen .share { background: var(--panel); }
+#msGen .share h4 small { display: block; margin: 0.15rem 0 0; font-family: var(--mono); letter-spacing: 0.04em; }
+
 </style>
 </head>
 <body>
@@ -480,13 +487,14 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
         <svg class="ic-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.1M12 19.3v2.1M2.6 12h2.1M19.3 12h2.1M5.4 5.4l1.5 1.5M17.1 17.1l1.5 1.5M18.6 5.4l-1.5 1.5M6.9 17.1l-1.5 1.5"/></svg>
         <span>Dark mode</span>
       </button>
+      <a class="menu-item" href="#download"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 19h16"/></svg><span>Download</span></a>
       <a class="menu-item" href="#top"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg><span>Back to top</span></a>
     </div>
   </div>
 
   <header class="masthead" id="top">
     <h1><span class="op"><span class="key">Key</span>Path</span><span class="sub">BIP39 Seed Phrase Generator</span></h1>
-    <p class="lede">Generate or paste a recovery phrase, split it into Shamir backup shares, follow it down the BIP32 tree, and see the Bitcoin addresses it controls, legacy through Taproot. Runs entirely in this file, in your browser.</p>
+    <p class="lede">Generate or paste a recovery phrase, split it into Shamir backup shares, follow it down the BIP32 tree, and see the Bitcoin addresses it controls, legacy through Taproot. Runs entirely in this <a href="#download">file</a>, in your browser.</p>
     <nav class="topnav" aria-label="Jump to a section">
       <a href="#phrase-card">Phrase</a>
       <a href="#shamir-card">Shamir backup</a>
@@ -495,8 +503,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
       <a href="#addresses-card">Addresses</a>
       <a href="#multisig-card">Multisig</a>
       <a href="#about">Definitions</a>
-      <a href="#offline">Security</a>
-      <a href="#download" class="tap">Download</a>
+      <a href="#offline" class="tap">Security</a>
     </nav>
   </header>
 
@@ -742,7 +749,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
           <div id="cosignerWrap" class="hidden">
             <h3 class="sec">Your cosigner key<button type="button" class="tip" data-tip="cosigner" aria-label="What does this mean?">?</button></h3>
             <p class="help" style="margin-bottom:0.8rem">This is what you hand to the person setting up the multisig wallet: your master fingerprint, the path, and the public account key. It cannot spend anything. Share it; never share the private one.</p>
-            <div class="field"><label class="field-label">Key with origin <span class="badge pub-badge" data-tip="public">public</span><span class="hint">the format Sparrow, Core and Coldcard accept</span></label>
+            <div class="field"><label class="field-label">Key with origin <span class="badge pub-badge" data-tip="public">public</span><span class="hint">the format Sparrow, Bitcoin Core and hardware wallets accept</span></label>
               <div class="term" id="cosignerLine"><button class="copy" data-copy="cosignerLine" type="button">copy</button></div></div>
             <button type="button" class="btn" id="cosignerToMs">Use this key in the multisig wallet below</button>
           </div>
@@ -800,19 +807,29 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
   <section class="console" id="multisig-card" aria-label="Multisig wallet">
     <div class="console-bar"><span class="n">6</span> Multisig wallet<button type="button" class="tip" data-tip="multisig" aria-label="What does this mean?">?</button><span class="right">BIP48 · BIP67</span></div>
     <div class="console-body">
-      <p class="console-intro">Combine the cosigner keys of several people or devices into one wallet that needs, say, 2 of 3 of them to spend. KeyPath builds the descriptor every wallet app needs, a Coldcard-style setup file, and the first addresses so every cosigner can confirm they match.</p>
+      <p class="console-intro">Combine the cosigner keys of several people or devices into one wallet that needs, say, 2 of 3 of them to spend. KeyPath builds the descriptor every wallet app needs, a setup file for hardware wallets, and the first addresses so every cosigner can confirm they match.</p>
       <details class="adv" id="msHowto">
         <summary>How a multisig wallet is set up</summary>
         <div class="adv-body">
           <div class="limits" style="margin-top:0.9rem">
             <div class="limit"><span class="lm-tag">1 · Keys</span><p>Each cosigner makes their <strong>own</strong> recovery phrase on their own device, ideally a hardware wallet. Nobody ever sees anyone else's phrase.</p></div>
             <div class="limit"><span class="lm-tag">2 · Export</span><p>Each cosigner exports their multisig <strong>public</strong> key: the BIP48 tab above shows yours as one line with the fingerprint and path. Public keys are safe to send by email or chat.</p></div>
-            <div class="limit"><span class="lm-tag">3 · Combine</span><p>One person pastes every cosigner line below, picks how many signatures are needed, and gets the descriptor and setup file. Load the descriptor into Sparrow, Bitcoin Core, Nunchuk or the setup file into a Coldcard.</p></div>
+            <div class="limit"><span class="lm-tag">3 · Combine</span><p>One person pastes every cosigner line below, picks how many signatures are needed, and gets the descriptor and setup file. Load the descriptor into Sparrow, Bitcoin Core or Nunchuk, or the setup file into a hardware wallet.</p></div>
             <div class="limit warn"><span class="lm-tag">4 · Verify</span><p>Every cosigner checks that the <strong>first receive address</strong> shown here is the one their own device shows for the wallet. If one device disagrees, stop: a key or the threshold is wrong.</p></div>
             <div class="limit warn"><span class="lm-tag">5 · Back up</span><p>Keep a copy of the <strong>descriptor or setup file with every phrase backup</strong>. Recovering a multisig wallet needs the threshold of phrases <em>and</em> the descriptor; with all the phrases but no descriptor the coins are still lost.</p></div>
           </div>
         </div>
       </details>
+
+      <div class="gen-strip">
+        <div class="row">
+          <label class="narrow"><span class="small-label">Cosigners<button type="button" class="tip" data-tip="cosigner" aria-label="What does this mean?">?</button></span><select id="msGenCount"></select></label>
+          <label class="narrow"><span class="small-label">Words<button type="button" class="tip" data-tip="wordcount" aria-label="What does this mean?">?</button></span><select id="msGenWords"><option>12</option><option>24</option></select></label>
+          <button type="button" class="btn primary" id="msGenBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"/></svg>Generate a complete multisig wallet</button>
+        </div>
+        <p class="help" style="margin:0.6rem 0 0">Creates a fresh recovery phrase for every cosigner, fills in their keys below and builds the wallet. Write each phrase down separately and store them apart. <strong>For the strongest setup, make each phrase on its own device instead</strong>; creating them all here puts every key on this one computer for a moment.</p>
+        <div id="msGen" class="secret"></div>
+      </div>
 
       <div class="row" style="margin-top:1.1rem">
         <label class="narrow"><span class="small-label">Needed<button type="button" class="tip" data-tip="msthreshold" aria-label="What does this mean?">?</button></span><select id="msThreshold"></select></label>
@@ -820,7 +837,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
         <label class="grow"><span class="small-label">Wallet name <span class="hint">for the setup file</span></span><input type="text" id="msName" value="KeyPath multisig" maxlength="40" spellcheck="false"></label>
       </div>
       <div class="field" style="margin-top:1rem">
-        <label class="field-label" for="msKeys">Cosigner keys<button type="button" class="tip" data-tip="cosigner" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span><span class="hint">one per line, in any order; a pasted Coldcard setup file works too</span></label>
+        <label class="field-label" for="msKeys">Cosigner keys<button type="button" class="tip" data-tip="cosigner" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span><span class="hint">one per line, in any order; a pasted setup file works too</span></label>
         <textarea id="msKeys" class="mono" rows="5" spellcheck="false" autocomplete="off" placeholder="[73c5da0a/48h/0h/0h/2h]xpub6E64WfdQwBGz…&#10;[a1b2c3d4/48h/0h/0h/2h]xpub6Dk3…"></textarea>
       </div>
       <div class="meter" id="msStatus"></div>
@@ -908,7 +925,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest/download/SHA256SUMS.txt" rel="noopener noreferrer">SHA256SUMS.txt</a>
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest" target="_blank" rel="noopener noreferrer">Release notes</a>
       </div>
-      <p class="dl-note">This page is KeyPath v2.0.0. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
+      <p class="dl-note">This page is KeyPath v2.1.0. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
     </div>
   </section>
 
@@ -927,7 +944,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
       </div>
     </div>
     <div class="foot-bottom">
-      <span class="credit">KeyPath v2.0.0 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
+      <span class="credit">KeyPath v2.1.0 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
       <span>Provided "as is", without warranty. Verify addresses in a second tool before sending significant funds.</span>
     </div>
   </footer>
@@ -21520,7 +21537,7 @@ window.KEYPATH_GLOSSARY = {
   msscript: { t: 'Multisig script type', d: 'P2WSH is native SegWit multisig with bc1q addresses, the modern default with the lowest fees. P2SH-P2WSH is the older nested form with addresses starting with 3, for compatibility with old software. All cosigners must use the same type.' },
   keyorigin: { t: 'Key origin', d: 'The part in square brackets before an xpub: the master fingerprint and the path the key was derived along. It lets a hardware wallet recognise which of its keys is being asked to sign. Always share your cosigner key with its origin.' },
   sortedmulti: { t: 'sortedmulti', d: 'In the descriptor, sortedmulti means the keys are put in a fixed order (BIP67) before building each address, so it does not matter in what order the cosigners were listed. Every wallet app agrees on the same addresses.' },
-  coldcardfile: { t: 'Setup file', d: 'A small text file listing the policy (2 of 3), the script type, the derivation path and each cosigner\'s fingerprint and xpub. Coldcard invented the format and most hardware and desktop wallets now import it, so it is the easiest way to load the same wallet on every device.' },
+  coldcardfile: { t: 'Setup file', d: 'A small text file listing the policy (2 of 3), the script type, the derivation path and each cosigner\'s fingerprint and xpub. Most hardware and desktop wallets import it, so it is the easiest way to load the same wallet on every device.' },
   msaddresses: { t: 'Wallet addresses', d: 'The receive addresses of the multisig wallet, built from all cosigner keys. They are the same on every device that has the same keys and threshold, which is why comparing the first one is the standard check that the wallet was set up correctly.' },
   split: { t: 'Split into shares', d: 'Make a new set of Shamir shares from the phrase currently shown above.' },
   recover: { t: 'Recover from shares', d: 'Paste shares you made earlier and get the phrase back.' },
@@ -21707,7 +21724,7 @@ $('menuPanel').querySelectorAll('a').forEach((a) => a.addEventListener('click', 
 $('fpValue').addEventListener('click', async () => { if (S.root && (await copyText(fpHex(S.root)))) toast('Fingerprint copied'); });
 $('phraseFpVal').addEventListener('click', async () => { if (S.root && (await copyText(fpHex(S.root)))) toast('Fingerprint copied'); });
 $('clearBtn').addEventListener('click', () => {
-  for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR', 'msKeys']) $(id).value = ''; msUpdate();
+  for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR', 'msKeys']) $(id).value = ''; $('msGen').innerHTML = ''; msUpdate();
   $('entropyLen').value = 'raw'; $('entropyType').value = 'auto'; entropyLenTouched = false; $('entropyWeak').classList.add('hidden'); $('startIdx').value = '0';
   S.rootFromKey = false; $('rootOut').textContent = '';
   onPhraseInput(false); shamirClear(); shamirRecover(); toast('Cleared');
@@ -22200,7 +22217,29 @@ function msInit() {
   });
   $('msAddrBody').addEventListener('click', async (e) => { const sp = e.target.closest('span[data-c]'); if (sp && (await copyText(sp.dataset.c))) toast('Copied'); });
   $('network').addEventListener('change', msUpdate);
+  for (let i = 2; i <= 15; i++) $('msGenCount').insertAdjacentHTML('beforeend', `<option>${i}</option>`);
+  $('msGenCount').value = '3';
+  $('msGenBtn').addEventListener('click', msGenerate);
+  document.addEventListener('click', async (e) => { const b = e.target.closest('#msGen .copy'); if (!b) return; if (document.documentElement.classList.contains('hide-secrets')) return toast('Private info is hidden'); if (await copyText(b.dataset.text, true)) { b.classList.add('done'); b.textContent = 'copied'; setTimeout(() => { b.classList.remove('done'); b.textContent = 'copy'; }, 1100); } });
   msUpdate();
+}
+// A complete wallet: one fresh phrase per cosigner, keys filled in, threshold kept sensible.
+function msGenerate() {
+  const n = +$('msGenCount').value, words = +$('msGenWords').value, script = $('msScript2').value, netc = net();
+  const H = 0x80000000, wl = wordlists[S.lang].words, cosigners = [];
+  for (let i = 0; i < n; i++) {
+    const phrase = bip39.entropyToMnemonic(crypto.getRandomValues(new Uint8Array(words * 4 / 3)), wl);
+    const root = HDKey.fromMasterSeed(bip39.mnemonicToSeedSync(phrase, ''), { private: netc.xprv, public: netc.xpub });
+    const c = multisig.cosignerFromNode(root, [48 + H, netc.coin + H, 0 + H, multisig.SCRIPT_INDEX[script] + H]);
+    cosigners.push({ phrase, fp: c.fp, line: `[${c.fp}${c.path}]${serExt(c.node, netc.xpub, false)}` });
+  }
+  const t = Math.min(Math.max(2, Math.ceil(n / 2) + (n > 2 ? 0 : 0)), n); // 2-of-2, 2-of-3, 3-of-4, 3-of-5, 4-of-6 …
+  $('msThreshold').value = String(n === 2 ? 2 : Math.max(2, Math.ceil(n / 2)));
+  $('msName').value = `KeyPath ${$('msThreshold').value}-of-${n}`;
+  $('msKeys').value = cosigners.map((c) => c.line).join('\n');
+  $('msGen').innerHTML = `<div class="share-list">${cosigners.map((c, i) => `<div class="share"><button class="copy" type="button" data-text="${esc(c.phrase)}">copy</button><h4>Cosigner ${i + 1} of ${n}<small>fingerprint ${esc(c.fp)}</small></h4><ol>${c.phrase.split(' ').map((w, j) => `<li><i>${j + 1}</i><b>${esc(w)}</b></li>`).join('')}</ol></div>`).join('')}</div>`;
+  msUpdate(); setHidden(true);
+  toast(`${n} cosigner phrases created and hidden`);
 }
 function msUpdate() {
   msLast = null; $('msOut').classList.add('hidden'); $('msWarnings').innerHTML = '';
@@ -22265,7 +22304,7 @@ function initTips() {
 
 /* ---------------- session hygiene ---------------- */
 function wipeAll() {
-  for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR', 'msKeys']) $(id).value = ''; msUpdate();
+  for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR', 'msKeys']) $(id).value = ''; $('msGen').innerHTML = ''; msUpdate();
   $('rootOut').textContent = ''; S.rootFromKey = false; S.seed = null; S.root = null; S.shRecovered = null;
   onPhraseInput(false); shamirClear(); shamirRecover();
   $('qrModal').hidden = true; $('qrWrap').innerHTML = '';

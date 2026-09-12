@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.1.0 — 2026-09-12
+
+- **Generate a complete multisig wallet**: choose how many cosigners and 12 or 24 words, and KeyPath creates a fresh phrase for each, shows them as numbered cards (blurred, with fingerprints), fills in the cosigner keys and builds the wallet. The page notes that making every phrase on one computer is weaker than one device per cosigner.
+- Download moved from the top navigation into the menu; the word "file" in the subtitle links to the download section.
+- Wording no longer names a hardware wallet brand outside the setup-file section.
+
 ## v2.0.0 — 2026-09-12
 
 **Multisig.**
