@@ -353,11 +353,12 @@
 
       <div class="gen-strip">
         <div class="row">
-          <label class="narrow"><span class="small-label">Cosigners<button type="button" class="tip" data-tip="cosigner" aria-label="What does this mean?">?</button></span><select id="msGenCount"></select></label>
+          <label class="narrow"><span class="small-label">Cosigners / seeds<button type="button" class="tip" data-tip="cosigner" aria-label="What does this mean?">?</button></span><select id="msGenCount"></select></label>
           <label class="narrow"><span class="small-label">Words<button type="button" class="tip" data-tip="wordcount" aria-label="What does this mean?">?</button></span><select id="msGenWords"><option>12</option><option>24</option></select></label>
           <button type="button" class="btn primary" id="msGenBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"/></svg>Generate a complete multisig wallet</button>
+          <button type="button" class="btn" id="msClearBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>Clear</button>
         </div>
-        <p class="help" style="margin:0.6rem 0 0">Creates a fresh recovery phrase for every cosigner, fills in their keys below and builds the wallet. Write each phrase down separately and store them apart. <strong>For the strongest setup, make each phrase on its own device instead</strong>; creating them all here puts every key on this one computer for a moment.</p>
+        <p class="help" style="margin:0.6rem 0 0">Creates a fresh recovery phrase (seed) for every cosigner, fills in their keys below and builds the wallet. Write each phrase down separately and store them apart. <strong>For the strongest setup, make each phrase on its own device instead</strong>; creating them all here puts every key on this one computer for a moment.</p>
         <div id="msGen" class="secret"></div>
       </div>
 
@@ -367,7 +368,7 @@
         <label class="grow"><span class="small-label">Wallet name <span class="hint">for the setup file</span></span><input type="text" id="msName" value="KeyPath multisig" maxlength="40" spellcheck="false"></label>
       </div>
       <div class="field" style="margin-top:1rem">
-        <label class="field-label" for="msKeys">Cosigner keys<button type="button" class="tip" data-tip="cosigner" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span><span class="hint">one per line, in any order; a pasted setup file works too</span></label>
+        <label class="field-label" for="msKeys">Cosigner keys<button type="button" class="tip" data-tip="cosigner" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span><span class="hint">one per seed</span><span class="hint">one per line, in any order; a pasted setup file works too</span></label>
         <textarea id="msKeys" class="mono" rows="5" spellcheck="false" autocomplete="off" placeholder="[73c5da0a/48h/0h/0h/2h]xpub6E64WfdQwBGz…&#10;[a1b2c3d4/48h/0h/0h/2h]xpub6Dk3…"></textarea>
       </div>
       <div class="meter" id="msStatus"></div>

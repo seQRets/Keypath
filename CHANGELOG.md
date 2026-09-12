@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.1.1 — 2026-09-12
+
+- Multisig card: a Clear button beside Generate wipes the generated phrases and cosigner keys; the count is labelled "Cosigners / seeds" and the definition explains that a cosigner is one person or device with its own seed.
+
 ## v2.1.0 — 2026-09-12
 
 - **Generate a complete multisig wallet**: choose how many cosigners and 12 or 24 words, and KeyPath creates a fresh phrase for each, shows them as numbered cards (blurred, with fingerprints), fills in the cosigner keys and builds the wallet. The page notes that making every phrase on one computer is weaker than one device per cosigner.

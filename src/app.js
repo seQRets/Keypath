@@ -675,6 +675,7 @@ function msInit() {
   for (let i = 2; i <= 15; i++) $('msGenCount').insertAdjacentHTML('beforeend', `<option>${i}</option>`);
   $('msGenCount').value = '3';
   $('msGenBtn').addEventListener('click', msGenerate);
+  $('msClearBtn').addEventListener('click', () => { $('msKeys').value = ''; $('msGen').innerHTML = ''; $('msName').value = 'KeyPath multisig'; $('msThreshold').value = '2'; msUpdate(); toast('Multisig wallet cleared'); });
   document.addEventListener('click', async (e) => { const b = e.target.closest('#msGen .copy'); if (!b) return; if (document.documentElement.classList.contains('hide-secrets')) return toast('Private info is hidden'); if (await copyText(b.dataset.text, true)) { b.classList.add('done'); b.textContent = 'copied'; setTimeout(() => { b.classList.remove('done'); b.textContent = 'copy'; }, 1100); } });
   msUpdate();
 }
