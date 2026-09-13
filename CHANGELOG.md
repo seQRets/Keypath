@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.3.5 — 2026-09-13
+
+- Try the demo wallet now sits inside the Generate box, at the right end of the Generate / Clear row.
+
 ## v2.3.4 — 2026-09-13
 
 - Try the demo wallet moved to the right end of the "Where do the cosigner keys come from?" line, above the Generate strip.
