@@ -645,26 +645,17 @@ $('qrModal').addEventListener('click', (e) => { if (e.target.closest('[data-clos
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('qrModal').hidden) { $('qrModal').hidden = true; $('qrWrap').innerHTML = ''; } });
 
 /* ---------------- multisig wallet (BIP48 / BIP67 / descriptors) ---------------- */
-let msLast = null, msKeysSeen = '', msDemoKeys = null, msModeV = 'create', msSrcV = 'paste';
-// Show the parts of the card that belong to the chosen mode (create / check) and key source (paste / generate).
-function msRefreshMode() {
-  const create = msModeV === 'create', gen = create && msSrcV === 'gen', paste = create && msSrcV === 'paste';
-  $('msModeCreate').setAttribute('aria-pressed', create); $('msModeCheck').setAttribute('aria-pressed', !create);
-  $('msSrcPaste').setAttribute('aria-pressed', msSrcV === 'paste'); $('msSrcGen').setAttribute('aria-pressed', msSrcV === 'gen');
+let msLast = null, msKeysSeen = '', msDemoKeys = null, msModeV = 'build';
+// Three exclusive panels: build (paste cosigner xpubs), gen (generate every seed here), check (existing wallet).
+function msMode(m) {
+  msModeV = m;
+  for (const [id, v] of [['msModeBuild', 'build'], ['msModeGen', 'gen'], ['msModeCheck', 'check']]) $(id).setAttribute('aria-pressed', m === v);
   const card = $('multisig-card');
-  card.querySelectorAll('.ms-create').forEach((el) => el.classList.toggle('hidden', !create));
-  card.querySelectorAll('.ms-check').forEach((el) => el.classList.toggle('hidden', create));
-  card.querySelectorAll('.ms-gen').forEach((el) => el.classList.toggle('hidden', !gen));
-  card.querySelectorAll('.ms-paste').forEach((el) => el.classList.toggle('hidden', !paste));
-  card.querySelectorAll('.ms-notgen').forEach((el) => el.classList.toggle('hidden', gen));
-  $('msHowto').classList.toggle('hidden', !create);
+  for (const v of ['build', 'gen', 'check']) card.querySelectorAll('.ms-' + v).forEach((el) => el.classList.toggle('hidden', !el.classList.contains('ms-' + m)));
   msUpdate();
 }
-function msMode(m) { msModeV = m; msRefreshMode(); }
-function msSource(src) { msSrcV = src; msRefreshMode(); }
 function msInit() {
-  $('msModeCreate').addEventListener('click', () => msMode('create')); $('msModeCheck').addEventListener('click', () => msMode('check'));
-  $('msSrcPaste').addEventListener('click', () => msSource('paste')); $('msSrcGen').addEventListener('click', () => msSource('gen'));
+  for (const [id, v] of [['msModeBuild', 'build'], ['msModeGen', 'gen'], ['msModeCheck', 'check']]) $(id).addEventListener('click', () => msMode(v));
   for (let i = 1; i <= 15; i++) $('msThreshold').insertAdjacentHTML('beforeend', `<option>${i}</option>`);
   $('msThreshold').value = '2';
   $('msKeys').addEventListener('input', debounce(msUpdate, 250));
@@ -674,7 +665,7 @@ function msInit() {
   $('cosignerToMs').addEventListener('click', () => {
     const line = $('cosignerLine').dataset.value; if (!line) return toast('Enter a phrase first');
     if ($('msKeys').value.includes(line)) { toast('Already in the list'); }
-    else { $('msKeys').value = ($('msKeys').value.trim() ? $('msKeys').value.trim() + '\n' : '') + line; $('msScript2').value = $('msScript').value; if (msModeV === 'create') { msSrcV = 'paste'; msRefreshMode(); } else msUpdate(); toast('Cosigner key added'); }
+    else { $('msKeys').value = ($('msKeys').value.trim() ? $('msKeys').value.trim() + '\n' : '') + line; $('msScript2').value = $('msScript').value; if (msModeV === 'gen') msMode('build'); else msUpdate(); toast('Cosigner key added'); }
     $('multisig-card').scrollIntoView({ behavior: 'smooth' });
   });
   $('msDownload').addEventListener('click', () => {
@@ -688,13 +679,13 @@ function msInit() {
   for (let i = 2; i <= 15; i++) $('msGenCount').insertAdjacentHTML('beforeend', `<option>${i}</option>`);
   $('msGenCount').value = '3';
   $('msGenBtn').addEventListener('click', () => msGenerate(false));
-  $('msDemoBtn').addEventListener('click', () => { msModeV = 'create'; msSrcV = 'gen'; msRefreshMode(); msGenerate(true); });
+  $('msDemoBtn').addEventListener('click', () => msGenerate(true));
   const msClear = () => { $('msKeys').value = ''; $('msExpect').value = ''; msGenCover(false); $('msGen').innerHTML = ''; $('msGenEye').classList.add('hidden'); $('msName').value = 'KeyPath multisig'; $('msThreshold').value = '2'; $('msGenCount').value = '3'; msUpdate(); toast('Multisig wallet cleared'); };
-  $('msClearBtn').addEventListener('click', msClear); $('msClearBtn2').addEventListener('click', msClear);
+  $('msClearBtn').addEventListener('click', msClear);
   $('msGenEye').addEventListener('click', () => msGenCover(!$('msGen').classList.contains('covered')));
   $('msGenCount').addEventListener('change', () => { if (+$('msThreshold').value > +$('msGenCount').value) $('msThreshold').value = $('msGenCount').value; msUpdate(); });
   document.addEventListener('click', async (e) => { const b = e.target.closest('#msGen .copy'); if (!b) return; if (document.documentElement.classList.contains('hide-secrets') || $('msGen').classList.contains('covered')) return toast('Private info is hidden'); if (await copyText(b.dataset.text, true)) { b.classList.add('done'); b.textContent = 'copied'; setTimeout(() => { b.classList.remove('done'); b.textContent = 'copy'; }, 1100); } });
-  msRefreshMode();
+  msMode('build');
 }
 // The generated phrases have their own cover, independent of the page-wide Hide private info, so revealing
 // the page (for example with the demo phrase) never exposes them by accident.
@@ -729,7 +720,7 @@ function msUpdate() {
   $('msTrNote').classList.toggle('hidden', $('msScript2').value !== 'p2tr');
   const text = $('msKeys').value;
   if (!text.trim()) {
-    const msg = msModeV === 'check' ? 'Waiting for the existing wallet\'s xpubs or setup file.' : msSrcV === 'gen' ? 'Press Generate to create a phrase for every cosigner. Their xpubs appear above and the wallet is built from them.' : 'Waiting for the cosigner xpub lines. The wallet is built as soon as two or more are pasted.';
+    const msg = msModeV === 'check' ? 'Waiting for the existing wallet\'s xpubs or setup file.' : msModeV === 'gen' ? 'Press Generate to create a phrase for every cosigner. Their xpubs appear above and the wallet is built from them.' : 'Waiting for the cosigner xpub lines. The wallet is built as soon as two or more are pasted.';
     setMeter('msStatus', note(msg)); return;
   }
   const parsed = multisig.parseCosigners(text, VERSION_TABLE);
@@ -750,9 +741,9 @@ function msUpdate() {
   const chain = +$('msChain').value, rows = Math.min(100, Math.max(1, parseInt($('msRows').value, 10) || 5));
   $('msAddrBody').innerHTML = Array.from({ length: rows }, (_, i) => { const a = multisig.multisigAddress(threshold, cos, script, chain, i, n); return `<tr><td class="idx">${chain}/${i}</td><td><span data-c="${esc(a)}">${esc(a)}</span></td></tr>`; }).join('');
   const demo = text.trim() === msDemoKeys;
-  setMeter('msStatus', count(`${threshold} of ${cos.length} · ${multisig.MS_FORMAT[script]}${demo ? ' · demo' : ''}`, demo ? 'warn' : 'ok') + note(demo ? 'Demo wallet built from the public test phrases: explore it, never fund it. To see why the descriptor must be backed up, delete one xpub line above: the address changes and the check says no match, because two phrases alone cannot rebuild a 2-of-3 wallet.' : `${n.name}. Compare the first address with every cosigner's device.`));
+  setMeter('msStatus', count(`${threshold} of ${cos.length} · ${multisig.MS_FORMAT[script]}${demo ? ' · demo' : ''}`, demo ? 'warn' : 'ok') + note(demo ? 'Demo wallet built from the public test phrases: explore it, never fund it. To see why the descriptor must be backed up, delete one xpub line above: the address changes, because two phrases alone cannot rebuild a 2-of-3 wallet.' : `${n.name}. Compare the first address with every cosigner's device.`));
   // Does the pasted first address belong to the wallet these keys rebuild? Search the first 50 receive and change addresses.
-  const expect = $('msExpect').value.trim().toLowerCase();
+  const expect = msModeV === 'check' ? $('msExpect').value.trim().toLowerCase() : '';
   if (expect) {
     let hit = null;
     for (let c = 0; c < 2 && !hit; c++) for (let i = 0; i < 50; i++) { if (multisig.multisigAddress(threshold, cos, script, c, i, n).toLowerCase() === expect) { hit = `${c}/${i}`; break; } }

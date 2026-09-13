@@ -1,5 +1,14 @@
 # Changelog
 
+## v2.5.0 — 2026-09-13
+
+**Multisig card split into three panels, one job each.**
+
+- **Build from cosigner xpubs** (default): signatures needed, script type, the pasted xpub lines. Nothing else.
+- **Generate the seeds here**: signatures needed of how many seeds, words, script type, one Generate button with Reveal / Hide phrases and Try the demo wallet, the phrase cards, and the xpubs derived from them.
+- **Check or restore a wallet**: signatures needed, script type, the wallet's xpubs or setup file, and the optional "First address shown by your wallet" check, which now lives only here.
+- One Clear button in the card header. The wallet name moved into the Setup file section next to Download, since that is the only place it is used. The separate key-source toggle, the second Clear button and the duplicate help paragraphs are gone; each panel opens with one short paragraph saying what it is for.
+
 ## v2.4.0 — 2026-09-13
 
 - **First address shown by your wallet**: an optional box under the cosigner xpubs. Paste the first receive address a wallet or device shows and KeyPath says whether these keys, threshold and script type rebuild the wallet that owns it (the first 50 receive and change addresses are searched). Match or No match, with the reason a match can fail: a missing or wrong xpub, or a different threshold or script type.
