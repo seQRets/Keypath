@@ -777,10 +777,12 @@ function labInit() {
   $('labRows').innerHTML = seeds.map((sd, i) => `<tr><td><strong>Seed ${i + 1}</strong><small>abandon × 11, ${esc(sd.phrase.split(' ').pop())}</small></td><td><label><input type="checkbox" data-lab-seed="${i}"> the 12 words<small>fingerprint ${esc(sd.fp)}</small></label></td><td><label><input type="checkbox" data-lab-xpub="${i}"> its xpub<small>${esc(sd.xpub.slice(0, 12))}…</small></label></td></tr>`).join('');
   const have = () => ({ seed: [0, 1, 2].map((i) => $('labRows').querySelector(`[data-lab-seed="${i}"]`).checked), xpub: [0, 1, 2].map((i) => $('labRows').querySelector(`[data-lab-xpub="${i}"]`).checked), def: $('labDef').checked });
   const box = (level, tag, html) => `<div class="limit ${level}"><span class="lm-tag">${tag}</span><p>${html}</p></div>`;
-  const update = () => {
+  const update = (e) => {
+    // a seed implies its xpub: the xpub box follows the seed box and is greyed out while the seed is ticked
+    [0, 1, 2].forEach((i) => { const sd = $('labRows').querySelector(`[data-lab-seed="${i}"]`), xp = $('labRows').querySelector(`[data-lab-xpub="${i}"]`); if (sd.checked || (e && e.target === sd)) xp.checked = sd.checked; xp.disabled = sd.checked; });
     const h = have();
     const known = seeds.map((_, i) => h.def || h.seed[i] || h.xpub[i]);
-    const how = seeds.map((_, i) => (h.def ? 'from the definition' : h.seed[i] ? 'derived from the seed' : h.xpub[i] ? 'the xpub itself' : 'missing'));
+    const how = seeds.map((_, i) => (h.seed[i] ? 'derived from the seed' : h.def ? 'from the definition' : h.xpub[i] ? 'the xpub itself' : 'missing'));
     const nSeeds = h.seed.filter(Boolean).length, nKnown = known.filter(Boolean).length, missing = seeds.map((_, i) => i).filter((i) => !known[i]);
     const canFind = nKnown === 3, canSpend = canFind && nSeeds >= 2;
     let out = box('', 'Xpubs known', `<strong>${nKnown} of 3</strong>: ` + seeds.map((_, i) => `seed ${i + 1} ${how[i]}`).join(', ') + '.');

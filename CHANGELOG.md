@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.6.1 — 2026-09-13
+
+- Multisig lab: ticking a seed now ticks and greys out its xpub box, since a seed always gives its xpub. A line under the table says so. The only independent choices left are which seeds you hold, which extra xpubs you kept, and whether you kept the definition.
+
 ## v2.6.0 — 2026-09-13
 
 **Multisig lab, and two panels instead of three.**
