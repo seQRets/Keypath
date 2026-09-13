@@ -274,7 +274,7 @@
             <div class="term" id="descChange"><button class="copy" data-copy="descChange" type="button">copy</button></div></div>
           </div>
           <div id="cosignerWrap" class="hidden">
-            <h3 class="sec">Your cosigner key<button type="button" class="tip" data-tip="cosigner" aria-label="What does this mean?">?</button></h3>
+            <h3 class="sec">Your multisig xpub<button type="button" class="tip" data-tip="cosigner" aria-label="What does this mean?">?</button></h3>
             <p class="help" style="margin-bottom:0.8rem">This is what you hand to the person setting up the multisig wallet: your master fingerprint, the path, and the public account key. It cannot spend anything. Share it; never share the private one.</p>
             <p class="help hidden" id="msTrNote48" style="margin-bottom:0.8rem">Taproot multisig (script type 3') is the newest type, with cheaper and more private spends. Sparrow, Bitcoin Core 24 and later, and recent hardware wallets support it; older wallets cannot import it, and there is no special prefix for its key: it is a plain xpub.</p>
             <div class="field"><label class="field-label">Key with origin <span class="badge pub-badge" data-tip="public">public</span><span class="hint">the format Sparrow, Bitcoin Core and hardware wallets accept</span></label>
@@ -335,24 +335,24 @@
   <section class="console" id="multisig-card" aria-label="Multisig wallet">
     <div class="console-bar"><span class="n">6</span> Multisig wallet<button type="button" class="tip" data-tip="multisig" aria-label="What does this mean?">?</button><div class="bar-actions"><button type="button" class="barbtn" id="msClearBtn">Clear</button></div></div>
     <div class="console-body">
-      <p class="console-intro">A multisig wallet needs, say, 2 of 3 seeds to spend. KeyPath produces its <strong>descriptor</strong>, which your software wallet loads to become a watch-only wallet that also prepares spends, and its <strong>setup file</strong>, which each cosigner loads onto their hardware wallet so it can verify addresses and sign. Pick what you are doing:</p>
+      <p class="console-intro">A multisig wallet is controlled by several seeds instead of one, and needs some of them, for example 2 of 3, to spend. Each seed is one recovery phrase, kept on its own device, usually by its own person. KeyPath never needs the seeds themselves: it combines their public keys (xpubs) into the wallet. Pick what you are doing:</p>
       <div class="mode-toggle" role="group" aria-label="Multisig mode">
-        <button class="mode-btn" id="msModeBuild" type="button" aria-pressed="true">Build from cosigner xpubs</button>
+        <button class="mode-btn" id="msModeBuild" type="button" aria-pressed="true">Build from xpubs</button>
         <button class="mode-btn" id="msModeGen" type="button" aria-pressed="false">Generate the seeds here</button>
         <button class="mode-btn" id="msModeCheck" type="button" aria-pressed="false">Check or restore a wallet</button>
       </div>
-      <p class="help ms-build" style="margin:0.8rem 0 0">The normal way. Each cosigner makes their phrase on their own device and sends you only the public xpub line it exports; the BIP48 tab above shows this page's own. Paste every line, choose how many signatures are needed, and the wallet is built.</p>
-      <p class="help ms-gen" style="margin:0.8rem 0 0">Everything on this computer: a fresh recovery phrase for every cosigner, their xpubs, and the wallet. Convenient for learning or for a wallet whose keys will all be yours; <strong>for the strongest setup, make each phrase on its own device instead</strong>, since here every key passes through this one computer.</p>
-      <p class="help ms-check" style="margin:0.8rem 0 0">Paste the xpubs of a wallet that already exists, or its setup file. KeyPath rebuilds the descriptor and the addresses, so you can confirm that a device shows the right first address, or recover a lost descriptor. A setup file sets the signatures and script type for you.</p>
+      <p class="help ms-build" style="margin:0.8rem 0 0">The normal way. Each seed stays on its own device, and the device exports only the seed's public xpub line (the BIP48 tab above shows the xpub line of the seed on this page). Whoever sets up the wallet, usually one of the seed holders, pastes every line here, chooses how many signatures are needed, and the wallet is built.</p>
+      <p class="help ms-gen" style="margin:0.8rem 0 0">Everything on this computer: KeyPath creates every seed, derives their xpubs and builds the wallet. Good for learning, or when one person will hold every seed. <strong>For the strongest setup, create each seed on its own device instead</strong>, so that no computer ever sees more than one.</p>
+      <p class="help ms-check" style="margin:0.8rem 0 0">Paste the xpubs of a wallet that already exists, or its setup file. KeyPath rebuilds the wallet's definition and addresses, so a device's first address can be confirmed, or a lost descriptor recovered. A pasted setup file sets the signatures and script type by itself.</p>
       <details class="adv ms-build ms-gen" id="msHowto">
         <summary>How a multisig wallet is set up</summary>
         <div class="adv-body">
           <div class="limits" style="margin-top:0.9rem">
-            <div class="limit"><span class="lm-tag">1 · Keys</span><p>Each cosigner makes their <strong>own</strong> recovery phrase on their own device, ideally a hardware wallet. Nobody ever sees anyone else's phrase.</p></div>
-            <div class="limit"><span class="lm-tag">2 · Export</span><p>Each cosigner exports their multisig <strong>public</strong> key: the BIP48 tab above shows yours as one line with the fingerprint and path. Public keys are safe to send by email or chat.</p></div>
-            <div class="limit"><span class="lm-tag">3 · Combine</span><p>One person pastes every cosigner line below, picks how many signatures are needed, and gets the wallet definition: the descriptor for Sparrow, Bitcoin Core or Nunchuk, and the setup file for each hardware wallet. Both are public and carry no seed; each device keeps its own phrase and learns from the file which wallet its key belongs to.</p></div>
-            <div class="limit warn"><span class="lm-tag">4 · Verify</span><p>Every cosigner checks that the <strong>first receive address</strong> shown here is the one their own device shows for the wallet. If one device disagrees, stop: a key or the threshold is wrong.</p></div>
-            <div class="limit warn"><span class="lm-tag">5 · Back up</span><p>Keep a copy of the <strong>descriptor or setup file with every phrase backup</strong>. Recovering a multisig wallet needs the threshold of phrases <em>and</em> every cosigner's xpub, which is what the descriptor holds. Two phrases of a 2-of-3 can sign, but without the third xpub the addresses cannot even be rebuilt. Prove it with the demo wallet: delete one xpub line and watch the address change.</p></div>
+            <div class="limit"><span class="lm-tag">1 · Seeds</span><p>Make each seed on its <strong>own</strong> device, ideally a hardware wallet, one per person. Nobody ever sees anyone else's seed.</p></div>
+            <div class="limit"><span class="lm-tag">2 · Export</span><p>Each device exports the <strong>public</strong> xpub of its seed, as one line with the fingerprint and path (the BIP48 tab above shows it for the seed on this page). Xpubs are safe to send by email or chat.</p></div>
+            <div class="limit"><span class="lm-tag">3 · Combine</span><p>Whoever sets up the wallet pastes every xpub line below, picks how many signatures are needed, and gets the wallet definition: the descriptor for Sparrow, Bitcoin Core or Nunchuk, and the setup file for each hardware wallet. Both are public and contain no seed; each device keeps its own seed and learns from the file which wallet it belongs to.</p></div>
+            <div class="limit warn"><span class="lm-tag">4 · Verify</span><p>Every device should show the <strong>first receive address</strong> listed here for the wallet. If one device disagrees, stop: an xpub, the threshold or the script type is wrong.</p></div>
+            <div class="limit warn"><span class="lm-tag">5 · Back up</span><p>Keep the <strong>descriptor or setup file with every seed backup</strong>. Recovering a multisig wallet needs enough seeds to sign <em>and</em> the xpub of every seed, which is what the definition holds. Two seeds of a 2-of-3 can sign, but without the third seed's xpub the addresses cannot even be rebuilt. Prove it with the demo wallet: delete one xpub line and watch the address change.</p></div>
           </div>
         </div>
       </details>
@@ -360,24 +360,24 @@
       <div class="row" style="margin-top:1.1rem">
         <label class="narrow"><span class="small-label">Signatures needed<button type="button" class="tip" data-tip="msthreshold" aria-label="What does this mean?">?</button></span><select id="msThreshold"></select></label>
         <span class="of ms-gen" aria-hidden="true">of</span>
-        <label class="narrow ms-gen"><span class="small-label">Cosigners / seeds<button type="button" class="tip" data-tip="cosigner" aria-label="What does this mean?">?</button></span><select id="msGenCount"></select></label>
-        <label class="narrow ms-gen"><span class="small-label">Words<button type="button" class="tip" data-tip="wordcount" aria-label="What does this mean?">?</button></span><select id="msGenWords"><option>12</option><option>24</option></select></label>
+        <label class="narrow ms-gen"><span class="small-label">Seeds<button type="button" class="tip" data-tip="cosigner" aria-label="What does this mean?">?</button></span><select id="msGenCount"></select></label>
+        <label class="narrow ms-gen"><span class="small-label">Words per seed<button type="button" class="tip" data-tip="wordcount" aria-label="What does this mean?">?</button></span><select id="msGenWords"><option>12</option><option>24</option></select></label>
         <label class="mid"><span class="small-label">Script type<button type="button" class="tip" data-tip="msscript" aria-label="What does this mean?">?</button></span><select id="msScript2"><option value="p2wsh">P2WSH (native SegWit)</option><option value="p2sh-p2wsh">P2SH-P2WSH (nested)</option><option value="p2tr">P2TR (Taproot multisig)</option></select></label>
       </div>
-      <p class="help hidden" id="msTrNote" style="margin:0.6rem 0 0">Taproot multisig is the newest type: spending is cheaper and reveals less about the wallet. It is supported by Sparrow, Bitcoin Core 24 and later, and recent hardware wallets; older wallets cannot import it. Every cosigner's device must support it.</p>
+      <p class="help hidden" id="msTrNote" style="margin:0.6rem 0 0">Taproot multisig is the newest type: spending is cheaper and reveals less about the wallet. It is supported by Sparrow, Bitcoin Core 24 and later, and recent hardware wallets; older wallets cannot import it. Every device holding a seed must support it.</p>
 
       <div class="gen-strip ms-gen">
         <div class="row">
-          <button type="button" class="btn primary" id="msGenBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"/></svg>Generate the seeds and build the wallet</button>
-          <button type="button" class="btn hidden" id="msGenEye" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg>Reveal phrases</button>
+          <button type="button" class="btn primary" id="msGenBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"/></svg>Create the seeds and build the wallet</button>
+          <button type="button" class="btn hidden" id="msGenEye" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg>Reveal seeds</button>
           <button type="button" class="barbtn" id="msDemoBtn" style="margin-left:auto;align-self:center">Try the demo wallet</button>
         </div>
-        <p class="help" style="margin:0.6rem 0 0">Write each phrase down separately and store them apart. The xpubs derived from them appear below and the wallet is built from those.</p>
+        <p class="help" style="margin:0.6rem 0 0">Write each seed down separately and store them apart. The xpub of each seed appears below and the wallet is built from those.</p>
         <div id="msGen" class="secret"></div>
       </div>
 
       <div class="field" style="margin-top:1.1rem">
-        <div class="field-head"><label class="field-label" for="msKeys">Cosigner xpubs<button type="button" class="tip" data-tip="xpub" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span><span class="hint ms-build">one per cosigner, one per line, in any order. Public keys only: a seed phrase or xprv does not belong here.</span><span class="hint ms-gen">derived from the phrases above</span><span class="hint ms-check">the wallet's xpub lines, or its whole setup file</span></label></div>
+        <div class="field-head"><label class="field-label" for="msKeys">Xpubs, one per seed<button type="button" class="tip" data-tip="xpub" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span><span class="hint ms-build">one line per seed, in any order. Public keys only: a seed or an xprv never goes here.</span><span class="hint ms-gen">derived from the seeds above</span><span class="hint ms-check">the wallet's xpub lines, or its whole setup file</span></label></div>
         <textarea id="msKeys" class="mono" rows="5" spellcheck="false" autocomplete="off" placeholder="[73c5da0a/48h/0h/0h/2h]xpub6E64WfdQwBGz…&#10;[a1b2c3d4/48h/0h/0h/2h]xpub6Dk3…"></textarea>
       </div>
       <div class="field ms-check" style="margin-top:1rem">
@@ -389,7 +389,7 @@
 
       <div id="msOut" class="hidden">
         <h3 class="sec">The wallet definition <span class="badge pub-badge" data-tip="public">public</span><button type="button" class="tip" data-tip="descriptor" aria-label="What does this mean?">?</button></h3>
-        <p class="help" style="margin-bottom:0.8rem">One thing in two formats: the wallet's policy, script type and every cosigner's xpub. It cannot spend, and it carries no seed. Each cosigner's device already holds its own recovery phrase; this definition tells the software and the devices which wallet those keys belong to. <strong>Back it up with every phrase</strong>: without it, even enough phrases to sign cannot find the coins.</p>
+        <p class="help" style="margin-bottom:0.8rem">One thing in two formats: the wallet's policy, script type and the xpub of every seed. It cannot spend, and it contains no seed. Every device already holds its own seed; the definition tells the software and the devices which wallet those seeds belong to. <strong>Back it up with every seed</strong>: without it, even enough seeds to sign cannot find the coins.</p>
         <div class="field"><label class="field-label">Descriptor <span class="hint">for software wallets: Sparrow (New wallet → Import), Bitcoin Core (<code>importdescriptors</code>), Nunchuk. Gives a watch-only wallet that sees the coins and prepares transactions for the devices to sign.</span></label>
           <div class="term" id="msDesc"><button class="copy" data-copy="msDesc" type="button">copy</button></div></div>
         <details class="adv"><summary>Separate receive and change descriptors</summary><div class="adv-body" style="padding-top:0.8rem">
@@ -397,11 +397,11 @@
           <div class="field"><label class="field-label">Receive</label><div class="term" id="msDescRecv"><button class="copy" data-copy="msDescRecv" type="button">copy</button></div></div>
           <div class="field"><label class="field-label">Change</label><div class="term" id="msDescChange"><button class="copy" data-copy="msDescChange" type="button">copy</button></div></div>
         </div></details>
-        <div class="field" style="margin-top:1rem"><label class="field-label">Setup file <span class="hint">for hardware wallets: the same definition in the text format Coldcard, Passport, Keystone and Sparrow import. Load it onto each cosigner's device so the device recognises the wallet, verifies its addresses and signs for it. Save it as <code>multisig.txt</code>.</span><button type="button" class="tip" data-tip="coldcardfile" aria-label="What does this mean?">?</button></label>
+        <div class="field" style="margin-top:1rem"><label class="field-label">Setup file <span class="hint">for hardware wallets: the same definition in the text format Coldcard, Passport, Keystone and Sparrow import. Load it onto the hardware wallet that holds each seed, so the device recognises the wallet, verifies its addresses and signs for it. Save it as <code>multisig.txt</code>.</span><button type="button" class="tip" data-tip="coldcardfile" aria-label="What does this mean?">?</button></label>
           <div class="term" id="msConfig"><button class="copy" data-copy="msConfig" type="button">copy</button></div></div>
         <div class="row"><label class="mid"><span class="small-label">Wallet name <span class="hint">in the file</span></span><input type="text" id="msName" value="KeyPath multisig" maxlength="40" spellcheck="false"></label><button type="button" class="btn small" id="msDownload"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 19h16"/></svg>Download setup file</button></div>
         <h3 class="sec">Wallet addresses<button type="button" class="tip" data-tip="msaddresses" aria-label="What does this mean?">?</button></h3>
-        <p class="help" style="margin-bottom:0.8rem">Verification. Every cosigner should see this exact first address on their own device once it has the setup file. If one device disagrees, a key, the threshold or the script type is wrong.</p>
+        <p class="help" style="margin-bottom:0.8rem">Verification. Every device holding one of the seeds should show this exact first address once it has the setup file. If one device disagrees, an xpub, the threshold or the script type is wrong.</p>
         <div class="toolbar">
           <label class="mid"><span class="small-label">Chain</span><select id="msChain"><option value="0">0 · receive</option><option value="1">1 · change</option></select></label>
           <label class="narrow"><span class="small-label">Rows</span><input type="number" id="msRows" class="mono" value="5" min="1" max="100"></label>

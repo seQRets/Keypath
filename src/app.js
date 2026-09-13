@@ -27,7 +27,7 @@ const TABS = {
   bip49: { purpose: 49, script: 'p2sh-p2wpkh', help: 'SegWit wrapped inside a P2SH script so that older wallets can pay to it. Addresses start with 3 (2 on testnet).' },
   bip84: { purpose: 84, script: 'p2wpkh', help: 'Native SegWit (P2WPKH). Addresses start with bc1q (tb1q on testnet). The default in most wallets today, with lower fees than legacy.' },
   bip86: { purpose: 86, script: 'p2tr', help: 'Single-key Taproot (P2TR). Addresses start with bc1p (tb1p on testnet), spend with Schnorr signatures and are the cheapest, most private single-signature type. Supported by Bitcoin Core 22+, Sparrow, Ledger, Trezor and BlueWallet among others.' },
-  bip48: { purpose: 48, script: 'multisig', help: 'Your cosigner key for a multisig wallet. Purpose 48\' keeps multisig keys on their own branch; the last step names the script type. Hand the key line below to whoever sets up the wallet, then build or verify the wallet in the Multisig card.' },
+  bip48: { purpose: 48, script: 'multisig', help: 'Your seed\'s xpub for a multisig wallet. Purpose 48\' keeps multisig keys on their own branch; the last step names the script type. Hand the xpub line below to whoever sets up the wallet, then build or verify the wallet in the Multisig card.' },
   custom: { purpose: null, script: null, help: 'Any BIP32 path with the script type of your choice. This covers what the original tool split across its BIP32 and BIP141 tabs.' },
 };
 const SCRIPT_NAMES = { p2pkh: 'P2PKH (legacy)', 'p2sh-p2wpkh': 'P2WPKH in P2SH', p2wpkh: 'P2WPKH (native SegWit)', p2tr: 'P2TR (Taproot)', multisig: 'multisig cosigner key' };
@@ -501,7 +501,7 @@ function renderRows(append = false) {
   const body = $('addrBody'); const token = ++S.renderToken;
   if (!append) { body.innerHTML = ''; S.rows = []; }
   const node = S.pathNode;
-  $('addrNone').textContent = S.tab === 'bip48' ? 'A cosigner key has no addresses of its own. Multisig addresses are built from all cosigner keys in the Multisig wallet card below.' : 'Nothing to show yet.';
+  $('addrNone').textContent = S.tab === 'bip48' ? 'A multisig xpub has no addresses of its own. The wallet\'s addresses are built from the xpubs of all its seeds in the Multisig wallet card below.' : 'Nothing to show yet.';
   $('addrNone').classList.toggle('hidden', !!node);
   if (!node) { setMeter('addrStatus', ''); return; }
   if (S.hardened && !node.privateKey) { setMeter('addrStatus', count('hardened children need a private key', 'bad')); return; }
@@ -665,7 +665,7 @@ function msInit() {
   $('cosignerToMs').addEventListener('click', () => {
     const line = $('cosignerLine').dataset.value; if (!line) return toast('Enter a phrase first');
     if ($('msKeys').value.includes(line)) { toast('Already in the list'); }
-    else { $('msKeys').value = ($('msKeys').value.trim() ? $('msKeys').value.trim() + '\n' : '') + line; $('msScript2').value = $('msScript').value; if (msModeV === 'gen') msMode('build'); else msUpdate(); toast('Cosigner key added'); }
+    else { $('msKeys').value = ($('msKeys').value.trim() ? $('msKeys').value.trim() + '\n' : '') + line; $('msScript2').value = $('msScript').value; if (msModeV === 'gen') msMode('build'); else msUpdate(); toast('Xpub added to the multisig wallet'); }
     $('multisig-card').scrollIntoView({ behavior: 'smooth' });
   });
   $('msDownload').addEventListener('click', () => {
@@ -691,7 +691,7 @@ function msInit() {
 // the page (for example with the demo phrase) never exposes them by accident.
 function msGenCover(on) {
   $('msGen').classList.toggle('covered', on);
-  const b = $('msGenEye'); b.setAttribute('aria-pressed', on); b.lastChild.textContent = on ? 'Reveal phrases' : 'Hide phrases';
+  const b = $('msGenEye'); b.setAttribute('aria-pressed', on); b.lastChild.textContent = on ? 'Reveal seeds' : 'Hide seeds';
 }
 // A complete wallet: one fresh phrase per cosigner, keys filled in, threshold kept sensible.
 // demo: the well-known all-"abandon" test phrases (entropy 0, 1, 2 … so each ends in a different checksum word), shown unblurred.
@@ -710,17 +710,17 @@ function msGenerate(demo) {
   $('msName').value = `KeyPath ${demo ? 'demo ' : ''}${t}-of-${n}`;
   $('msKeys').value = cosigners.map((c) => c.line).join('\n'); msDemoKeys = demo ? $('msKeys').value : null;
   $('msExpect').value = demo ? multisig.multisigAddress(t, cosigners, script, 0, 0, netc) : ''; // the demo pre-fills its own first address so the "delete a line" experiment shows No match
-  $('msGen').innerHTML = `<div class="share-list">${cosigners.map((c, i) => `<div class="share"><button class="copy" type="button" data-text="${esc(c.phrase)}">copy</button><h4>Cosigner ${i + 1} of ${n}<small>fingerprint ${esc(c.fp)}</small></h4><ol>${c.phrase.split(' ').map((w, j) => `<li><i>${j + 1}</i><b>${esc(w)}</b></li>`).join('')}</ol></div>`).join('')}</div>`;
+  $('msGen').innerHTML = `<div class="share-list">${cosigners.map((c, i) => `<div class="share"><button class="copy" type="button" data-text="${esc(c.phrase)}">copy</button><h4>Seed ${i + 1} of ${n}<small>fingerprint ${esc(c.fp)}</small></h4><ol>${c.phrase.split(' ').map((w, j) => `<li><i>${j + 1}</i><b>${esc(w)}</b></li>`).join('')}</ol></div>`).join('')}</div>`;
   msGenCover(!demo); $('msGenEye').classList.remove('hidden');
   msUpdate(); setHidden(!demo); // demo phrases are public: reveal the page, like the phrase card's demo does
-  toast(demo ? 'Demo wallet loaded: explore freely, never fund it' : `${n} cosigner phrases created and hidden`);
+  toast(demo ? 'Demo wallet loaded: explore freely, never fund it' : `${n} seeds created and hidden`);
 }
 function msUpdate() {
   msLast = null; $('msOut').classList.add('hidden'); $('msWarnings').innerHTML = '';
   $('msTrNote').classList.toggle('hidden', $('msScript2').value !== 'p2tr');
   const text = $('msKeys').value;
   if (!text.trim()) {
-    const msg = msModeV === 'check' ? 'Waiting for the existing wallet\'s xpubs or setup file.' : msModeV === 'gen' ? 'Press Generate to create a phrase for every cosigner. Their xpubs appear above and the wallet is built from them.' : 'Waiting for the cosigner xpub lines. The wallet is built as soon as two or more are pasted.';
+    const msg = msModeV === 'check' ? 'Waiting for the existing wallet\'s xpubs or setup file.' : msModeV === 'gen' ? 'Press the button above to create the seeds. Their xpubs appear here and the wallet is built from them.' : 'Waiting for the xpub lines. The wallet is built as soon as two or more are pasted.';
     setMeter('msStatus', note(msg)); return;
   }
   const parsed = multisig.parseCosigners(text, VERSION_TABLE);
@@ -742,7 +742,7 @@ function msUpdate() {
   $('msAddrBody').innerHTML = Array.from({ length: rows }, (_, i) => { const a = multisig.multisigAddress(threshold, cos, script, chain, i, n); return `<tr><td class="idx">${chain}/${i}</td><td><span data-c="${esc(a)}">${esc(a)}</span></td></tr>`; }).join('');
   const demo = text.trim() === msDemoKeys;
   const what = msModeV === 'check' ? `rebuilt from the ${cos.length} pasted keys` : msModeV === 'gen' ? `built from the ${cos.length} generated seeds` : `built from the ${cos.length} pasted xpubs`;
-  setMeter('msStatus', count(`${threshold} of ${cos.length} · ${multisig.MS_FORMAT[script]} · ${S.net === 'mainnet' ? 'mainnet' : 'testnet'}${demo ? ' · demo' : ''}`, demo ? 'warn' : 'ok') + note(demo ? `Demo wallet ${what}, from the public test phrases: explore it, never fund it. To see why the definition must be backed up, delete one xpub line above: the address changes, because two phrases alone cannot rebuild a 2-of-3 wallet.` : `Wallet ${what}.`));
+  setMeter('msStatus', count(`${threshold} of ${cos.length} · ${multisig.MS_FORMAT[script]} · ${S.net === 'mainnet' ? 'mainnet' : 'testnet'}${demo ? ' · demo' : ''}`, demo ? 'warn' : 'ok') + note(demo ? `Demo wallet ${what}, from the public test seeds: explore it, never fund it. To see why the definition must be backed up, delete one xpub line above: the address changes, because two seeds alone cannot rebuild a 2-of-3 wallet.` : `Wallet ${what}.`));
   // Does the pasted first address belong to the wallet these keys rebuild? Search the first 50 receive and change addresses.
   const expect = msModeV === 'check' ? $('msExpect').value.trim().toLowerCase() : '';
   if (expect) {
@@ -750,7 +750,7 @@ function msUpdate() {
     for (let c = 0; c < 2 && !hit; c++) for (let i = 0; i < 50; i++) { if (multisig.multisigAddress(threshold, cos, script, c, i, n).toLowerCase() === expect) { hit = `${c}/${i}`; break; } }
     $('msWarnings').insertAdjacentHTML('afterbegin', hit
       ? `<div class="inputwarn good"><p><strong>Match.</strong> These keys rebuild the wallet that owns that address (${hit === '0/0' ? 'the first receive address' : 'address ' + hit}).</p></div>`
-      : `<div class="inputwarn bad"><p><strong>No match.</strong> These ${cos.length} keys with ${threshold} of ${cos.length} and ${multisig.MS_FORMAT[script]} do not rebuild the wallet that owns that address (checked the first 50 receive and change addresses). A cosigner xpub is missing or wrong, or the signatures needed or script type differ. Having enough phrases to sign is not enough: rebuilding a multisig wallet needs every cosigner's xpub, which is what the descriptor or setup file holds.</p></div>`);
+      : `<div class="inputwarn bad"><p><strong>No match.</strong> These ${cos.length} keys with ${threshold} of ${cos.length} and ${multisig.MS_FORMAT[script]} do not rebuild the wallet that owns that address (checked the first 50 receive and change addresses). An xpub is missing or wrong, or the signatures needed or script type differ. Having enough seeds to sign is not enough: rebuilding a multisig wallet needs the xpub of every seed, which is what the wallet definition holds.</p></div>`);
   }
   $('msOut').classList.remove('hidden');
 }

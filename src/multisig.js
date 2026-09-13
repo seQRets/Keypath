@@ -69,8 +69,8 @@ export function parseCosigners(text, table) {
     const m = /^(?:\[([0-9a-fA-F]{8})((?:\/[0-9]+['hH]?)*)\])?\s*([A-Za-z0-9]{100,120})(\/.*)?$/.exec(line);
     if (!m) {
       const words = line.split(/\s+/).length;
-      if (words >= 12 && /^[a-z\s]+$/i.test(line)) errors.push(`line ${i + 1}: that looks like a recovery phrase. Never paste phrases here; paste each cosigner's public xpub line instead (the BIP48 tab makes yours).`);
-      else errors.push(`line ${i + 1}: not a cosigner xpub`);
+      if (words >= 12 && /^[a-z\s]+$/i.test(line)) errors.push(`line ${i + 1}: that looks like a seed. Never paste seeds here; paste each seed's public xpub line instead (the BIP48 tab shows it).`);
+      else errors.push(`line ${i + 1}: not an xpub line`);
       return;
     }
     const d = decodeExtended(m[3], table); if (!d) { errors.push(`line ${i + 1}: not a valid extended key (check the prefix and for typos)`); return; }
@@ -145,16 +145,16 @@ export function coldcardConfig(name, threshold, cosigners, script, xpubVersion) 
 // Sanity checks; returns a list of { level: 'bad'|'warn', text }.
 export function validate(threshold, cosigners, netName) {
   const out = [];
-  if (cosigners.length < 2) out.push({ level: 'bad', text: 'A multisig wallet needs at least two cosigner keys.' });
-  if (cosigners.length > 15) out.push({ level: 'bad', text: 'At most 15 cosigners.' });
-  if (threshold < 1 || threshold > cosigners.length) out.push({ level: 'bad', text: `The threshold must be between 1 and the number of cosigners (${cosigners.length}).` });
+  if (cosigners.length < 2) out.push({ level: 'bad', text: 'A multisig wallet needs at least two xpubs, one per seed.' });
+  if (cosigners.length > 15) out.push({ level: 'bad', text: 'At most 15 seeds.' });
+  if (threshold < 1 || threshold > cosigners.length) out.push({ level: 'bad', text: `Signatures needed must be between 1 and the number of xpubs (${cosigners.length}).` });
   const seen = new Set();
-  for (const c of cosigners) { const k = serExt(c.node, 0, false); if (seen.has(k)) out.push({ level: 'bad', text: 'The same key appears twice. Each cosigner must contribute a different key.' }); seen.add(k); }
-  if (cosigners.some((c) => c.net && c.net !== netName)) out.push({ level: 'bad', text: `A key belongs to a different network than the one selected (${netName}).` });
-  if (cosigners.some((c) => c.isPrivate)) out.push({ level: 'warn', text: 'A private extended key was pasted. Only its public part is used here; never share the private one.' });
-  if (cosigners.some((c) => c.originKnown === false)) out.push({ level: 'warn', text: 'A key was pasted without its origin ([fingerprint/path]). The descriptor uses the key\'s own fingerprint, so a hardware wallet may not recognise it as its key. Paste the full origin line the device exports if you can.' });
-  if (cosigners.some((c) => c.node.depth !== 4 && c.node.depth !== 0)) out.push({ level: 'warn', text: 'A key is not at the usual account depth (four levels, like m/48\'/0\'/0\'/2\'). Check it is the multisig account key the wallet exported.' });
-  if (threshold === 1 && cosigners.length > 1) out.push({ level: 'warn', text: '1-of-N means any single cosigner can spend alone.' });
-  if (threshold === cosigners.length && cosigners.length > 1) out.push({ level: 'warn', text: 'N-of-N means losing any one key loses the wallet. Most people choose 2-of-3 or 3-of-5.' });
+  for (const c of cosigners) { const k = serExt(c.node, 0, false); if (seen.has(k)) out.push({ level: 'bad', text: 'The same xpub appears twice. Each seed must contribute a different one.' }); seen.add(k); }
+  if (cosigners.some((c) => c.net && c.net !== netName)) out.push({ level: 'bad', text: `An xpub belongs to a different network than the one selected (${netName}).` });
+  if (cosigners.some((c) => c.isPrivate)) out.push({ level: 'warn', text: 'A private key (xprv) was pasted. Only its public part is used here; never share the private one.' });
+  if (cosigners.some((c) => c.originKnown === false)) out.push({ level: 'warn', text: 'An xpub was pasted without its origin ([fingerprint/path]). The descriptor uses the xpub\'s own fingerprint, so a hardware wallet may not recognise it as its own. Paste the full line the device exports if you can.' });
+  if (cosigners.some((c) => c.node.depth !== 4 && c.node.depth !== 0)) out.push({ level: 'warn', text: 'An xpub is not at the usual account depth (four levels, like m/48\'/0\'/0\'/2\'). Check it is the multisig xpub the device exported.' });
+  if (threshold === 1 && cosigners.length > 1) out.push({ level: 'warn', text: '1-of-N means any single seed can spend alone.' });
+  if (threshold === cosigners.length && cosigners.length > 1) out.push({ level: 'warn', text: 'N-of-N means losing any one seed loses the wallet. Most people choose 2-of-3 or 3-of-5.' });
   return out;
 }

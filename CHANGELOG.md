@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.5.2 — 2026-09-13
+
+- The multisig card now uses one plain vocabulary. A **seed** is one recovery phrase on its own device, usually held by its own person; the word "cosigner" is gone from the page except as the jargon name inside the Seeds definition, and "phrase" no longer appears in the card. "You" no longer stands for an unnamed person: the text says "whoever sets up the wallet" and "each device". The introduction is three plain sentences: what a multisig wallet is, what a seed is, and that KeyPath combines xpubs and never needs the seeds. Panels and labels follow: "Build from xpubs", Seeds, Words per seed, "Xpubs, one per seed", "Create the seeds and build the wallet", Seed 1 of 3, Reveal / Hide seeds. The BIP48 tab calls its output "Your multisig xpub". The definitions for multisig, seeds, threshold, BIP48, script type, key origin, sortedmulti, setup file and addresses say the same, and so do the warnings under the xpubs box.
+
 ## v2.5.1 — 2026-09-13
 
 - The two output sections are now one, **The wallet definition**: one public thing in two formats, the descriptor for software wallets and the setup file for hardware wallets. The text says plainly that it cannot spend and carries no seed: each cosigner's device already holds its own phrase, and the definition tells software and devices which wallet those keys belong to. The Setup file definition and the how-to's Combine step say the same.
