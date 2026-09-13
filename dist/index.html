@@ -7,7 +7,7 @@
 <meta name="description" content="KeyPath: generate or inspect a BIP39 recovery phrase, back it up with SLIP-39 Shamir shares, and derive BIP32 keys and Bitcoin addresses, legacy through Taproot. Single file, runs entirely offline in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-HU3E3wIYjI7W9U54mMZh9JMNllNfz8USsNfWE/ayI/Q=' 'sha256-WKGEIY/Wbqfnpf5ERZfvjdKmXLW0N0a2U64dgXp32j0='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-HU3E3wIYjI7W9U54mMZh9JMNllNfz8USsNfWE/ayI/Q=' 'sha256-rhngVzr81kYxXHZ3GolRVc4nJ7SH5Q2TtTW9sxQvMoA='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <script>try{if(localStorage.getItem("keypath-tips")==="off")document.documentElement.classList.add("no-tips");}catch(e){}try{var t=localStorage.getItem("keypath-theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}else if(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches){document.documentElement.setAttribute("data-theme","dark");}}catch(e){}</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23d2761a'/><g fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='10' cy='16' r='5'/><path d='M15 16h5'/><path d='M20 16l6-5.5M20 16l6 5.5'/></g><circle cx='27' cy='9.5' r='1.8' fill='%23fff'/><circle cx='27' cy='22.5' r='1.8' fill='%23fff'/></svg>">
 <style>
@@ -473,7 +473,16 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
 table.lab th, table.lab td { text-align: left; }
 table.lab td label { display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer; font-size: 0.95rem; }
 table.lab td small { display: block; font-family: var(--mono); font-size: 0.72rem; color: var(--ink-faint); }
-.limit.good .lm-tag { color: var(--ok); }
+.limit.verdict { grid-template-columns: 1.5rem minmax(6rem, max-content) 1fr; }
+.limit .mark { width: 1.35rem; height: 1.35rem; margin-top: -0.05rem; }
+.limit .mark svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.limit.good { background: var(--ok-wash); border-color: color-mix(in srgb, var(--ok) 35%, transparent); }
+.limit.good .lm-tag, .limit.good .mark { color: var(--ok); }
+.limit.no { background: var(--danger-wash); border-color: color-mix(in srgb, var(--danger) 32%, transparent); }
+.limit.no .lm-tag, .limit.no .mark { color: var(--danger); }
+table.lab .xk { display: block; font-family: var(--mono); font-size: 0.72rem; margin-top: 0.15rem; }
+table.lab .xk.ok { color: var(--ok); }
+table.lab .xk.bad { color: var(--danger); }
 
 </style>
 </head>
@@ -961,7 +970,7 @@ table.lab td small { display: block; font-family: var(--mono); font-size: 0.72re
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest/download/SHA256SUMS.txt" rel="noopener noreferrer">SHA256SUMS.txt</a>
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest" target="_blank" rel="noopener noreferrer">Release notes</a>
       </div>
-      <p class="dl-note">This page is KeyPath v2.6.1. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
+      <p class="dl-note">This page is KeyPath v2.6.2. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
     </div>
   </section>
 
@@ -988,7 +997,7 @@ table.lab td small { display: block; font-family: var(--mono); font-size: 0.72re
       </div>
     </div>
     <div class="foot-bottom">
-      <span class="credit">KeyPath v2.6.1 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
+      <span class="credit">KeyPath v2.6.2 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
       <span>Provided "as is", without warranty. Verify addresses in a second tool before sending significant funds.</span>
     </div>
   </footer>
@@ -22363,9 +22372,11 @@ function labInit() {
     return { phrase, fp: c.fp, node: c.node, xpub: serExt(c.node, netc.xpub, false) };
   });
   const target = multisig.multisigAddress(2, seeds, 'p2wsh', 0, 0, netc);
-  $('labRows').innerHTML = seeds.map((sd, i) => `<tr><td><strong>Seed ${i + 1}</strong><small>abandon × 11, ${esc(sd.phrase.split(' ').pop())}</small></td><td><label><input type="checkbox" data-lab-seed="${i}"> the 12 words<small>fingerprint ${esc(sd.fp)}</small></label></td><td><label><input type="checkbox" data-lab-xpub="${i}"> its xpub<small>${esc(sd.xpub.slice(0, 12))}…</small></label></td></tr>`).join('');
+  $('labRows').innerHTML = seeds.map((sd, i) => `<tr><td><strong>Seed ${i + 1}</strong><small>abandon × 11, ${esc(sd.phrase.split(' ').pop())}</small><span class="xk" data-lab-xk="${i}"></span></td><td><label><input type="checkbox" data-lab-seed="${i}"> the 12 words<small>fingerprint ${esc(sd.fp)}</small></label></td><td><label><input type="checkbox" data-lab-xpub="${i}"> its xpub<small>${esc(sd.xpub.slice(0, 12))}…</small></label></td></tr>`).join('');
   const have = () => ({ seed: [0, 1, 2].map((i) => $('labRows').querySelector(`[data-lab-seed="${i}"]`).checked), xpub: [0, 1, 2].map((i) => $('labRows').querySelector(`[data-lab-xpub="${i}"]`).checked), def: $('labDef').checked });
-  const box = (level, tag, html) => `<div class="limit ${level}"><span class="lm-tag">${tag}</span><p>${html}</p></div>`;
+  const YES = '<span class="mark"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-7"/></svg></span>';
+  const NO = '<span class="mark"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7"/></svg></span>';
+  const box = (level, tag, html) => `<div class="limit verdict ${level}">${level === 'good' ? YES : level === 'no' ? NO : '<span class="mark"></span>'}<span class="lm-tag">${tag}</span><p>${html}</p></div>`;
   const update = (e) => {
     // a seed implies its xpub: the xpub box follows the seed box and is greyed out while the seed is ticked
     [0, 1, 2].forEach((i) => { const sd = $('labRows').querySelector(`[data-lab-seed="${i}"]`), xp = $('labRows').querySelector(`[data-lab-xpub="${i}"]`); if (sd.checked || (e && e.target === sd)) xp.checked = sd.checked; xp.disabled = sd.checked; });
@@ -22374,16 +22385,17 @@ function labInit() {
     const how = seeds.map((_, i) => (h.seed[i] ? 'derived from the seed' : h.def ? 'from the definition' : h.xpub[i] ? 'the xpub itself' : 'missing'));
     const nSeeds = h.seed.filter(Boolean).length, nKnown = known.filter(Boolean).length, missing = seeds.map((_, i) => i).filter((i) => !known[i]);
     const canFind = nKnown === 3, canSpend = canFind && nSeeds >= 2;
+    seeds.forEach((_, i) => { const el = $('labRows').querySelector(`[data-lab-xk="${i}"]`); el.className = 'xk ' + (known[i] ? 'ok' : 'bad'); el.textContent = known[i] ? `✓ xpub known, ${how[i]}` : '✗ xpub missing'; });
     let out = box('', 'Xpubs known', `<strong>${nKnown} of 3</strong>: ` + seeds.map((_, i) => `seed ${i + 1} ${how[i]}`).join(', ') + '.');
     if (canFind) out += box('good', 'Find the coins', `<strong>Yes.</strong> All three xpubs are known, so the wallet's addresses can be rebuilt. First address: <code>${esc(target)}</code>`);
     else {
       let alt = '';
       if (nKnown >= 2) { const partial = seeds.filter((_, i) => known[i]); alt = ` Building a wallet from only the ${nKnown} xpubs you have gives <code>${esc(multisig.multisigAddress(Math.min(2, nKnown), partial, 'p2wsh', 0, 0, netc))}</code>: a different wallet, with no coins in it.`; }
-      out += box('warn', 'Find the coins', `<strong>No.</strong> The xpub of seed ${missing.map((i) => i + 1).join(' and seed ')} is unknown, so the wallet's addresses cannot be rebuilt and the coins cannot even be located.${alt}`);
+      out += box('no', 'Find the coins', `<strong>No.</strong> The xpub of seed ${missing.map((i) => i + 1).join(' and seed ')} is unknown, so the wallet's addresses cannot be rebuilt and the coins cannot even be located.${alt}`);
     }
     if (canSpend) out += box('good', 'Spend', `<strong>Yes.</strong> ${nSeeds} of 3 seeds can sign, and the wallet can be rebuilt. Enter the seeds into wallets, load the definition, and spend.`);
-    else if (!canFind && nSeeds >= 2) out += box('warn', 'Spend', `<strong>No.</strong> ${nSeeds} seeds are enough to sign, but the wallet cannot be rebuilt, so there is nothing to sign.`);
-    else out += box('warn', 'Spend', `<strong>No.</strong> ${nSeeds === 0 ? 'No seed' : 'Only 1 seed'} present; 2 of 3 must sign.${nSeeds === 0 && canFind ? ' Xpubs alone can only watch the coins, never move them.' : ''}`);
+    else if (!canFind && nSeeds >= 2) out += box('no', 'Spend', `<strong>No.</strong> ${nSeeds} seeds are enough to sign, but the wallet cannot be rebuilt, so there is nothing to sign.`);
+    else out += box('no', 'Spend', `<strong>No.</strong> ${nSeeds === 0 ? 'No seed' : 'Only 1 seed'} present; 2 of 3 must sign.${nSeeds === 0 && canFind ? ' Xpubs alone can only watch the coins, never move them.' : ''}`);
     if (!canSpend) {
       const fixes = [];
       if (missing.length) fixes.push(`the xpub of seed ${missing.map((i) => i + 1).join(' or seed ')} (its 12 words would do, since an xpub derives from its seed), or the wallet definition`);

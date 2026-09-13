@@ -1,6 +1,6 @@
 {
   "name": "keypath",
-  "version": "2.6.1",
+  "version": "2.6.2",
   "description": "Single-file BIP39 / BIP32 / Taproot key workbench",
   "scripts": {
     "build": "node build.mjs",

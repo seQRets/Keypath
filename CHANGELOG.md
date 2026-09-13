@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.6.2 — 2026-09-13
+
+- Multisig lab: visual cues. "Find the coins" and "Spend" carry a green check or a red cross with a matching tinted box, and each seed row shows a green "xpub known" line (with where it comes from) or a red "xpub missing" line.
+
 ## v2.6.1 — 2026-09-13
 
 - Multisig lab: ticking a seed now ticks and greys out its xpub box, since a seed always gives its xpub. A line under the table says so. The only independent choices left are which seeds you hold, which extra xpubs you kept, and whether you kept the definition.

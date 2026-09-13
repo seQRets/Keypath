@@ -460,4 +460,13 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
 table.lab th, table.lab td { text-align: left; }
 table.lab td label { display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer; font-size: 0.95rem; }
 table.lab td small { display: block; font-family: var(--mono); font-size: 0.72rem; color: var(--ink-faint); }
-.limit.good .lm-tag { color: var(--ok); }
+.limit.verdict { grid-template-columns: 1.5rem minmax(6rem, max-content) 1fr; }
+.limit .mark { width: 1.35rem; height: 1.35rem; margin-top: -0.05rem; }
+.limit .mark svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.limit.good { background: var(--ok-wash); border-color: color-mix(in srgb, var(--ok) 35%, transparent); }
+.limit.good .lm-tag, .limit.good .mark { color: var(--ok); }
+.limit.no { background: var(--danger-wash); border-color: color-mix(in srgb, var(--danger) 32%, transparent); }
+.limit.no .lm-tag, .limit.no .mark { color: var(--danger); }
+table.lab .xk { display: block; font-family: var(--mono); font-size: 0.72rem; margin-top: 0.15rem; }
+table.lab .xk.ok { color: var(--ok); }
+table.lab .xk.bad { color: var(--danger); }
