@@ -342,7 +342,7 @@
         <button class="mode-btn" id="msModeGen" type="button" aria-pressed="false">Generate multisig seeds</button>
       </div>
       <p class="help ms-build" style="margin:0.8rem 0 0">Paste the xpub from each device, or an existing wallet's xpubs or setup file, and choose how many signatures are needed.</p>
-      <p class="help ms-gen" style="margin:0.8rem 0 0">KeyPath creates every seed here and builds the wallet from their xpubs. Simplest, but every seed passes through this computer; <strong>for the strongest setup, create each seed on its own device</strong> and use Build a wallet from xpubs.</p>
+      <p class="help ms-gen" style="margin:0.8rem 0 0">KeyPath creates every seed here and builds the wallet from their xpubs. This is the simplest way, but every seed passes through this computer. <strong>For the strongest setup, create each seed on its own device</strong> and use Build a wallet from xpubs.</p>
       <details class="adv ms-build ms-gen" id="msHowto">
         <summary>How a multisig wallet is set up</summary>
         <div class="adv-body">
@@ -376,29 +376,29 @@
       </div>
 
       <div class="field" style="margin-top:1.1rem" id="msKeysField">
-        <div class="field-head"><label class="field-label" for="msKeys">Xpubs<button type="button" class="tip" data-tip="xpub" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span><span class="hint ms-build">paste each device's xpub on its own line, or paste a setup file. Never paste seeds or private keys here.</span><span class="hint ms-gen">derived from the seeds above</span></label></div>
+        <div class="field-head"><label class="field-label" for="msKeys">Xpubs<button type="button" class="tip" data-tip="xpub" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span><span class="hint ms-build">Paste each device's xpub on its own line, or paste a setup file. Never paste seeds or private keys here.</span><span class="hint ms-gen">These are derived from the seeds above.</span></label></div>
         <textarea id="msKeys" class="mono" rows="5" spellcheck="false" autocomplete="off" placeholder="[73c5da0a/48h/0h/0h/2h]xpub6E64WfdQwBGz…&#10;[a1b2c3d4/48h/0h/0h/2h]xpub6Dk3…"></textarea>
       </div>
       <div class="field ms-build" style="margin-top:1rem">
-        <label class="field-label" for="msExpect">First address shown by your wallet <span class="hint">optional: KeyPath says whether these xpubs rebuild that wallet</span></label>
+        <label class="field-label" for="msExpect">First address shown by your wallet <span class="hint">Optional. Paste it and KeyPath says whether these xpubs rebuild that wallet.</span></label>
         <input type="text" id="msExpect" class="mono" spellcheck="false" autocomplete="off" placeholder="bc1q… or bc1p… or 3…">
       </div>
       <div class="meter" id="msStatus"></div>
       <div id="msWarnings"></div>
 
       <div id="msOut" class="hidden">
-        <h3 class="sec">The wallet definition <span class="badge pub-badge" data-tip="public">public</span><button type="button" class="tip" data-tip="descriptor" aria-label="What does this mean?">?</button></h3>
-        <p class="help" style="margin-bottom:0.8rem">The wallet's policy, script type and the xpub of every seed, in two formats. It cannot spend and contains no seed. <strong>Back it up with every seed</strong>: without it, even enough seeds to sign cannot find the coins.</p>
-        <div class="field"><label class="field-label">Descriptor <span class="hint">for software wallets (Sparrow, Bitcoin Core, Nunchuk): a watch-only wallet that sees the coins and prepares transactions for the devices to sign</span></label>
+        <h3 class="sec">Your wallet definition<button type="button" class="tip" data-tip="descriptor" aria-label="What does this mean?">?</button></h3>
+        <p class="help" style="margin-bottom:0.8rem">This is your wallet's definition: its policy, its script type and the xpub of every seed. It is public information; it cannot spend and it contains no seed. KeyPath gives it in two formats, one for software wallets and one for hardware wallets. <strong>Back it up with every seed.</strong> Without it, even enough seeds to sign cannot find the coins.</p>
+        <div class="field"><label class="field-label">Descriptor <span class="hint">This format is for software wallets such as Sparrow, Bitcoin Core and Nunchuk. It creates a watch-only wallet that sees the coins and prepares transactions for the devices to sign.</span></label>
           <div class="term" id="msDesc"><button class="copy" data-copy="msDesc" type="button">copy</button></div></div>
         <details class="adv"><summary>Separate receive and change descriptors</summary><div class="adv-body" style="padding-top:0.8rem">
-          <p class="help" style="margin-bottom:0.8rem">For software that wants receive and change apart; the single line above covers both.</p>
+          <p class="help" style="margin-bottom:0.8rem">Some software wants receive and change addresses as two separate lines. The single line above covers both.</p>
           <div class="field"><label class="field-label">Receive</label><div class="term" id="msDescRecv"><button class="copy" data-copy="msDescRecv" type="button">copy</button></div></div>
           <div class="field"><label class="field-label">Change</label><div class="term" id="msDescChange"><button class="copy" data-copy="msDescChange" type="button">copy</button></div></div>
         </div></details>
-        <div class="field" style="margin-top:1rem"><label class="field-label">Setup file <span class="hint">for hardware wallets (Coldcard, Passport, Keystone and Sparrow import it): load it onto the device holding each seed so it recognises the wallet and can sign. Save as <code>multisig.txt</code>.</span><button type="button" class="tip" data-tip="coldcardfile" aria-label="What does this mean?">?</button></label>
+        <div class="field" style="margin-top:1rem"><label class="field-label">Setup file <span class="hint">This format is for hardware wallets; Coldcard, Passport, Keystone and Sparrow import it. Load it onto the device that holds each seed, so the device recognises the wallet and can sign. Save it as <code>multisig.txt</code>.</span><button type="button" class="tip" data-tip="coldcardfile" aria-label="What does this mean?">?</button></label>
           <div class="term" id="msConfig"><button class="copy" data-copy="msConfig" type="button">copy</button></div></div>
-        <div class="row"><label class="mid"><span class="small-label">Wallet name <span class="hint">in the file</span></span><input type="text" id="msName" value="KeyPath multisig" maxlength="40" spellcheck="false"></label><button type="button" class="btn small" id="msDownload"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 19h16"/></svg>Download setup file</button></div>
+        <div class="row"><label class="mid"><span class="small-label">Wallet name <span class="hint">written into the setup file</span></span><input type="text" id="msName" value="KeyPath multisig" maxlength="40" spellcheck="false"></label><button type="button" class="btn small" id="msDownload"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 19h16"/></svg>Download setup file</button></div>
         <h3 class="sec">Wallet addresses<button type="button" class="tip" data-tip="msaddresses" aria-label="What does this mean?">?</button></h3>
         <p class="help" style="margin-bottom:0.8rem">Every device holding a seed should show this first address. If one disagrees, an xpub, the threshold or the script type is wrong.</p>
         <div class="toolbar">
@@ -427,7 +427,7 @@
       </div>
       <div class="tablewrap"><table class="lab" id="labTable"><thead><tr><th>Seed</th><th>I have the seed</th><th>I have its xpub</th></tr></thead><tbody id="labRows"></tbody></table></div>
       <p class="help" style="margin:0.6rem 0 0">A seed always gives its xpub, never the other way round.</p>
-      <label class="check" style="margin-top:0.8rem"><input type="checkbox" id="labDef"> I have the wallet definition <span class="hint">(descriptor or setup file: contains all three xpubs, no seeds)</span></label>
+      <label class="check" style="margin-top:0.8rem"><input type="checkbox" id="labDef"> I have the wallet definition <span class="hint">(the descriptor or setup file, which holds all three xpubs and no seeds)</span></label>
       <div id="labVerdict" class="limits" style="margin-top:1rem"></div>
     </div>
   </section>

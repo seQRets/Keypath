@@ -784,11 +784,11 @@ function labInit() {
     [0, 1, 2].forEach((i) => { const sd = $('labRows').querySelector(`[data-lab-seed="${i}"]`), xp = $('labRows').querySelector(`[data-lab-xpub="${i}"]`); if (sd.checked || (e && e.target === sd)) xp.checked = sd.checked; xp.disabled = sd.checked; });
     const h = have();
     const known = seeds.map((_, i) => h.def || h.seed[i] || h.xpub[i]);
-    const how = seeds.map((_, i) => (h.seed[i] ? 'derived from the seed' : h.def ? 'from the definition' : h.xpub[i] ? 'the xpub itself' : 'missing'));
+    const how = seeds.map((_, i) => (h.seed[i] ? 'comes from its seed' : h.def ? 'comes from the definition' : h.xpub[i] ? 'was kept on its own' : 'is missing'));
     const nSeeds = h.seed.filter(Boolean).length, nKnown = known.filter(Boolean).length, missing = seeds.map((_, i) => i).filter((i) => !known[i]);
     const canFind = nKnown === 3, canSpend = canFind && nSeeds >= 2;
-    seeds.forEach((_, i) => { const el = $('labRows').querySelector(`[data-lab-xk="${i}"]`); el.className = 'xk ' + (known[i] ? 'ok' : 'bad'); el.textContent = known[i] ? `✓ xpub known, ${how[i]}` : '✗ xpub missing'; });
-    let out = box('', 'Xpubs known', `<strong>${nKnown} of 3</strong>: ` + seeds.map((_, i) => `seed ${i + 1} ${how[i]}`).join(', ') + '.');
+    seeds.forEach((_, i) => { const el = $('labRows').querySelector(`[data-lab-xk="${i}"]`); el.className = 'xk ' + (known[i] ? 'ok' : 'bad'); el.textContent = known[i] ? `✓ xpub known (${how[i].replace(/^(comes|was) /, '')})` : '✗ xpub missing'; });
+    let out = box('', 'Xpubs known', `<strong>${nKnown} of 3</strong> are known. ` + seeds.map((_, i) => `Seed ${i + 1}'s xpub ${how[i]}`).join('. ') + '.');
     if (canFind) out += box('good', 'Find the coins', `<strong>Yes.</strong> All three xpubs are known, so the wallet's addresses can be rebuilt. First address: <code>${esc(target)}</code>`);
     else {
       let alt = '';
@@ -800,9 +800,9 @@ function labInit() {
     else out += box('no', 'Spend', `<strong>No.</strong> ${nSeeds === 0 ? 'No seed' : 'Only 1 seed'} present; 2 of 3 must sign.${nSeeds === 0 && canFind ? ' Xpubs alone can only watch the coins, never move them.' : ''}`);
     if (!canSpend) {
       const fixes = [];
-      if (missing.length) fixes.push(`the xpub of seed ${missing.map((i) => i + 1).join(' or seed ')} (its 12 words would do, since an xpub derives from its seed), or the wallet definition`);
+      if (missing.length) fixes.push(`the xpub of seed ${missing.map((i) => i + 1).join(' and of seed ')} (its 12 words would do, since an xpub derives from its seed) or else the wallet definition`);
       if (nSeeds < 2) fixes.push(`${2 - nSeeds} more seed${2 - nSeeds > 1 ? 's' : ''}`);
-      out += box('', 'To recover', `You still need: ${fixes.join('; and ')}.`);
+      out += box('', 'To recover', `You still need ${fixes.join(', and ')}.`);
     }
     out += box('', 'Lesson', 'Keep the wallet definition with every seed backup. Then any 2 of the 3 seeds, plus that one public file, get the wallet back.');
     $('labVerdict').innerHTML = out;

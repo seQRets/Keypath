@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.6.5 — 2026-09-13
+
+- Every line in the multisig card and the lab is now a full sentence. The output heading is "Your wallet definition", introduced by "This is your wallet's definition: its policy, its script type and the xpub of every seed. It is public information; it cannot spend and it contains no seed." The descriptor and setup-file notes, the field hints, the wallet-name hint, the lab's definition checkbox and the lab's verdict lines were rewritten the same way.
+
 ## v2.6.4 — 2026-09-13
 
 - Build a wallet from xpubs, in plain words: "Paste the xpub from each device, or an existing wallet's xpubs or setup file, and choose how many signatures are needed." The field is now just "Xpubs", with the hint "paste each device's xpub on its own line, or paste a setup file. Never paste seeds or private keys here."
