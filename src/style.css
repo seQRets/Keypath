@@ -134,6 +134,8 @@ h1 .sub { display: block; font-family: var(--sans); font-size: 1.15rem; font-wei
 .inputwarn strong { color: var(--accent-ink); }
 .inputwarn.bad { background: var(--danger-wash); border-color: color-mix(in srgb, var(--danger) 30%, transparent); }
 .inputwarn.bad strong { color: var(--danger); }
+.inputwarn.good { background: var(--ok-wash); border-color: color-mix(in srgb, var(--ok) 30%, transparent); }
+.inputwarn.good strong { color: var(--ok); }
 
 /* ---------- console cards ---------- */
 .console { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-lift); overflow: hidden; margin-top: 1.75rem; scroll-margin-top: 1.5rem; }

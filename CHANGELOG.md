@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.4.0 — 2026-09-13
+
+- **First address shown by your wallet**: an optional box under the cosigner xpubs. Paste the first receive address a wallet or device shows and KeyPath says whether these keys, threshold and script type rebuild the wallet that owns it (the first 50 receive and change addresses are searched). Match or No match, with the reason a match can fail: a missing or wrong xpub, or a different threshold or script type.
+- **Prove why the descriptor must be backed up**: Try the demo wallet pre-fills that box with the demo wallet's own first address and invites you to delete one xpub line. The address changes and the check says No match, because two phrases alone cannot rebuild a 2-of-3 wallet; every cosigner's xpub is needed, which is what the descriptor or setup file holds. The how-to's Back up step and the Multisig wallet definition say the same.
+
 ## v2.3.5 — 2026-09-13
 
 - Try the demo wallet now sits inside the Generate box, at the right end of the Generate / Clear row.

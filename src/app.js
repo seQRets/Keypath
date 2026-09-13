@@ -670,6 +670,7 @@ function msInit() {
   $('msKeys').addEventListener('input', debounce(msUpdate, 250));
   for (const id of ['msThreshold', 'msScript2', 'msName', 'msChain']) $(id).addEventListener('change', msUpdate);
   $('msRows').addEventListener('input', debounce(msUpdate, 250));
+  $('msExpect').addEventListener('input', debounce(msUpdate, 250));
   $('cosignerToMs').addEventListener('click', () => {
     const line = $('cosignerLine').dataset.value; if (!line) return toast('Enter a phrase first');
     if ($('msKeys').value.includes(line)) { toast('Already in the list'); }
@@ -688,7 +689,7 @@ function msInit() {
   $('msGenCount').value = '3';
   $('msGenBtn').addEventListener('click', () => msGenerate(false));
   $('msDemoBtn').addEventListener('click', () => { msModeV = 'create'; msSrcV = 'gen'; msRefreshMode(); msGenerate(true); });
-  const msClear = () => { $('msKeys').value = ''; msGenCover(false); $('msGen').innerHTML = ''; $('msGenEye').classList.add('hidden'); $('msName').value = 'KeyPath multisig'; $('msThreshold').value = '2'; $('msGenCount').value = '3'; msUpdate(); toast('Multisig wallet cleared'); };
+  const msClear = () => { $('msKeys').value = ''; $('msExpect').value = ''; msGenCover(false); $('msGen').innerHTML = ''; $('msGenEye').classList.add('hidden'); $('msName').value = 'KeyPath multisig'; $('msThreshold').value = '2'; $('msGenCount').value = '3'; msUpdate(); toast('Multisig wallet cleared'); };
   $('msClearBtn').addEventListener('click', msClear); $('msClearBtn2').addEventListener('click', msClear);
   $('msGenEye').addEventListener('click', () => msGenCover(!$('msGen').classList.contains('covered')));
   $('msGenCount').addEventListener('change', () => { if (+$('msThreshold').value > +$('msGenCount').value) $('msThreshold').value = $('msGenCount').value; msUpdate(); });
@@ -711,12 +712,13 @@ function msGenerate(demo) {
     const phrase = bip39.entropyToMnemonic(ent, wl);
     const root = HDKey.fromMasterSeed(bip39.mnemonicToSeedSync(phrase, ''), { private: netc.xprv, public: netc.xpub });
     const c = multisig.cosignerFromNode(root, [48 + H, netc.coin + H, 0 + H, multisig.SCRIPT_INDEX[script] + H]);
-    cosigners.push({ phrase, fp: c.fp, line: `[${c.fp}${c.path}]${serExt(c.node, netc.xpub, false)}` });
+    cosigners.push({ phrase, fp: c.fp, node: c.node, line: `[${c.fp}${c.path}]${serExt(c.node, netc.xpub, false)}` });
   }
   const t = Math.min(Math.max(1, +$('msThreshold').value || 2), n); // the policy chosen above, clamped to the number of seeds
   $('msThreshold').value = String(t);
   $('msName').value = `KeyPath ${demo ? 'demo ' : ''}${t}-of-${n}`;
   $('msKeys').value = cosigners.map((c) => c.line).join('\n'); msDemoKeys = demo ? $('msKeys').value : null;
+  $('msExpect').value = demo ? multisig.multisigAddress(t, cosigners, script, 0, 0, netc) : ''; // the demo pre-fills its own first address so the "delete a line" experiment shows No match
   $('msGen').innerHTML = `<div class="share-list">${cosigners.map((c, i) => `<div class="share"><button class="copy" type="button" data-text="${esc(c.phrase)}">copy</button><h4>Cosigner ${i + 1} of ${n}<small>fingerprint ${esc(c.fp)}</small></h4><ol>${c.phrase.split(' ').map((w, j) => `<li><i>${j + 1}</i><b>${esc(w)}</b></li>`).join('')}</ol></div>`).join('')}</div>`;
   msGenCover(!demo); $('msGenEye').classList.remove('hidden');
   msUpdate(); setHidden(!demo); // demo phrases are public: reveal the page, like the phrase card's demo does
@@ -748,7 +750,16 @@ function msUpdate() {
   const chain = +$('msChain').value, rows = Math.min(100, Math.max(1, parseInt($('msRows').value, 10) || 5));
   $('msAddrBody').innerHTML = Array.from({ length: rows }, (_, i) => { const a = multisig.multisigAddress(threshold, cos, script, chain, i, n); return `<tr><td class="idx">${chain}/${i}</td><td><span data-c="${esc(a)}">${esc(a)}</span></td></tr>`; }).join('');
   const demo = text.trim() === msDemoKeys;
-  setMeter('msStatus', count(`${threshold} of ${cos.length} · ${multisig.MS_FORMAT[script]}${demo ? ' · demo' : ''}`, demo ? 'warn' : 'ok') + note(demo ? 'Demo wallet built from the public test phrases: explore it, never fund it.' : `${n.name}. Compare the first address with every cosigner's device.`));
+  setMeter('msStatus', count(`${threshold} of ${cos.length} · ${multisig.MS_FORMAT[script]}${demo ? ' · demo' : ''}`, demo ? 'warn' : 'ok') + note(demo ? 'Demo wallet built from the public test phrases: explore it, never fund it. To see why the descriptor must be backed up, delete one xpub line above: the address changes and the check says no match, because two phrases alone cannot rebuild a 2-of-3 wallet.' : `${n.name}. Compare the first address with every cosigner's device.`));
+  // Does the pasted first address belong to the wallet these keys rebuild? Search the first 50 receive and change addresses.
+  const expect = $('msExpect').value.trim().toLowerCase();
+  if (expect) {
+    let hit = null;
+    for (let c = 0; c < 2 && !hit; c++) for (let i = 0; i < 50; i++) { if (multisig.multisigAddress(threshold, cos, script, c, i, n).toLowerCase() === expect) { hit = `${c}/${i}`; break; } }
+    $('msWarnings').insertAdjacentHTML('afterbegin', hit
+      ? `<div class="inputwarn good"><p><strong>Match.</strong> These keys rebuild the wallet that owns that address (${hit === '0/0' ? 'the first receive address' : 'address ' + hit}).</p></div>`
+      : `<div class="inputwarn bad"><p><strong>No match.</strong> These ${cos.length} keys with ${threshold} of ${cos.length} and ${multisig.MS_FORMAT[script]} do not rebuild the wallet that owns that address (checked the first 50 receive and change addresses). A cosigner xpub is missing or wrong, or the signatures needed or script type differ. Having enough phrases to sign is not enough: rebuilding a multisig wallet needs every cosigner's xpub, which is what the descriptor or setup file holds.</p></div>`);
+  }
   $('msOut').classList.remove('hidden');
 }
 

@@ -348,7 +348,7 @@
             <div class="limit"><span class="lm-tag">2 · Export</span><p>Each cosigner exports their multisig <strong>public</strong> key: the BIP48 tab above shows yours as one line with the fingerprint and path. Public keys are safe to send by email or chat.</p></div>
             <div class="limit"><span class="lm-tag">3 · Combine</span><p>One person pastes every cosigner line below, picks how many signatures are needed, and gets the descriptor and setup file. Load the descriptor into Sparrow, Bitcoin Core or Nunchuk, or the setup file into a hardware wallet.</p></div>
             <div class="limit warn"><span class="lm-tag">4 · Verify</span><p>Every cosigner checks that the <strong>first receive address</strong> shown here is the one their own device shows for the wallet. If one device disagrees, stop: a key or the threshold is wrong.</p></div>
-            <div class="limit warn"><span class="lm-tag">5 · Back up</span><p>Keep a copy of the <strong>descriptor or setup file with every phrase backup</strong>. Recovering a multisig wallet needs the threshold of phrases <em>and</em> the descriptor; with all the phrases but no descriptor the coins are still lost.</p></div>
+            <div class="limit warn"><span class="lm-tag">5 · Back up</span><p>Keep a copy of the <strong>descriptor or setup file with every phrase backup</strong>. Recovering a multisig wallet needs the threshold of phrases <em>and</em> every cosigner's xpub, which is what the descriptor holds. Two phrases of a 2-of-3 can sign, but without the third xpub the addresses cannot even be rebuilt. Prove it with the demo wallet: delete one xpub line and watch the address change.</p></div>
           </div>
         </div>
       </details>
@@ -388,6 +388,10 @@
       <div class="field" style="margin-top:1rem">
         <div class="field-head"><label class="field-label" for="msKeys">Cosigner xpubs<button type="button" class="tip" data-tip="xpub" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span><span class="hint">one per seed, one per line, in any order; a pasted setup file works too. Public keys only: a seed phrase or xprv does not belong here.</span></label><button type="button" class="barbtn ms-notgen" id="msClearBtn2">Clear</button></div>
         <textarea id="msKeys" class="mono" rows="5" spellcheck="false" autocomplete="off" placeholder="[73c5da0a/48h/0h/0h/2h]xpub6E64WfdQwBGz…&#10;[a1b2c3d4/48h/0h/0h/2h]xpub6Dk3…&#10;Each cosigner exports this line from their wallet, or from the BIP48 tab above."></textarea>
+      </div>
+      <div class="field" style="margin-top:1rem">
+        <label class="field-label" for="msExpect">First address shown by your wallet <span class="hint">optional: paste the first receive address a wallet or device shows and KeyPath says whether these keys rebuild that wallet</span></label>
+        <input type="text" id="msExpect" class="mono" spellcheck="false" autocomplete="off" placeholder="bc1q… or bc1p… or 3…">
       </div>
       <div class="meter" id="msStatus"></div>
       <div id="msWarnings"></div>
