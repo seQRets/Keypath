@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.7.1 — 2026-09-13
+
+- Multisig lab wording: it now asks "What do you need to recover a multisig wallet?", says "Check the boxes for what you still have", and states the one-way rule as "An xpub can always be produced from its seed, but a seed can never be produced from its xpub." The lab definition, the lesson line, the demo note, the SLIP-132 definition and the Recover definition use the same words.
+
 ## v2.7.0 — 2026-09-13
 
 **One type scale.** Every card now uses three text styles in one size: prose (regular, soft ink) for introductions, help lines, hints and notes; labels (semibold, dark ink); and section headings (bold, dark ink, no more small capitals). Emphasis comes from weight and colour only. Data keeps the mono font. Table headers, panel buttons and bar buttons are one size too. The narrow input columns are a little wider so labels such as "Signatures needed" stay on one line.

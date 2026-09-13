@@ -415,7 +415,7 @@
   <section class="console" id="lab-card" aria-label="Multisig lab">
     <div class="console-bar"><span class="n">7</span> Multisig lab<button type="button" class="tip" data-tip="lab" aria-label="What does this mean?">?</button><span class="right">2-of-3 · demo seeds</span></div>
     <div class="console-body">
-      <p class="console-intro">What must you keep to get a multisig wallet back? Experiment here. The lab wallet is a 2-of-3 built from the three public test seeds, so nothing here is secret. Tick what you still have after a disaster and see whether the coins can be found and spent.</p>
+      <p class="console-intro">What do you need to recover a multisig wallet? Experiment here. The lab wallet is a 2-of-3 built from the three public test seeds, so nothing here is secret. Check the boxes for what you still have and see whether the coins can be found and spent.</p>
       <div class="row" style="margin-bottom:0.9rem">
         <span class="small-label" style="margin:0 0.3rem 0 0;align-self:center">Try:</span>
         <button type="button" class="barbtn" data-lab="1,1,1|0,0,0|0">All 3 seeds</button>
@@ -426,7 +426,7 @@
         <button type="button" class="barbtn" data-lab="0,0,0|1,1,1|0">3 xpubs, no seed</button>
       </div>
       <div class="tablewrap"><table class="lab" id="labTable"><thead><tr><th>Seed</th><th>I have the seed</th><th>I have its xpub</th></tr></thead><tbody id="labRows"></tbody></table></div>
-      <p class="help" style="margin:0.6rem 0 0">A seed always gives its xpub, never the other way round.</p>
+      <p class="help" style="margin:0.6rem 0 0">An xpub can always be produced from its seed, but a seed can never be produced from its xpub.</p>
       <label class="check" style="margin-top:0.8rem"><input type="checkbox" id="labDef"> I have the wallet definition <span class="hint">(the descriptor or setup file, which holds all three xpubs and no seeds)</span></label>
       <div id="labVerdict" class="limits" style="margin-top:1rem"></div>
     </div>

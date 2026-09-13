@@ -750,7 +750,7 @@ function msUpdate() {
   $('msAddrBody').innerHTML = Array.from({ length: rows }, (_, i) => { const a = multisig.multisigAddress(threshold, cos, script, chain, i, n); return `<tr><td class="idx">${chain}/${i}</td><td><span data-c="${esc(a)}">${esc(a)}</span></td></tr>`; }).join('');
   const demo = text.trim() === msDemoKeys;
   const what = msModeV === 'gen' ? `built from the ${cos.length} generated seeds` : `built from the ${cos.length} pasted xpubs`;
-  setMeter('msStatus', count(`${threshold} of ${cos.length} · ${multisig.MS_FORMAT[script]} · ${S.net === 'mainnet' ? 'mainnet' : 'testnet'}${demo ? ' · demo' : ''}`, demo ? 'warn' : 'ok') + note(demo ? `Demo wallet ${what}, from the public test seeds: explore it, never fund it. The Multisig lab below shows what is needed to get such a wallet back.` : `Wallet ${what}.`));
+  setMeter('msStatus', count(`${threshold} of ${cos.length} · ${multisig.MS_FORMAT[script]} · ${S.net === 'mainnet' ? 'mainnet' : 'testnet'}${demo ? ' · demo' : ''}`, demo ? 'warn' : 'ok') + note(demo ? `Demo wallet ${what}, from the public test seeds: explore it, never fund it. The Multisig lab below shows what is needed to recover such a wallet.` : `Wallet ${what}.`));
   // Does the pasted first address belong to the wallet these keys rebuild? Search the first 50 receive and change addresses.
   const expect = msModeV === 'build' ? $('msExpect').value.trim().toLowerCase() : '';
   if (expect) {
@@ -804,7 +804,7 @@ function labInit() {
       if (nSeeds < 2) fixes.push(`${2 - nSeeds} more seed${2 - nSeeds > 1 ? 's' : ''}`);
       out += box('', 'To recover', `You still need ${fixes.join(', and ')}.`);
     }
-    out += box('', 'Lesson', 'Keep the wallet definition with every seed backup. Then any 2 of the 3 seeds, plus that one public file, get the wallet back.');
+    out += box('', 'Lesson', 'Keep the wallet definition with every seed backup. Then any 2 of the 3 seeds, plus that one public file, recover the wallet.');
     $('labVerdict').innerHTML = out;
   };
   const set = (spec) => { const [sd, xp, df] = spec.split('|'); sd.split(',').forEach((v, i) => { $('labRows').querySelector(`[data-lab-seed="${i}"]`).checked = v === '1'; }); xp.split(',').forEach((v, i) => { $('labRows').querySelector(`[data-lab-xpub="${i}"]`).checked = v === '1'; }); $('labDef').checked = df === '1'; update(); };

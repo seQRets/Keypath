@@ -7,7 +7,7 @@
 <meta name="description" content="KeyPath: generate or inspect a BIP39 recovery phrase, back it up with SLIP-39 Shamir shares, and derive BIP32 keys and Bitcoin addresses, legacy through Taproot. Single file, runs entirely offline in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-HU3E3wIYjI7W9U54mMZh9JMNllNfz8USsNfWE/ayI/Q=' 'sha256-2Vci6ntz3Wn4ZagyNa2yZFvMhUhrNw4Gr6+XQ0EfRbs='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-HU3E3wIYjI7W9U54mMZh9JMNllNfz8USsNfWE/ayI/Q=' 'sha256-LA2itI8xAkF2iNX/cLAmecXbuCg/8gxesIeBxBm66Ug='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <script>try{if(localStorage.getItem("keypath-tips")==="off")document.documentElement.classList.add("no-tips");}catch(e){}try{var t=localStorage.getItem("keypath-theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}else if(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches){document.documentElement.setAttribute("data-theme","dark");}}catch(e){}</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23d2761a'/><g fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='10' cy='16' r='5'/><path d='M15 16h5'/><path d='M20 16l6-5.5M20 16l6 5.5'/></g><circle cx='27' cy='9.5' r='1.8' fill='%23fff'/><circle cx='27' cy='22.5' r='1.8' fill='%23fff'/></svg>">
 <style>
@@ -916,7 +916,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
   <section class="console" id="lab-card" aria-label="Multisig lab">
     <div class="console-bar"><span class="n">7</span> Multisig lab<button type="button" class="tip" data-tip="lab" aria-label="What does this mean?">?</button><span class="right">2-of-3 · demo seeds</span></div>
     <div class="console-body">
-      <p class="console-intro">What must you keep to get a multisig wallet back? Experiment here. The lab wallet is a 2-of-3 built from the three public test seeds, so nothing here is secret. Tick what you still have after a disaster and see whether the coins can be found and spent.</p>
+      <p class="console-intro">What do you need to recover a multisig wallet? Experiment here. The lab wallet is a 2-of-3 built from the three public test seeds, so nothing here is secret. Check the boxes for what you still have and see whether the coins can be found and spent.</p>
       <div class="row" style="margin-bottom:0.9rem">
         <span class="small-label" style="margin:0 0.3rem 0 0;align-self:center">Try:</span>
         <button type="button" class="barbtn" data-lab="1,1,1|0,0,0|0">All 3 seeds</button>
@@ -927,7 +927,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
         <button type="button" class="barbtn" data-lab="0,0,0|1,1,1|0">3 xpubs, no seed</button>
       </div>
       <div class="tablewrap"><table class="lab" id="labTable"><thead><tr><th>Seed</th><th>I have the seed</th><th>I have its xpub</th></tr></thead><tbody id="labRows"></tbody></table></div>
-      <p class="help" style="margin:0.6rem 0 0">A seed always gives its xpub, never the other way round.</p>
+      <p class="help" style="margin:0.6rem 0 0">An xpub can always be produced from its seed, but a seed can never be produced from its xpub.</p>
       <label class="check" style="margin-top:0.8rem"><input type="checkbox" id="labDef"> I have the wallet definition <span class="hint">(the descriptor or setup file, which holds all three xpubs and no seeds)</span></label>
       <div id="labVerdict" class="limits" style="margin-top:1rem"></div>
     </div>
@@ -982,7 +982,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest/download/SHA256SUMS.txt" rel="noopener noreferrer">SHA256SUMS.txt</a>
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest" target="_blank" rel="noopener noreferrer">Release notes</a>
       </div>
-      <p class="dl-note">This page is KeyPath v2.7.0. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
+      <p class="dl-note">This page is KeyPath v2.7.1. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
     </div>
   </section>
 
@@ -1009,7 +1009,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
       </div>
     </div>
     <div class="foot-bottom">
-      <span class="credit">KeyPath v2.7.0 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
+      <span class="credit">KeyPath v2.7.1 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
       <span>Provided "as is", without warranty. Verify addresses in a second tool before sending significant funds.</span>
     </div>
   </footer>
@@ -21570,7 +21570,7 @@ window.KEYPATH_GLOSSARY = {
   accountlevel: { t: 'Account level', d: 'The point in the tree just above the receive and change branches. The keys here describe one whole account, which is what you give to a watching wallet or a descriptor.' },
   xprv: { t: 'Extended private key', d: 'A single string starting with xprv that contains a key plus the information to derive every key beneath it. Anyone with it can spend everything under this point in the tree.' },
   xpub: { t: 'Extended public key', d: 'The public twin of the xprv, starting with xpub, ypub or zpub. It lets a wallet or explorer see all the addresses and balances under this point, but not spend. Sharing it costs privacy, not money.' },
-  slip132: { t: 'SLIP-132 prefixes', d: 'Some wallets label extended keys ypub or zpub instead of xpub to signal the address style. The key inside is identical; only the first letters change. Tick this if a wallet asks for a zpub.' },
+  slip132: { t: 'SLIP-132 prefixes', d: 'Some wallets label extended keys ypub or zpub instead of xpub to signal the address style. The key inside is identical; only the first letters change. Check this box if a wallet asks for a zpub.' },
   descriptor: { t: 'Output descriptor', d: 'A one-line recipe that tells Bitcoin Core, Sparrow and other modern wallets exactly which key, path and address style to watch. It ends with a short checksum so a typo is caught. The public version reveals addresses, not spending power.' },
   pathkeys: { t: 'Keys at the derivation path', d: 'The extended keys at the exact path shown, one level below the account. The addresses in the table are that key\'s children.' },
   addresses: { t: 'Derived addresses', d: '"Derived" means calculated from the key above. These are the actual Bitcoin addresses someone would pay you at, listed in the order a wallet would hand them out. Each one has its own private key, all grown from the single phrase.' },
@@ -21602,10 +21602,10 @@ window.KEYPATH_GLOSSARY = {
   keyorigin: { t: 'Key origin', d: 'The part in square brackets before an xpub: the master fingerprint and the path the key was derived along. It lets a hardware wallet recognise which of its keys is being asked to sign. Always share a multisig xpub with its origin.' },
   sortedmulti: { t: 'sortedmulti', d: 'In the descriptor, sortedmulti means the keys are put in a fixed order (BIP67) before building each address, so it does not matter in what order the xpubs were listed. Every wallet app agrees on the same addresses. Taproot wallets use sortedmulti_a, the same idea inside a Taproot script.' },
   coldcardfile: { t: 'Setup file', d: 'A small text file listing the policy (2 of 3), the script type, the derivation path and the fingerprint and xpub of every seed: the same wallet definition as the descriptor, in the form hardware wallets read. It contains no seed. Each device already holds its own seed; loading the file tells the device which wallet that seed belongs to, so it can verify the wallet\'s addresses and sign for it.' },
-  lab: { t: 'Multisig lab', d: 'A sandbox for one question: what do you need to keep to get a multisig wallet back? Its wallet is a 2-of-3 built from the three public test seeds, so nothing in it is secret. Tick the seeds, xpubs and wallet definition you still have and it tells you whether the coins can be found (every xpub is known) and spent (enough seeds to sign).' },
+  lab: { t: 'Multisig lab', d: 'A sandbox for one question: what do you need to recover a multisig wallet? Its wallet is a 2-of-3 built from the three public test seeds, so nothing in it is secret. Check the boxes for the seeds, xpubs and wallet definition you still have, and it tells you whether the coins can be found (every xpub is known) and spent (enough seeds to sign).' },
   msaddresses: { t: 'Wallet addresses', d: 'The receive addresses of the multisig wallet, built from the xpubs of all the seeds. They are the same on every device that has the same xpubs, threshold and script type, which is why comparing the first one is the standard check that the wallet was set up correctly.' },
   split: { t: 'Split into shares', d: 'Make a new set of Shamir shares from the phrase currently shown above.' },
-  recover: { t: 'Recover from shares', d: 'Paste shares you made earlier and get the phrase back.' },
+  recover: { t: 'Recover from shares', d: 'Paste shares you made earlier to recover the phrase.' },
 };
 
 (() => {
@@ -22360,7 +22360,7 @@ function msUpdate() {
   $('msAddrBody').innerHTML = Array.from({ length: rows }, (_, i) => { const a = multisig.multisigAddress(threshold, cos, script, chain, i, n); return `<tr><td class="idx">${chain}/${i}</td><td><span data-c="${esc(a)}">${esc(a)}</span></td></tr>`; }).join('');
   const demo = text.trim() === msDemoKeys;
   const what = msModeV === 'gen' ? `built from the ${cos.length} generated seeds` : `built from the ${cos.length} pasted xpubs`;
-  setMeter('msStatus', count(`${threshold} of ${cos.length} · ${multisig.MS_FORMAT[script]} · ${S.net === 'mainnet' ? 'mainnet' : 'testnet'}${demo ? ' · demo' : ''}`, demo ? 'warn' : 'ok') + note(demo ? `Demo wallet ${what}, from the public test seeds: explore it, never fund it. The Multisig lab below shows what is needed to get such a wallet back.` : `Wallet ${what}.`));
+  setMeter('msStatus', count(`${threshold} of ${cos.length} · ${multisig.MS_FORMAT[script]} · ${S.net === 'mainnet' ? 'mainnet' : 'testnet'}${demo ? ' · demo' : ''}`, demo ? 'warn' : 'ok') + note(demo ? `Demo wallet ${what}, from the public test seeds: explore it, never fund it. The Multisig lab below shows what is needed to recover such a wallet.` : `Wallet ${what}.`));
   // Does the pasted first address belong to the wallet these keys rebuild? Search the first 50 receive and change addresses.
   const expect = msModeV === 'build' ? $('msExpect').value.trim().toLowerCase() : '';
   if (expect) {
@@ -22414,7 +22414,7 @@ function labInit() {
       if (nSeeds < 2) fixes.push(`${2 - nSeeds} more seed${2 - nSeeds > 1 ? 's' : ''}`);
       out += box('', 'To recover', `You still need ${fixes.join(', and ')}.`);
     }
-    out += box('', 'Lesson', 'Keep the wallet definition with every seed backup. Then any 2 of the 3 seeds, plus that one public file, get the wallet back.');
+    out += box('', 'Lesson', 'Keep the wallet definition with every seed backup. Then any 2 of the 3 seeds, plus that one public file, recover the wallet.');
     $('labVerdict').innerHTML = out;
   };
   const set = (spec) => { const [sd, xp, df] = spec.split('|'); sd.split(',').forEach((v, i) => { $('labRows').querySelector(`[data-lab-seed="${i}"]`).checked = v === '1'; }); xp.split(',').forEach((v, i) => { $('labRows').querySelector(`[data-lab-xpub="${i}"]`).checked = v === '1'; }); $('labDef').checked = df === '1'; update(); };
