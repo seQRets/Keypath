@@ -7,7 +7,7 @@
 <meta name="description" content="KeyPath: generate or inspect a BIP39 recovery phrase, back it up with SLIP-39 Shamir shares, and derive BIP32 keys and Bitcoin addresses, legacy through Taproot. Single file, runs entirely offline in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-vYyDb5uMWZp2Iq0QRYqmjsVW/FeakHaJw9FolE2Bsdk=' 'sha256-n7H8NzsdO5whuxTbF9U4nwZurY1cjujGaYZgIp0PYYY='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-vYyDb5uMWZp2Iq0QRYqmjsVW/FeakHaJw9FolE2Bsdk=' 'sha256-1uFphYuLBjtDZchEAQR1hFlnk35XqJHqXxDLD6sOFGY='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <script>try{if(localStorage.getItem("keypath-tips")==="off")document.documentElement.classList.add("no-tips");}catch(e){}try{var t=localStorage.getItem("keypath-theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}else if(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches){document.documentElement.setAttribute("data-theme","dark");}}catch(e){}</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23d2761a'/><g fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='10' cy='16' r='5'/><path d='M15 16h5'/><path d='M20 16l6-5.5M20 16l6 5.5'/></g><circle cx='27' cy='9.5' r='1.8' fill='%23fff'/><circle cx='27' cy='22.5' r='1.8' fill='%23fff'/></svg>">
 <style>
@@ -857,7 +857,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
         <label class="grow"><span class="small-label">Wallet name <span class="hint">for the setup file</span></span><input type="text" id="msName" value="KeyPath multisig" maxlength="40" spellcheck="false"></label>
       </div>
       <div class="field" style="margin-top:1rem">
-        <div class="field-head"><label class="field-label" for="msKeys">Cosigner xpubs<button type="button" class="tip" data-tip="xpub" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span><span class="hint">one per seed, one per line, in any order; a pasted setup file works too. Public keys only: a seed phrase or xprv does not belong here.</span></label><button type="button" class="barbtn ms-notgen" id="msClearBtn2">Clear</button></div>
+        <div class="field-head"><label class="field-label" for="msKeys">Cosigner xpubs<button type="button" class="tip" data-tip="xpub" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span><span class="hint">one per seed, one per line, in any order; a pasted setup file works too. Public keys only: a seed phrase or xprv does not belong here.</span></label><span class="row" style="gap:0.4rem"><button type="button" class="barbtn" id="msDemoBtn">Try the demo wallet</button><button type="button" class="barbtn ms-notgen" id="msClearBtn2">Clear</button></span></div>
         <textarea id="msKeys" class="mono" rows="5" spellcheck="false" autocomplete="off" placeholder="[73c5da0a/48h/0h/0h/2h]xpub6E64WfdQwBGz…&#10;[a1b2c3d4/48h/0h/0h/2h]xpub6Dk3…&#10;Each cosigner exports this line from their wallet, or from the BIP48 tab above."></textarea>
       </div>
       <div class="meter" id="msStatus"></div>
@@ -936,7 +936,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest/download/SHA256SUMS.txt" rel="noopener noreferrer">SHA256SUMS.txt</a>
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest" target="_blank" rel="noopener noreferrer">Release notes</a>
       </div>
-      <p class="dl-note">This page is KeyPath v2.3.1. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
+      <p class="dl-note">This page is KeyPath v2.3.2. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
     </div>
   </section>
 
@@ -963,7 +963,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
       </div>
     </div>
     <div class="foot-bottom">
-      <span class="credit">KeyPath v2.3.1 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
+      <span class="credit">KeyPath v2.3.2 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
       <span>Provided "as is", without warranty. Verify addresses in a second tool before sending significant funds.</span>
     </div>
   </footer>
@@ -22208,7 +22208,7 @@ $('qrModal').addEventListener('click', (e) => { if (e.target.closest('[data-clos
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('qrModal').hidden) { $('qrModal').hidden = true; $('qrWrap').innerHTML = ''; } });
 
 /* ---------------- multisig wallet (BIP48 / BIP67 / descriptors) ---------------- */
-let msLast = null, msKeysSeen = '', msModeV = 'create', msSrcV = 'paste';
+let msLast = null, msKeysSeen = '', msDemoKeys = null, msModeV = 'create', msSrcV = 'paste';
 // Show the parts of the card that belong to the chosen mode (create / check) and key source (paste / generate).
 function msRefreshMode() {
   const create = msModeV === 'create', gen = create && msSrcV === 'gen', paste = create && msSrcV === 'paste';
@@ -22249,7 +22249,8 @@ function msInit() {
   $('network').addEventListener('change', msUpdate);
   for (let i = 2; i <= 15; i++) $('msGenCount').insertAdjacentHTML('beforeend', `<option>${i}</option>`);
   $('msGenCount').value = '3';
-  $('msGenBtn').addEventListener('click', msGenerate);
+  $('msGenBtn').addEventListener('click', () => msGenerate(false));
+  $('msDemoBtn').addEventListener('click', () => { msModeV = 'create'; msSrcV = 'gen'; msRefreshMode(); msGenerate(true); });
   const msClear = () => { $('msKeys').value = ''; msGenCover(false); $('msGen').innerHTML = ''; $('msGenEye').classList.add('hidden'); $('msName').value = 'KeyPath multisig'; $('msThreshold').value = '2'; $('msGenCount').value = '3'; msUpdate(); toast('Multisig wallet cleared'); };
   $('msClearBtn').addEventListener('click', msClear); $('msClearBtn2').addEventListener('click', msClear);
   $('msGenEye').addEventListener('click', () => msGenCover(!$('msGen').classList.contains('covered')));
@@ -22264,23 +22265,25 @@ function msGenCover(on) {
   const b = $('msGenEye'); b.setAttribute('aria-pressed', on); b.lastChild.textContent = on ? 'Reveal phrases' : 'Hide phrases';
 }
 // A complete wallet: one fresh phrase per cosigner, keys filled in, threshold kept sensible.
-function msGenerate() {
+// demo: the well-known all-"abandon" test phrases (entropy 0, 1, 2 … so each ends in a different checksum word), shown unblurred.
+function msGenerate(demo) {
   const n = +$('msGenCount').value, words = +$('msGenWords').value, script = $('msScript2').value, netc = net();
-  const H = 0x80000000, wl = wordlists[S.lang].words, cosigners = [];
+  const H = 0x80000000, wl = demo ? wordlists.english.words : wordlists[S.lang].words, cosigners = [];
   for (let i = 0; i < n; i++) {
-    const phrase = bip39.entropyToMnemonic(crypto.getRandomValues(new Uint8Array(words * 4 / 3)), wl);
+    const ent = new Uint8Array(words * 4 / 3); if (demo) ent[ent.length - 1] = i; else crypto.getRandomValues(ent);
+    const phrase = bip39.entropyToMnemonic(ent, wl);
     const root = HDKey.fromMasterSeed(bip39.mnemonicToSeedSync(phrase, ''), { private: netc.xprv, public: netc.xpub });
     const c = multisig.cosignerFromNode(root, [48 + H, netc.coin + H, 0 + H, multisig.SCRIPT_INDEX[script] + H]);
     cosigners.push({ phrase, fp: c.fp, line: `[${c.fp}${c.path}]${serExt(c.node, netc.xpub, false)}` });
   }
   const t = Math.min(Math.max(1, +$('msThreshold').value || 2), n); // the policy chosen above, clamped to the number of seeds
   $('msThreshold').value = String(t);
-  $('msName').value = `KeyPath ${t}-of-${n}`;
-  $('msKeys').value = cosigners.map((c) => c.line).join('\n');
+  $('msName').value = `KeyPath ${demo ? 'demo ' : ''}${t}-of-${n}`;
+  $('msKeys').value = cosigners.map((c) => c.line).join('\n'); msDemoKeys = demo ? $('msKeys').value : null;
   $('msGen').innerHTML = `<div class="share-list">${cosigners.map((c, i) => `<div class="share"><button class="copy" type="button" data-text="${esc(c.phrase)}">copy</button><h4>Cosigner ${i + 1} of ${n}<small>fingerprint ${esc(c.fp)}</small></h4><ol>${c.phrase.split(' ').map((w, j) => `<li><i>${j + 1}</i><b>${esc(w)}</b></li>`).join('')}</ol></div>`).join('')}</div>`;
-  msGenCover(true); $('msGenEye').classList.remove('hidden');
-  msUpdate(); setHidden(true);
-  toast(`${n} cosigner phrases created and hidden`);
+  msGenCover(!demo); $('msGenEye').classList.remove('hidden');
+  msUpdate(); if (!demo) setHidden(true);
+  toast(demo ? 'Demo wallet loaded: explore freely, never fund it' : `${n} cosigner phrases created and hidden`);
 }
 function msUpdate() {
   msLast = null; $('msOut').classList.add('hidden'); $('msWarnings').innerHTML = '';
@@ -22307,7 +22310,8 @@ function msUpdate() {
   setBox('msDesc', d.combined); setBox('msDescRecv', d.receive); setBox('msDescChange', d.change); setBox('msConfig', config);
   const chain = +$('msChain').value, rows = Math.min(100, Math.max(1, parseInt($('msRows').value, 10) || 5));
   $('msAddrBody').innerHTML = Array.from({ length: rows }, (_, i) => { const a = multisig.multisigAddress(threshold, cos, script, chain, i, n); return `<tr><td class="idx">${chain}/${i}</td><td><span data-c="${esc(a)}">${esc(a)}</span></td></tr>`; }).join('');
-  setMeter('msStatus', count(`${threshold} of ${cos.length} · ${multisig.MS_FORMAT[script]}`, 'ok') + note(`${n.name}. Compare the first address with every cosigner's device.`));
+  const demo = text.trim() === msDemoKeys;
+  setMeter('msStatus', count(`${threshold} of ${cos.length} · ${multisig.MS_FORMAT[script]}${demo ? ' · demo' : ''}`, demo ? 'warn' : 'ok') + note(demo ? 'Demo wallet built from the public test phrases: explore it, never fund it.' : `${n.name}. Compare the first address with every cosigner's device.`));
   $('msOut').classList.remove('hidden');
 }
 

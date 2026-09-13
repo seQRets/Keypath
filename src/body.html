@@ -385,7 +385,7 @@
         <label class="grow"><span class="small-label">Wallet name <span class="hint">for the setup file</span></span><input type="text" id="msName" value="KeyPath multisig" maxlength="40" spellcheck="false"></label>
       </div>
       <div class="field" style="margin-top:1rem">
-        <div class="field-head"><label class="field-label" for="msKeys">Cosigner xpubs<button type="button" class="tip" data-tip="xpub" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span><span class="hint">one per seed, one per line, in any order; a pasted setup file works too. Public keys only: a seed phrase or xprv does not belong here.</span></label><button type="button" class="barbtn ms-notgen" id="msClearBtn2">Clear</button></div>
+        <div class="field-head"><label class="field-label" for="msKeys">Cosigner xpubs<button type="button" class="tip" data-tip="xpub" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span><span class="hint">one per seed, one per line, in any order; a pasted setup file works too. Public keys only: a seed phrase or xprv does not belong here.</span></label><span class="row" style="gap:0.4rem"><button type="button" class="barbtn" id="msDemoBtn">Try the demo wallet</button><button type="button" class="barbtn ms-notgen" id="msClearBtn2">Clear</button></span></div>
         <textarea id="msKeys" class="mono" rows="5" spellcheck="false" autocomplete="off" placeholder="[73c5da0a/48h/0h/0h/2h]xpub6E64WfdQwBGz…&#10;[a1b2c3d4/48h/0h/0h/2h]xpub6Dk3…&#10;Each cosigner exports this line from their wallet, or from the BIP48 tab above."></textarea>
       </div>
       <div class="meter" id="msStatus"></div>

@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.3.2 — 2026-09-13
+
+- A "Try the demo wallet" button on the Cosigner xpubs field builds a multisig wallet from the well-known test phrases (abandon × 11 then about, actual, age…; with 24 words, abandon × 23 then art, diesel, false…), one per cosigner with the count, words, signatures and script type chosen above. The phrases are shown unblurred, the name says demo, and the status line says never to fund it.
+
 ## v2.3.1 — 2026-09-13
 
 - Generated multisig phrases have their own cover, independent of the page-wide Hide private info. Revealing the page (for example with the demo phrase) no longer exposes them; a Reveal phrases / Hide phrases button beside Generate controls them, and copy is refused while they are covered.

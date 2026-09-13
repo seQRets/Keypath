@@ -645,7 +645,7 @@ $('qrModal').addEventListener('click', (e) => { if (e.target.closest('[data-clos
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('qrModal').hidden) { $('qrModal').hidden = true; $('qrWrap').innerHTML = ''; } });
 
 /* ---------------- multisig wallet (BIP48 / BIP67 / descriptors) ---------------- */
-let msLast = null, msKeysSeen = '', msModeV = 'create', msSrcV = 'paste';
+let msLast = null, msKeysSeen = '', msDemoKeys = null, msModeV = 'create', msSrcV = 'paste';
 // Show the parts of the card that belong to the chosen mode (create / check) and key source (paste / generate).
 function msRefreshMode() {
   const create = msModeV === 'create', gen = create && msSrcV === 'gen', paste = create && msSrcV === 'paste';
@@ -686,7 +686,8 @@ function msInit() {
   $('network').addEventListener('change', msUpdate);
   for (let i = 2; i <= 15; i++) $('msGenCount').insertAdjacentHTML('beforeend', `<option>${i}</option>`);
   $('msGenCount').value = '3';
-  $('msGenBtn').addEventListener('click', msGenerate);
+  $('msGenBtn').addEventListener('click', () => msGenerate(false));
+  $('msDemoBtn').addEventListener('click', () => { msModeV = 'create'; msSrcV = 'gen'; msRefreshMode(); msGenerate(true); });
   const msClear = () => { $('msKeys').value = ''; msGenCover(false); $('msGen').innerHTML = ''; $('msGenEye').classList.add('hidden'); $('msName').value = 'KeyPath multisig'; $('msThreshold').value = '2'; $('msGenCount').value = '3'; msUpdate(); toast('Multisig wallet cleared'); };
   $('msClearBtn').addEventListener('click', msClear); $('msClearBtn2').addEventListener('click', msClear);
   $('msGenEye').addEventListener('click', () => msGenCover(!$('msGen').classList.contains('covered')));
@@ -701,23 +702,25 @@ function msGenCover(on) {
   const b = $('msGenEye'); b.setAttribute('aria-pressed', on); b.lastChild.textContent = on ? 'Reveal phrases' : 'Hide phrases';
 }
 // A complete wallet: one fresh phrase per cosigner, keys filled in, threshold kept sensible.
-function msGenerate() {
+// demo: the well-known all-"abandon" test phrases (entropy 0, 1, 2 … so each ends in a different checksum word), shown unblurred.
+function msGenerate(demo) {
   const n = +$('msGenCount').value, words = +$('msGenWords').value, script = $('msScript2').value, netc = net();
-  const H = 0x80000000, wl = wordlists[S.lang].words, cosigners = [];
+  const H = 0x80000000, wl = demo ? wordlists.english.words : wordlists[S.lang].words, cosigners = [];
   for (let i = 0; i < n; i++) {
-    const phrase = bip39.entropyToMnemonic(crypto.getRandomValues(new Uint8Array(words * 4 / 3)), wl);
+    const ent = new Uint8Array(words * 4 / 3); if (demo) ent[ent.length - 1] = i; else crypto.getRandomValues(ent);
+    const phrase = bip39.entropyToMnemonic(ent, wl);
     const root = HDKey.fromMasterSeed(bip39.mnemonicToSeedSync(phrase, ''), { private: netc.xprv, public: netc.xpub });
     const c = multisig.cosignerFromNode(root, [48 + H, netc.coin + H, 0 + H, multisig.SCRIPT_INDEX[script] + H]);
     cosigners.push({ phrase, fp: c.fp, line: `[${c.fp}${c.path}]${serExt(c.node, netc.xpub, false)}` });
   }
   const t = Math.min(Math.max(1, +$('msThreshold').value || 2), n); // the policy chosen above, clamped to the number of seeds
   $('msThreshold').value = String(t);
-  $('msName').value = `KeyPath ${t}-of-${n}`;
-  $('msKeys').value = cosigners.map((c) => c.line).join('\n');
+  $('msName').value = `KeyPath ${demo ? 'demo ' : ''}${t}-of-${n}`;
+  $('msKeys').value = cosigners.map((c) => c.line).join('\n'); msDemoKeys = demo ? $('msKeys').value : null;
   $('msGen').innerHTML = `<div class="share-list">${cosigners.map((c, i) => `<div class="share"><button class="copy" type="button" data-text="${esc(c.phrase)}">copy</button><h4>Cosigner ${i + 1} of ${n}<small>fingerprint ${esc(c.fp)}</small></h4><ol>${c.phrase.split(' ').map((w, j) => `<li><i>${j + 1}</i><b>${esc(w)}</b></li>`).join('')}</ol></div>`).join('')}</div>`;
-  msGenCover(true); $('msGenEye').classList.remove('hidden');
-  msUpdate(); setHidden(true);
-  toast(`${n} cosigner phrases created and hidden`);
+  msGenCover(!demo); $('msGenEye').classList.remove('hidden');
+  msUpdate(); if (!demo) setHidden(true);
+  toast(demo ? 'Demo wallet loaded: explore freely, never fund it' : `${n} cosigner phrases created and hidden`);
 }
 function msUpdate() {
   msLast = null; $('msOut').classList.add('hidden'); $('msWarnings').innerHTML = '';
@@ -744,7 +747,8 @@ function msUpdate() {
   setBox('msDesc', d.combined); setBox('msDescRecv', d.receive); setBox('msDescChange', d.change); setBox('msConfig', config);
   const chain = +$('msChain').value, rows = Math.min(100, Math.max(1, parseInt($('msRows').value, 10) || 5));
   $('msAddrBody').innerHTML = Array.from({ length: rows }, (_, i) => { const a = multisig.multisigAddress(threshold, cos, script, chain, i, n); return `<tr><td class="idx">${chain}/${i}</td><td><span data-c="${esc(a)}">${esc(a)}</span></td></tr>`; }).join('');
-  setMeter('msStatus', count(`${threshold} of ${cos.length} · ${multisig.MS_FORMAT[script]}`, 'ok') + note(`${n.name}. Compare the first address with every cosigner's device.`));
+  const demo = text.trim() === msDemoKeys;
+  setMeter('msStatus', count(`${threshold} of ${cos.length} · ${multisig.MS_FORMAT[script]}${demo ? ' · demo' : ''}`, demo ? 'warn' : 'ok') + note(demo ? 'Demo wallet built from the public test phrases: explore it, never fund it.' : `${n.name}. Compare the first address with every cosigner's device.`));
   $('msOut').classList.remove('hidden');
 }
 
