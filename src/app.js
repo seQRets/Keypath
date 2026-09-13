@@ -719,8 +719,10 @@ function msUpdate() {
   msLast = null; $('msOut').classList.add('hidden'); $('msWarnings').innerHTML = '';
   $('msTrNote').classList.toggle('hidden', $('msScript2').value !== 'p2tr');
   const text = $('msKeys').value;
+  // In Generate mode the xpubs are a result, not an input: read-only, and shown only once seeds exist.
+  $('msKeys').readOnly = msModeV === 'gen'; $('msKeysField').classList.toggle('hidden', msModeV === 'gen' && !text.trim());
   if (!text.trim()) {
-    const msg = msModeV === 'check' ? 'Waiting for the existing wallet\'s xpubs or setup file.' : msModeV === 'gen' ? 'Press the button above to create the seeds. Their xpubs appear here and the wallet is built from them.' : 'Waiting for the xpub lines. The wallet is built as soon as two or more are pasted.';
+    const msg = msModeV === 'check' ? 'Waiting for the existing wallet\'s xpubs or setup file.' : msModeV === 'gen' ? 'Press the button above to create the seeds.' : 'Waiting for the xpub lines. The wallet is built as soon as two or more are pasted.';
     setMeter('msStatus', note(msg)); return;
   }
   const parsed = multisig.parseCosigners(text, VERSION_TABLE);

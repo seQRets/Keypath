@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.5.3 — 2026-09-13
+
+- In **Generate the seeds here**, the xpubs box is a result, not an input: it is read-only and appears only after the seeds are created. Pasting xpubs now happens only in Build from xpubs and Check or restore a wallet, so each panel does one thing.
+- Far fewer words. The introduction, the three panel descriptions, the wallet-definition text and the hints are each cut to one or two sentences; "usually by its own person" and "when one person will hold every seed" are gone.
+
 ## v2.5.2 — 2026-09-13
 
 - The multisig card now uses one plain vocabulary. A **seed** is one recovery phrase on its own device, usually held by its own person; the word "cosigner" is gone from the page except as the jargon name inside the Seeds definition, and "phrase" no longer appears in the card. "You" no longer stands for an unnamed person: the text says "whoever sets up the wallet" and "each device". The introduction is three plain sentences: what a multisig wallet is, what a seed is, and that KeyPath combines xpubs and never needs the seeds. Panels and labels follow: "Build from xpubs", Seeds, Words per seed, "Xpubs, one per seed", "Create the seeds and build the wallet", Seed 1 of 3, Reveal / Hide seeds. The BIP48 tab calls its output "Your multisig xpub". The definitions for multisig, seeds, threshold, BIP48, script type, key origin, sortedmulti, setup file and addresses say the same, and so do the warnings under the xpubs box.
