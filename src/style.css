@@ -166,6 +166,7 @@ h1 .sub { display: block; font-family: var(--sans); font-size: 1.15rem; font-wei
 .row > * { min-width: 0; }
 .grow { flex: 1 1 200px; }
 .narrow { width: 8.6rem; flex: 0 0 auto; }
+.narrow.w10 { width: 10.2rem; }
 .mid { width: 12rem; flex: 0 0 auto; }
 .small-label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--ink-soft); margin-bottom: 0.35rem; }
 input[type="text"], input[type="number"], select, textarea {

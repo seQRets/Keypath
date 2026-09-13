@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.7.4 — 2026-09-13
+
+- The "Signatures needed" column in the multisig card is wide enough for its label and "?" on one line.
+
 ## v2.7.3 — 2026-09-13
 
 - BlueWallet is listed among the wallets that import the descriptor and the setup file (verified in its source: it reads `sortedmulti` descriptors and the Policy / Format / Derivation setup-file lines for P2WSH and P2SH-P2WSH). The Taproot note says BlueWallet cannot import Taproot multisig.
