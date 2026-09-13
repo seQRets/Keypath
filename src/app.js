@@ -787,7 +787,7 @@ function labInit() {
     const how = seeds.map((_, i) => (h.seed[i] ? 'comes from its seed' : h.def ? 'comes from the definition' : h.xpub[i] ? 'was kept on its own' : 'is missing'));
     const nSeeds = h.seed.filter(Boolean).length, nKnown = known.filter(Boolean).length, missing = seeds.map((_, i) => i).filter((i) => !known[i]);
     const canFind = nKnown === 3, canSpend = canFind && nSeeds >= 2;
-    seeds.forEach((_, i) => { const el = $('labRows').querySelector(`[data-lab-xk="${i}"]`); el.className = 'xk ' + (known[i] ? 'ok' : 'bad'); el.textContent = known[i] ? `✓ xpub known (${how[i].replace(/^(comes|was) /, '')})` : '✗ xpub missing'; });
+    seeds.forEach((_, i) => { const el = $('labRows').querySelector(`[data-lab-xk="${i}"]`); el.className = 'xk ' + (known[i] ? 'ok' : 'bad'); el.textContent = known[i] ? '✓ xpub known' : '✗ xpub missing'; });
     let out = box('', 'Xpubs known', `<strong>${nKnown} of 3</strong> are known. ` + seeds.map((_, i) => `Seed ${i + 1}'s xpub ${how[i]}`).join('. ') + '.');
     if (canFind) out += box('good', 'Find the coins', `<strong>Yes.</strong> All three xpubs are known, so the wallet's addresses can be rebuilt. First address: <code>${esc(target)}</code>`);
     else {

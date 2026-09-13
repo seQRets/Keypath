@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.7.2 — 2026-09-13
+
+- Multisig lab: the status under each seed is now just "xpub known" or "xpub missing", so the table no longer shifts when a box is checked. Where each xpub comes from is still stated in the Xpubs known box.
+
 ## v2.7.1 — 2026-09-13
 
 - Multisig lab wording: it now asks "What do you need to recover a multisig wallet?", says "Check the boxes for what you still have", and states the one-way rule as "An xpub can always be produced from its seed, but a seed can never be produced from its xpub." The lab definition, the lesson line, the demo note, the SLIP-132 definition and the Recover definition use the same words.
