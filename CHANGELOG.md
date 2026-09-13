@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.3.3 — 2026-09-13
+
+- Try the demo wallet now also lifts the page-wide Hide private info, so the demo seeds are readable even when an earlier Generate had hidden the page.
+
 ## v2.3.2 — 2026-09-13
 
 - A "Try the demo wallet" button on the Cosigner xpubs field builds a multisig wallet from the well-known test phrases (abandon × 11 then about, actual, age…; with 24 words, abandon × 23 then art, diesel, false…), one per cosigner with the count, words, signatures and script type chosen above. The phrases are shown unblurred, the name says demo, and the status line says never to fund it.

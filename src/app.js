@@ -719,7 +719,7 @@ function msGenerate(demo) {
   $('msKeys').value = cosigners.map((c) => c.line).join('\n'); msDemoKeys = demo ? $('msKeys').value : null;
   $('msGen').innerHTML = `<div class="share-list">${cosigners.map((c, i) => `<div class="share"><button class="copy" type="button" data-text="${esc(c.phrase)}">copy</button><h4>Cosigner ${i + 1} of ${n}<small>fingerprint ${esc(c.fp)}</small></h4><ol>${c.phrase.split(' ').map((w, j) => `<li><i>${j + 1}</i><b>${esc(w)}</b></li>`).join('')}</ol></div>`).join('')}</div>`;
   msGenCover(!demo); $('msGenEye').classList.remove('hidden');
-  msUpdate(); if (!demo) setHidden(true);
+  msUpdate(); setHidden(!demo); // demo phrases are public: reveal the page, like the phrase card's demo does
   toast(demo ? 'Demo wallet loaded: explore freely, never fund it' : `${n} cosigner phrases created and hidden`);
 }
 function msUpdate() {
