@@ -835,7 +835,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
       <p class="help hidden" id="msTrNote" style="margin:0.6rem 0 0">Taproot multisig is the newest type: spending is cheaper and reveals less about the wallet. It is supported by Sparrow, Bitcoin Core 24 and later, and recent hardware wallets; older wallets cannot import it. Every cosigner's device must support it.</p>
 
       <div class="ms-create" style="margin-top:1.1rem">
-        <span class="small-label">Where do the cosigner keys come from?</span>
+        <div class="field-head"><span class="small-label" style="margin:0">Where do the cosigner keys come from?</span><button type="button" class="barbtn" id="msDemoBtn">Try the demo wallet</button></div>
         <div class="mode-toggle" role="group" aria-label="Key source">
           <button class="mode-btn" id="msSrcPaste" type="button" aria-pressed="true">Paste xpubs from each cosigner's device</button>
           <button class="mode-btn" id="msSrcGen" type="button" aria-pressed="false">Generate the phrases here</button>
@@ -857,7 +857,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
         <label class="grow"><span class="small-label">Wallet name <span class="hint">for the setup file</span></span><input type="text" id="msName" value="KeyPath multisig" maxlength="40" spellcheck="false"></label>
       </div>
       <div class="field" style="margin-top:1rem">
-        <div class="field-head"><label class="field-label" for="msKeys">Cosigner xpubs<button type="button" class="tip" data-tip="xpub" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span><span class="hint">one per seed, one per line, in any order; a pasted setup file works too. Public keys only: a seed phrase or xprv does not belong here.</span></label><span class="row" style="gap:0.4rem"><button type="button" class="barbtn" id="msDemoBtn">Try the demo wallet</button><button type="button" class="barbtn ms-notgen" id="msClearBtn2">Clear</button></span></div>
+        <div class="field-head"><label class="field-label" for="msKeys">Cosigner xpubs<button type="button" class="tip" data-tip="xpub" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span><span class="hint">one per seed, one per line, in any order; a pasted setup file works too. Public keys only: a seed phrase or xprv does not belong here.</span></label><button type="button" class="barbtn ms-notgen" id="msClearBtn2">Clear</button></div>
         <textarea id="msKeys" class="mono" rows="5" spellcheck="false" autocomplete="off" placeholder="[73c5da0a/48h/0h/0h/2h]xpub6E64WfdQwBGz…&#10;[a1b2c3d4/48h/0h/0h/2h]xpub6Dk3…&#10;Each cosigner exports this line from their wallet, or from the BIP48 tab above."></textarea>
       </div>
       <div class="meter" id="msStatus"></div>
@@ -936,7 +936,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest/download/SHA256SUMS.txt" rel="noopener noreferrer">SHA256SUMS.txt</a>
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest" target="_blank" rel="noopener noreferrer">Release notes</a>
       </div>
-      <p class="dl-note">This page is KeyPath v2.3.3. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
+      <p class="dl-note">This page is KeyPath v2.3.4. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
     </div>
   </section>
 
@@ -963,7 +963,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
       </div>
     </div>
     <div class="foot-bottom">
-      <span class="credit">KeyPath v2.3.3 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
+      <span class="credit">KeyPath v2.3.4 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
       <span>Provided "as is", without warranty. Verify addresses in a second tool before sending significant funds.</span>
     </div>
   </footer>

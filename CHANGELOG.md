@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.3.4 — 2026-09-13
+
+- Try the demo wallet moved to the right end of the "Where do the cosigner keys come from?" line, above the Generate strip.
+
 ## v2.3.3 — 2026-09-13
 
 - Try the demo wallet now also lifts the page-wide Hide private info, so the demo seeds are readable even when an earlier Generate had hidden the page.
