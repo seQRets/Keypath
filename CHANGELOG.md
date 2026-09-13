@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.7.0 — 2026-09-13
+
+**One type scale.** Every card now uses three text styles in one size: prose (regular, soft ink) for introductions, help lines, hints and notes; labels (semibold, dark ink); and section headings (bold, dark ink, no more small capitals). Emphasis comes from weight and colour only. Data keeps the mono font. Table headers, panel buttons and bar buttons are one size too. The narrow input columns are a little wider so labels such as "Signatures needed" stay on one line.
+
 ## v2.6.5 — 2026-09-13
 
 - Every line in the multisig card and the lab is now a full sentence. The output heading is "Your wallet definition", introduced by "This is your wallet's definition: its policy, its script type and the xpub of every seed. It is public information; it cannot spend and it contains no seed." The descriptor and setup-file notes, the field hints, the wallet-name hint, the lab's definition checkbox and the lab's verdict lines were rewritten the same way.
