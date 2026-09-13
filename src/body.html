@@ -338,11 +338,11 @@
     <div class="console-body">
       <p class="console-intro">A multisig wallet is controlled by several seeds and needs some of them, for example 2 of 3, to spend. Each seed is one recovery phrase, kept on its own device. KeyPath combines their public keys (xpubs) into the wallet; it never needs the seeds. Pick what you are doing:</p>
       <div class="mode-toggle" role="group" aria-label="Multisig mode">
-        <button class="mode-btn" id="msModeBuild" type="button" aria-pressed="true">From xpubs</button>
-        <button class="mode-btn" id="msModeGen" type="button" aria-pressed="false">Generate the seeds here</button>
+        <button class="mode-btn" id="msModeBuild" type="button" aria-pressed="true">Build a wallet from xpubs</button>
+        <button class="mode-btn" id="msModeGen" type="button" aria-pressed="false">Generate multisig seeds</button>
       </div>
       <p class="help ms-build" style="margin:0.8rem 0 0">Paste the xpub line each device exports for its seed (the BIP48 tab above shows the one for this page's seed), or an existing wallet's xpubs or setup file, and choose how many signatures are needed.</p>
-      <p class="help ms-gen" style="margin:0.8rem 0 0">KeyPath creates every seed here and builds the wallet from their xpubs. Simplest, but every seed passes through this computer; <strong>for the strongest setup, create each seed on its own device</strong> and use Build from xpubs.</p>
+      <p class="help ms-gen" style="margin:0.8rem 0 0">KeyPath creates every seed here and builds the wallet from their xpubs. Simplest, but every seed passes through this computer; <strong>for the strongest setup, create each seed on its own device</strong> and use Build a wallet from xpubs.</p>
       <details class="adv ms-build ms-gen" id="msHowto">
         <summary>How a multisig wallet is set up</summary>
         <div class="adv-body">

@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.6.3 — 2026-09-13
+
+- The two multisig panels now answer "Pick what you are doing": **Build a wallet from xpubs** and **Generate multisig seeds**.
+
 ## v2.6.2 — 2026-09-13
 
 - Multisig lab: visual cues. "Find the coins" and "Spend" carry a green check or a red cross with a matching tinted box, and each seed row shows a green "xpub known" line (with where it comes from) or a red "xpub missing" line.
