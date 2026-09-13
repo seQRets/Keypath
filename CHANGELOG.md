@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.7.5 — 2026-09-13
+
+- The Multisig lab starts with nothing checked.
+
 ## v2.7.4 — 2026-09-13
 
 - The "Signatures needed" column in the multisig card is wide enough for its label and "?" on one line.

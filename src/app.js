@@ -810,7 +810,7 @@ function labInit() {
   const set = (spec) => { const [sd, xp, df] = spec.split('|'); sd.split(',').forEach((v, i) => { $('labRows').querySelector(`[data-lab-seed="${i}"]`).checked = v === '1'; }); xp.split(',').forEach((v, i) => { $('labRows').querySelector(`[data-lab-xpub="${i}"]`).checked = v === '1'; }); $('labDef').checked = df === '1'; update(); };
   $('lab-card').addEventListener('change', update);
   $('lab-card').querySelectorAll('[data-lab]').forEach((b) => b.addEventListener('click', () => set(b.dataset.lab)));
-  set('1,1,0|0,0,0|0');
+  set('0,0,0|0,0,0|0');
 }
 
 /* ---------------- tooltips & definitions ---------------- */
