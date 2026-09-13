@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.5.1 — 2026-09-13
+
+- The two output sections are now one, **The wallet definition**: one public thing in two formats, the descriptor for software wallets and the setup file for hardware wallets. The text says plainly that it cannot spend and carries no seed: each cosigner's device already holds its own phrase, and the definition tells software and devices which wallet those keys belong to. The Setup file definition and the how-to's Combine step say the same.
+- The status line now says what happened in the current panel ("2 of 3 · P2WSH · mainnet", "Wallet built from the 3 pasted xpubs" / "rebuilt from the 3 pasted keys" / "built from the 3 generated seeds") instead of a generic instruction.
+- The addresses section is labelled as verification.
+
 ## v2.5.0 — 2026-09-13
 
 **Multisig card split into three panels, one job each.**

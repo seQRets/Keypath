@@ -741,7 +741,8 @@ function msUpdate() {
   const chain = +$('msChain').value, rows = Math.min(100, Math.max(1, parseInt($('msRows').value, 10) || 5));
   $('msAddrBody').innerHTML = Array.from({ length: rows }, (_, i) => { const a = multisig.multisigAddress(threshold, cos, script, chain, i, n); return `<tr><td class="idx">${chain}/${i}</td><td><span data-c="${esc(a)}">${esc(a)}</span></td></tr>`; }).join('');
   const demo = text.trim() === msDemoKeys;
-  setMeter('msStatus', count(`${threshold} of ${cos.length} · ${multisig.MS_FORMAT[script]}${demo ? ' · demo' : ''}`, demo ? 'warn' : 'ok') + note(demo ? 'Demo wallet built from the public test phrases: explore it, never fund it. To see why the descriptor must be backed up, delete one xpub line above: the address changes, because two phrases alone cannot rebuild a 2-of-3 wallet.' : `${n.name}. Compare the first address with every cosigner's device.`));
+  const what = msModeV === 'check' ? `rebuilt from the ${cos.length} pasted keys` : msModeV === 'gen' ? `built from the ${cos.length} generated seeds` : `built from the ${cos.length} pasted xpubs`;
+  setMeter('msStatus', count(`${threshold} of ${cos.length} · ${multisig.MS_FORMAT[script]} · ${S.net === 'mainnet' ? 'mainnet' : 'testnet'}${demo ? ' · demo' : ''}`, demo ? 'warn' : 'ok') + note(demo ? `Demo wallet ${what}, from the public test phrases: explore it, never fund it. To see why the definition must be backed up, delete one xpub line above: the address changes, because two phrases alone cannot rebuild a 2-of-3 wallet.` : `Wallet ${what}.`));
   // Does the pasted first address belong to the wallet these keys rebuild? Search the first 50 receive and change addresses.
   const expect = msModeV === 'check' ? $('msExpect').value.trim().toLowerCase() : '';
   if (expect) {
