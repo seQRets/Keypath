@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.5.4 — 2026-09-13
+
+- Switching between Build from xpubs, Generate the seeds here and Check or restore a wallet now clears the whole card: xpubs, seeds, the address check, the wallet name and the policy go back to their defaults, so each panel starts from a fresh slate.
+
 ## v2.5.3 — 2026-09-13
 
 - In **Generate the seeds here**, the xpubs box is a result, not an input: it is read-only and appears only after the seeds are created. Pasting xpubs now happens only in Build from xpubs and Check or restore a wallet, so each panel does one thing.

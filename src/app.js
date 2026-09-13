@@ -647,7 +647,14 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('qrMo
 /* ---------------- multisig wallet (BIP48 / BIP67 / descriptors) ---------------- */
 let msLast = null, msKeysSeen = '', msDemoKeys = null, msModeV = 'build';
 // Three exclusive panels: build (paste cosigner xpubs), gen (generate every seed here), check (existing wallet).
+// Everything in the card back to its empty state: keys, seeds, name, address check, policy.
+function msReset() {
+  $('msKeys').value = ''; $('msExpect').value = ''; msGenCover(false); $('msGen').innerHTML = ''; $('msGenEye').classList.add('hidden');
+  $('msName').value = 'KeyPath multisig'; $('msThreshold').value = '2'; $('msGenCount').value = '3'; $('msGenWords').value = '12'; $('msScript2').value = 'p2wsh';
+  msDemoKeys = null; msKeysSeen = '';
+}
 function msMode(m) {
+  if (m !== msModeV) msReset(); // a fresh slate for each panel
   msModeV = m;
   for (const [id, v] of [['msModeBuild', 'build'], ['msModeGen', 'gen'], ['msModeCheck', 'check']]) $(id).setAttribute('aria-pressed', m === v);
   const card = $('multisig-card');
@@ -665,7 +672,7 @@ function msInit() {
   $('cosignerToMs').addEventListener('click', () => {
     const line = $('cosignerLine').dataset.value; if (!line) return toast('Enter a phrase first');
     if ($('msKeys').value.includes(line)) { toast('Already in the list'); }
-    else { $('msKeys').value = ($('msKeys').value.trim() ? $('msKeys').value.trim() + '\n' : '') + line; $('msScript2').value = $('msScript').value; if (msModeV === 'gen') msMode('build'); else msUpdate(); toast('Xpub added to the multisig wallet'); }
+    else { if (msModeV === 'gen') msMode('build'); $('msKeys').value = ($('msKeys').value.trim() ? $('msKeys').value.trim() + '\n' : '') + line; $('msScript2').value = $('msScript').value; msUpdate(); toast('Xpub added to the multisig wallet'); }
     $('multisig-card').scrollIntoView({ behavior: 'smooth' });
   });
   $('msDownload').addEventListener('click', () => {
@@ -680,8 +687,7 @@ function msInit() {
   $('msGenCount').value = '3';
   $('msGenBtn').addEventListener('click', () => msGenerate(false));
   $('msDemoBtn').addEventListener('click', () => msGenerate(true));
-  const msClear = () => { $('msKeys').value = ''; $('msExpect').value = ''; msGenCover(false); $('msGen').innerHTML = ''; $('msGenEye').classList.add('hidden'); $('msName').value = 'KeyPath multisig'; $('msThreshold').value = '2'; $('msGenCount').value = '3'; msUpdate(); toast('Multisig wallet cleared'); };
-  $('msClearBtn').addEventListener('click', msClear);
+  $('msClearBtn').addEventListener('click', () => { msReset(); msUpdate(); toast('Multisig wallet cleared'); });
   $('msGenEye').addEventListener('click', () => msGenCover(!$('msGen').classList.contains('covered')));
   $('msGenCount').addEventListener('change', () => { if (+$('msThreshold').value > +$('msGenCount').value) $('msThreshold').value = $('msGenCount').value; msUpdate(); });
   document.addEventListener('click', async (e) => { const b = e.target.closest('#msGen .copy'); if (!b) return; if (document.documentElement.classList.contains('hide-secrets') || $('msGen').classList.contains('covered')) return toast('Private info is hidden'); if (await copyText(b.dataset.text, true)) { b.classList.add('done'); b.textContent = 'copied'; setTimeout(() => { b.classList.remove('done'); b.textContent = 'copy'; }, 1100); } });

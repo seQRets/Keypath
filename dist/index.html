@@ -7,7 +7,7 @@
 <meta name="description" content="KeyPath: generate or inspect a BIP39 recovery phrase, back it up with SLIP-39 Shamir shares, and derive BIP32 keys and Bitcoin addresses, legacy through Taproot. Single file, runs entirely offline in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-HU3E3wIYjI7W9U54mMZh9JMNllNfz8USsNfWE/ayI/Q=' 'sha256-zvDWY9Xowu93szo0YwxtOsrRkdsg2HLpx4ji8zICd9U='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-HU3E3wIYjI7W9U54mMZh9JMNllNfz8USsNfWE/ayI/Q=' 'sha256-9a8vrGmHIXn+VKPEm8FYWPqSmxDOO+pxomVXUDPUZ+A='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <script>try{if(localStorage.getItem("keypath-tips")==="off")document.documentElement.classList.add("no-tips");}catch(e){}try{var t=localStorage.getItem("keypath-theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}else if(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches){document.documentElement.setAttribute("data-theme","dark");}}catch(e){}</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23d2761a'/><g fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='10' cy='16' r='5'/><path d='M15 16h5'/><path d='M20 16l6-5.5M20 16l6 5.5'/></g><circle cx='27' cy='9.5' r='1.8' fill='%23fff'/><circle cx='27' cy='22.5' r='1.8' fill='%23fff'/></svg>">
 <style>
@@ -934,7 +934,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest/download/SHA256SUMS.txt" rel="noopener noreferrer">SHA256SUMS.txt</a>
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest" target="_blank" rel="noopener noreferrer">Release notes</a>
       </div>
-      <p class="dl-note">This page is KeyPath v2.5.3. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
+      <p class="dl-note">This page is KeyPath v2.5.4. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
     </div>
   </section>
 
@@ -961,7 +961,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
       </div>
     </div>
     <div class="foot-bottom">
-      <span class="credit">KeyPath v2.5.3 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
+      <span class="credit">KeyPath v2.5.4 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
       <span>Provided "as is", without warranty. Verify addresses in a second tool before sending significant funds.</span>
     </div>
   </footer>
@@ -22208,7 +22208,14 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('qrMo
 /* ---------------- multisig wallet (BIP48 / BIP67 / descriptors) ---------------- */
 let msLast = null, msKeysSeen = '', msDemoKeys = null, msModeV = 'build';
 // Three exclusive panels: build (paste cosigner xpubs), gen (generate every seed here), check (existing wallet).
+// Everything in the card back to its empty state: keys, seeds, name, address check, policy.
+function msReset() {
+  $('msKeys').value = ''; $('msExpect').value = ''; msGenCover(false); $('msGen').innerHTML = ''; $('msGenEye').classList.add('hidden');
+  $('msName').value = 'KeyPath multisig'; $('msThreshold').value = '2'; $('msGenCount').value = '3'; $('msGenWords').value = '12'; $('msScript2').value = 'p2wsh';
+  msDemoKeys = null; msKeysSeen = '';
+}
 function msMode(m) {
+  if (m !== msModeV) msReset(); // a fresh slate for each panel
   msModeV = m;
   for (const [id, v] of [['msModeBuild', 'build'], ['msModeGen', 'gen'], ['msModeCheck', 'check']]) $(id).setAttribute('aria-pressed', m === v);
   const card = $('multisig-card');
@@ -22226,7 +22233,7 @@ function msInit() {
   $('cosignerToMs').addEventListener('click', () => {
     const line = $('cosignerLine').dataset.value; if (!line) return toast('Enter a phrase first');
     if ($('msKeys').value.includes(line)) { toast('Already in the list'); }
-    else { $('msKeys').value = ($('msKeys').value.trim() ? $('msKeys').value.trim() + '\n' : '') + line; $('msScript2').value = $('msScript').value; if (msModeV === 'gen') msMode('build'); else msUpdate(); toast('Xpub added to the multisig wallet'); }
+    else { if (msModeV === 'gen') msMode('build'); $('msKeys').value = ($('msKeys').value.trim() ? $('msKeys').value.trim() + '\n' : '') + line; $('msScript2').value = $('msScript').value; msUpdate(); toast('Xpub added to the multisig wallet'); }
     $('multisig-card').scrollIntoView({ behavior: 'smooth' });
   });
   $('msDownload').addEventListener('click', () => {
@@ -22241,8 +22248,7 @@ function msInit() {
   $('msGenCount').value = '3';
   $('msGenBtn').addEventListener('click', () => msGenerate(false));
   $('msDemoBtn').addEventListener('click', () => msGenerate(true));
-  const msClear = () => { $('msKeys').value = ''; $('msExpect').value = ''; msGenCover(false); $('msGen').innerHTML = ''; $('msGenEye').classList.add('hidden'); $('msName').value = 'KeyPath multisig'; $('msThreshold').value = '2'; $('msGenCount').value = '3'; msUpdate(); toast('Multisig wallet cleared'); };
-  $('msClearBtn').addEventListener('click', msClear);
+  $('msClearBtn').addEventListener('click', () => { msReset(); msUpdate(); toast('Multisig wallet cleared'); });
   $('msGenEye').addEventListener('click', () => msGenCover(!$('msGen').classList.contains('covered')));
   $('msGenCount').addEventListener('change', () => { if (+$('msThreshold').value > +$('msGenCount').value) $('msThreshold').value = $('msGenCount').value; msUpdate(); });
   document.addEventListener('click', async (e) => { const b = e.target.closest('#msGen .copy'); if (!b) return; if (document.documentElement.classList.contains('hide-secrets') || $('msGen').classList.contains('covered')) return toast('Private info is hidden'); if (await copyText(b.dataset.text, true)) { b.classList.add('done'); b.textContent = 'copied'; setTimeout(() => { b.classList.remove('done'); b.textContent = 'copy'; }, 1100); } });
