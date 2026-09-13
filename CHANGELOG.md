@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.6.4 — 2026-09-13
+
+- Build a wallet from xpubs, in plain words: "Paste the xpub from each device, or an existing wallet's xpubs or setup file, and choose how many signatures are needed." The field is now just "Xpubs", with the hint "paste each device's xpub on its own line, or paste a setup file. Never paste seeds or private keys here."
+
 ## v2.6.3 — 2026-09-13
 
 - The two multisig panels now answer "Pick what you are doing": **Build a wallet from xpubs** and **Generate multisig seeds**.

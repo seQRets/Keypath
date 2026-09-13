@@ -341,7 +341,7 @@
         <button class="mode-btn" id="msModeBuild" type="button" aria-pressed="true">Build a wallet from xpubs</button>
         <button class="mode-btn" id="msModeGen" type="button" aria-pressed="false">Generate multisig seeds</button>
       </div>
-      <p class="help ms-build" style="margin:0.8rem 0 0">Paste the xpub line each device exports for its seed (the BIP48 tab above shows the one for this page's seed), or an existing wallet's xpubs or setup file, and choose how many signatures are needed.</p>
+      <p class="help ms-build" style="margin:0.8rem 0 0">Paste the xpub from each device, or an existing wallet's xpubs or setup file, and choose how many signatures are needed.</p>
       <p class="help ms-gen" style="margin:0.8rem 0 0">KeyPath creates every seed here and builds the wallet from their xpubs. Simplest, but every seed passes through this computer; <strong>for the strongest setup, create each seed on its own device</strong> and use Build a wallet from xpubs.</p>
       <details class="adv ms-build ms-gen" id="msHowto">
         <summary>How a multisig wallet is set up</summary>
@@ -376,7 +376,7 @@
       </div>
 
       <div class="field" style="margin-top:1.1rem" id="msKeysField">
-        <div class="field-head"><label class="field-label" for="msKeys">Xpubs, one per seed<button type="button" class="tip" data-tip="xpub" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span><span class="hint ms-build">one line per seed, any order, or a whole setup file; never a seed or an xprv</span><span class="hint ms-gen">derived from the seeds above</span></label></div>
+        <div class="field-head"><label class="field-label" for="msKeys">Xpubs<button type="button" class="tip" data-tip="xpub" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span><span class="hint ms-build">paste each device's xpub on its own line, or paste a setup file. Never paste seeds or private keys here.</span><span class="hint ms-gen">derived from the seeds above</span></label></div>
         <textarea id="msKeys" class="mono" rows="5" spellcheck="false" autocomplete="off" placeholder="[73c5da0a/48h/0h/0h/2h]xpub6E64WfdQwBGz…&#10;[a1b2c3d4/48h/0h/0h/2h]xpub6Dk3…"></textarea>
       </div>
       <div class="field ms-build" style="margin-top:1rem">
