@@ -646,7 +646,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('qrMo
 
 /* ---------------- multisig wallet (BIP48 / BIP67 / descriptors) ---------------- */
 let msLast = null, msKeysSeen = '', msDemoKeys = null, msModeV = 'build';
-// Three exclusive panels: build (paste cosigner xpubs), gen (generate every seed here), check (existing wallet).
+// Two exclusive panels: build (paste xpubs, new or existing wallet) and gen (generate every seed here).
 // Everything in the card back to its empty state: keys, seeds, name, address check, policy.
 function msReset() {
   $('msKeys').value = ''; $('msExpect').value = ''; msGenCover(false); $('msGen').innerHTML = ''; $('msGenEye').classList.add('hidden');
@@ -656,13 +656,13 @@ function msReset() {
 function msMode(m) {
   if (m !== msModeV) msReset(); // a fresh slate for each panel
   msModeV = m;
-  for (const [id, v] of [['msModeBuild', 'build'], ['msModeGen', 'gen'], ['msModeCheck', 'check']]) $(id).setAttribute('aria-pressed', m === v);
+  for (const [id, v] of [['msModeBuild', 'build'], ['msModeGen', 'gen']]) $(id).setAttribute('aria-pressed', m === v);
   const card = $('multisig-card');
-  for (const v of ['build', 'gen', 'check']) card.querySelectorAll('.ms-' + v).forEach((el) => el.classList.toggle('hidden', !el.classList.contains('ms-' + m)));
+  for (const v of ['build', 'gen']) card.querySelectorAll('.ms-' + v).forEach((el) => el.classList.toggle('hidden', !el.classList.contains('ms-' + m)));
   msUpdate();
 }
 function msInit() {
-  for (const [id, v] of [['msModeBuild', 'build'], ['msModeGen', 'gen'], ['msModeCheck', 'check']]) $(id).addEventListener('click', () => msMode(v));
+  for (const [id, v] of [['msModeBuild', 'build'], ['msModeGen', 'gen']]) $(id).addEventListener('click', () => msMode(v));
   for (let i = 1; i <= 15; i++) $('msThreshold').insertAdjacentHTML('beforeend', `<option>${i}</option>`);
   $('msThreshold').value = '2';
   $('msKeys').addEventListener('input', debounce(msUpdate, 250));
@@ -728,7 +728,7 @@ function msUpdate() {
   // In Generate mode the xpubs are a result, not an input: read-only, and shown only once seeds exist.
   $('msKeys').readOnly = msModeV === 'gen'; $('msKeysField').classList.toggle('hidden', msModeV === 'gen' && !text.trim());
   if (!text.trim()) {
-    const msg = msModeV === 'check' ? 'Waiting for the existing wallet\'s xpubs or setup file.' : msModeV === 'gen' ? 'Press the button above to create the seeds.' : 'Waiting for the xpub lines. The wallet is built as soon as two or more are pasted.';
+    const msg = msModeV === 'gen' ? 'Press the button above to create the seeds.' : 'Waiting for the xpub lines. The wallet is built as soon as two or more are pasted.';
     setMeter('msStatus', note(msg)); return;
   }
   const parsed = multisig.parseCosigners(text, VERSION_TABLE);
@@ -749,10 +749,10 @@ function msUpdate() {
   const chain = +$('msChain').value, rows = Math.min(100, Math.max(1, parseInt($('msRows').value, 10) || 5));
   $('msAddrBody').innerHTML = Array.from({ length: rows }, (_, i) => { const a = multisig.multisigAddress(threshold, cos, script, chain, i, n); return `<tr><td class="idx">${chain}/${i}</td><td><span data-c="${esc(a)}">${esc(a)}</span></td></tr>`; }).join('');
   const demo = text.trim() === msDemoKeys;
-  const what = msModeV === 'check' ? `rebuilt from the ${cos.length} pasted keys` : msModeV === 'gen' ? `built from the ${cos.length} generated seeds` : `built from the ${cos.length} pasted xpubs`;
-  setMeter('msStatus', count(`${threshold} of ${cos.length} · ${multisig.MS_FORMAT[script]} · ${S.net === 'mainnet' ? 'mainnet' : 'testnet'}${demo ? ' · demo' : ''}`, demo ? 'warn' : 'ok') + note(demo ? `Demo wallet ${what}, from the public test seeds: explore it, never fund it. To see why the definition must be backed up, delete one xpub line above: the address changes, because two seeds alone cannot rebuild a 2-of-3 wallet.` : `Wallet ${what}.`));
+  const what = msModeV === 'gen' ? `built from the ${cos.length} generated seeds` : `built from the ${cos.length} pasted xpubs`;
+  setMeter('msStatus', count(`${threshold} of ${cos.length} · ${multisig.MS_FORMAT[script]} · ${S.net === 'mainnet' ? 'mainnet' : 'testnet'}${demo ? ' · demo' : ''}`, demo ? 'warn' : 'ok') + note(demo ? `Demo wallet ${what}, from the public test seeds: explore it, never fund it. The Multisig lab below shows what is needed to get such a wallet back.` : `Wallet ${what}.`));
   // Does the pasted first address belong to the wallet these keys rebuild? Search the first 50 receive and change addresses.
-  const expect = msModeV === 'check' ? $('msExpect').value.trim().toLowerCase() : '';
+  const expect = msModeV === 'build' ? $('msExpect').value.trim().toLowerCase() : '';
   if (expect) {
     let hit = null;
     for (let c = 0; c < 2 && !hit; c++) for (let i = 0; i < 50; i++) { if (multisig.multisigAddress(threshold, cos, script, c, i, n).toLowerCase() === expect) { hit = `${c}/${i}`; break; } }
@@ -761,6 +761,51 @@ function msUpdate() {
       : `<div class="inputwarn bad"><p><strong>No match.</strong> These ${cos.length} keys with ${threshold} of ${cos.length} and ${multisig.MS_FORMAT[script]} do not rebuild the wallet that owns that address (checked the first 50 receive and change addresses). An xpub is missing or wrong, or the signatures needed or script type differ. Having enough seeds to sign is not enough: rebuilding a multisig wallet needs the xpub of every seed, which is what the wallet definition holds.</p></div>`);
   }
   $('msOut').classList.remove('hidden');
+}
+
+/* ---------------- multisig lab: what do you need to keep? ---------------- */
+function labInit() {
+  const netc = NETS.mainnet, H2 = 0x80000000;
+  const seeds = [0, 1, 2].map((k) => {
+    const ent = new Uint8Array(16); ent[15] = k;
+    const phrase = bip39.entropyToMnemonic(ent, wordlists.english.words);
+    const root = HDKey.fromMasterSeed(bip39.mnemonicToSeedSync(phrase, ''), { private: netc.xprv, public: netc.xpub });
+    const c = multisig.cosignerFromNode(root, [48 + H2, 0 + H2, 0 + H2, 2 + H2]);
+    return { phrase, fp: c.fp, node: c.node, xpub: serExt(c.node, netc.xpub, false) };
+  });
+  const target = multisig.multisigAddress(2, seeds, 'p2wsh', 0, 0, netc);
+  $('labRows').innerHTML = seeds.map((sd, i) => `<tr><td><strong>Seed ${i + 1}</strong><small>abandon × 11, ${esc(sd.phrase.split(' ').pop())}</small></td><td><label><input type="checkbox" data-lab-seed="${i}"> the 12 words<small>fingerprint ${esc(sd.fp)}</small></label></td><td><label><input type="checkbox" data-lab-xpub="${i}"> its xpub<small>${esc(sd.xpub.slice(0, 12))}…</small></label></td></tr>`).join('');
+  const have = () => ({ seed: [0, 1, 2].map((i) => $('labRows').querySelector(`[data-lab-seed="${i}"]`).checked), xpub: [0, 1, 2].map((i) => $('labRows').querySelector(`[data-lab-xpub="${i}"]`).checked), def: $('labDef').checked });
+  const box = (level, tag, html) => `<div class="limit ${level}"><span class="lm-tag">${tag}</span><p>${html}</p></div>`;
+  const update = () => {
+    const h = have();
+    const known = seeds.map((_, i) => h.def || h.seed[i] || h.xpub[i]);
+    const how = seeds.map((_, i) => (h.def ? 'from the definition' : h.seed[i] ? 'derived from the seed' : h.xpub[i] ? 'the xpub itself' : 'missing'));
+    const nSeeds = h.seed.filter(Boolean).length, nKnown = known.filter(Boolean).length, missing = seeds.map((_, i) => i).filter((i) => !known[i]);
+    const canFind = nKnown === 3, canSpend = canFind && nSeeds >= 2;
+    let out = box('', 'Xpubs known', `<strong>${nKnown} of 3</strong>: ` + seeds.map((_, i) => `seed ${i + 1} ${how[i]}`).join(', ') + '.');
+    if (canFind) out += box('good', 'Find the coins', `<strong>Yes.</strong> All three xpubs are known, so the wallet's addresses can be rebuilt. First address: <code>${esc(target)}</code>`);
+    else {
+      let alt = '';
+      if (nKnown >= 2) { const partial = seeds.filter((_, i) => known[i]); alt = ` Building a wallet from only the ${nKnown} xpubs you have gives <code>${esc(multisig.multisigAddress(Math.min(2, nKnown), partial, 'p2wsh', 0, 0, netc))}</code>: a different wallet, with no coins in it.`; }
+      out += box('warn', 'Find the coins', `<strong>No.</strong> The xpub of seed ${missing.map((i) => i + 1).join(' and seed ')} is unknown, so the wallet's addresses cannot be rebuilt and the coins cannot even be located.${alt}`);
+    }
+    if (canSpend) out += box('good', 'Spend', `<strong>Yes.</strong> ${nSeeds} of 3 seeds can sign, and the wallet can be rebuilt. Enter the seeds into wallets, load the definition, and spend.`);
+    else if (!canFind && nSeeds >= 2) out += box('warn', 'Spend', `<strong>No.</strong> ${nSeeds} seeds are enough to sign, but the wallet cannot be rebuilt, so there is nothing to sign.`);
+    else out += box('warn', 'Spend', `<strong>No.</strong> ${nSeeds === 0 ? 'No seed' : 'Only 1 seed'} present; 2 of 3 must sign.${nSeeds === 0 && canFind ? ' Xpubs alone can only watch the coins, never move them.' : ''}`);
+    if (!canSpend) {
+      const fixes = [];
+      if (missing.length) fixes.push(`the xpub of seed ${missing.map((i) => i + 1).join(' or seed ')} (its 12 words would do, since an xpub derives from its seed), or the wallet definition`);
+      if (nSeeds < 2) fixes.push(`${2 - nSeeds} more seed${2 - nSeeds > 1 ? 's' : ''}`);
+      out += box('', 'To recover', `You still need: ${fixes.join('; and ')}.`);
+    }
+    out += box('', 'Lesson', 'Keep the wallet definition with every seed backup. Then any 2 of the 3 seeds, plus that one public file, get the wallet back.');
+    $('labVerdict').innerHTML = out;
+  };
+  const set = (spec) => { const [sd, xp, df] = spec.split('|'); sd.split(',').forEach((v, i) => { $('labRows').querySelector(`[data-lab-seed="${i}"]`).checked = v === '1'; }); xp.split(',').forEach((v, i) => { $('labRows').querySelector(`[data-lab-xpub="${i}"]`).checked = v === '1'; }); $('labDef').checked = df === '1'; update(); };
+  $('lab-card').addEventListener('change', update);
+  $('lab-card').querySelectorAll('[data-lab]').forEach((b) => b.addEventListener('click', () => set(b.dataset.lab)));
+  set('1,1,0|0,0,0|0');
 }
 
 /* ---------------- tooltips & definitions ---------------- */
@@ -830,7 +875,7 @@ addEventListener('online', netStatus); addEventListener('offline', netStatus); n
 $('coin').value = S.coin;
 selectTab('bip84');
 shamirInit();
-msInit();
+msInit(); labInit();
 initTips();
 window.KEYPATH = { S, address, descriptor, descChecksum, serExt, taprootOutputKey, parsePath, entropyFromString, entropyBits, crackTime };
 })();

@@ -32,6 +32,7 @@
       <a href="#derivation-card">Derivation</a>
       <a href="#addresses-card">Addresses</a>
       <a href="#multisig-card">Multisig</a>
+      <a href="#lab-card">Lab</a>
       <a href="#about">Definitions</a>
       <a href="#offline" class="tap">Security</a>
     </nav>
@@ -337,13 +338,11 @@
     <div class="console-body">
       <p class="console-intro">A multisig wallet is controlled by several seeds and needs some of them, for example 2 of 3, to spend. Each seed is one recovery phrase, kept on its own device. KeyPath combines their public keys (xpubs) into the wallet; it never needs the seeds. Pick what you are doing:</p>
       <div class="mode-toggle" role="group" aria-label="Multisig mode">
-        <button class="mode-btn" id="msModeBuild" type="button" aria-pressed="true">Build from xpubs</button>
+        <button class="mode-btn" id="msModeBuild" type="button" aria-pressed="true">From xpubs</button>
         <button class="mode-btn" id="msModeGen" type="button" aria-pressed="false">Generate the seeds here</button>
-        <button class="mode-btn" id="msModeCheck" type="button" aria-pressed="false">Check or restore a wallet</button>
       </div>
-      <p class="help ms-build" style="margin:0.8rem 0 0">Paste the xpub line each device exports for its seed (the BIP48 tab above shows the one for this page's seed), choose how many signatures are needed, and the wallet is built.</p>
+      <p class="help ms-build" style="margin:0.8rem 0 0">Paste the xpub line each device exports for its seed (the BIP48 tab above shows the one for this page's seed), or an existing wallet's xpubs or setup file, and choose how many signatures are needed.</p>
       <p class="help ms-gen" style="margin:0.8rem 0 0">KeyPath creates every seed here and builds the wallet from their xpubs. Simplest, but every seed passes through this computer; <strong>for the strongest setup, create each seed on its own device</strong> and use Build from xpubs.</p>
-      <p class="help ms-check" style="margin:0.8rem 0 0">Paste the xpubs of a wallet that already exists, or its setup file, to rebuild its addresses and definition.</p>
       <details class="adv ms-build ms-gen" id="msHowto">
         <summary>How a multisig wallet is set up</summary>
         <div class="adv-body">
@@ -377,10 +376,10 @@
       </div>
 
       <div class="field" style="margin-top:1.1rem" id="msKeysField">
-        <div class="field-head"><label class="field-label" for="msKeys">Xpubs, one per seed<button type="button" class="tip" data-tip="xpub" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span><span class="hint ms-build">one line per seed, any order; never a seed or an xprv</span><span class="hint ms-gen">derived from the seeds above</span><span class="hint ms-check">xpub lines, or a whole setup file</span></label></div>
+        <div class="field-head"><label class="field-label" for="msKeys">Xpubs, one per seed<button type="button" class="tip" data-tip="xpub" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span><span class="hint ms-build">one line per seed, any order, or a whole setup file; never a seed or an xprv</span><span class="hint ms-gen">derived from the seeds above</span></label></div>
         <textarea id="msKeys" class="mono" rows="5" spellcheck="false" autocomplete="off" placeholder="[73c5da0a/48h/0h/0h/2h]xpub6E64WfdQwBGz…&#10;[a1b2c3d4/48h/0h/0h/2h]xpub6Dk3…"></textarea>
       </div>
-      <div class="field ms-check" style="margin-top:1rem">
+      <div class="field ms-build" style="margin-top:1rem">
         <label class="field-label" for="msExpect">First address shown by your wallet <span class="hint">optional: KeyPath says whether these xpubs rebuild that wallet</span></label>
         <input type="text" id="msExpect" class="mono" spellcheck="false" autocomplete="off" placeholder="bc1q… or bc1p… or 3…">
       </div>
@@ -408,6 +407,27 @@
         </div>
         <div class="tablewrap"><table><thead><tr><th>Index</th><th>Address</th></tr></thead><tbody id="msAddrBody"></tbody></table></div>
       </div>
+    </div>
+  </section>
+
+
+  <!-- ===================== 7 Multisig lab ===================== -->
+  <section class="console" id="lab-card" aria-label="Multisig lab">
+    <div class="console-bar"><span class="n">7</span> Multisig lab<button type="button" class="tip" data-tip="lab" aria-label="What does this mean?">?</button><span class="right">2-of-3 · demo seeds</span></div>
+    <div class="console-body">
+      <p class="console-intro">What must you keep to get a multisig wallet back? Experiment here. The lab wallet is a 2-of-3 built from the three public test seeds, so nothing here is secret. Tick what you still have after a disaster and see whether the coins can be found and spent.</p>
+      <div class="row" style="margin-bottom:0.9rem">
+        <span class="small-label" style="margin:0 0.3rem 0 0;align-self:center">Try:</span>
+        <button type="button" class="barbtn" data-lab="1,1,1|0,0,0|0">All 3 seeds</button>
+        <button type="button" class="barbtn" data-lab="1,1,0|0,0,0|1">2 seeds + definition</button>
+        <button type="button" class="barbtn" data-lab="1,1,0|0,0,1|0">2 seeds + the 3rd xpub</button>
+        <button type="button" class="barbtn" data-lab="1,1,0|0,0,0|0">2 seeds only</button>
+        <button type="button" class="barbtn" data-lab="1,0,0|0,0,0|1">1 seed + definition</button>
+        <button type="button" class="barbtn" data-lab="0,0,0|1,1,1|0">3 xpubs, no seed</button>
+      </div>
+      <div class="tablewrap"><table class="lab" id="labTable"><thead><tr><th>Seed</th><th>I have the seed</th><th>I have its xpub</th></tr></thead><tbody id="labRows"></tbody></table></div>
+      <label class="check" style="margin-top:0.8rem"><input type="checkbox" id="labDef"> I have the wallet definition <span class="hint">(descriptor or setup file: contains all three xpubs, no seeds)</span></label>
+      <div id="labVerdict" class="limits" style="margin-top:1rem"></div>
     </div>
   </section>
 

@@ -455,3 +455,9 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
 #msGen .share-list { margin-top: 0.9rem; }
 #msGen .share { background: var(--panel); }
 #msGen .share h4 small { display: block; margin: 0.15rem 0 0; font-family: var(--mono); letter-spacing: 0.04em; }
+
+/* multisig lab */
+table.lab th, table.lab td { text-align: left; }
+table.lab td label { display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer; font-size: 0.95rem; }
+table.lab td small { display: block; font-family: var(--mono); font-size: 0.72rem; color: var(--ink-faint); }
+.limit.good .lm-tag { color: var(--ok); }

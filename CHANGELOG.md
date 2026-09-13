@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.6.0 — 2026-09-13
+
+**Multisig lab, and two panels instead of three.**
+
+- **Card 7, Multisig lab**: a sandbox for one question, what must you keep to get a multisig wallet back? Its wallet is a 2-of-3 built from the three public test seeds (abandon × 11 then about, actual, age), so nothing in it is secret. Tick which seeds, which xpubs and whether the wallet definition you still have, or press a scenario button (all 3 seeds; 2 seeds + definition; 2 seeds + the 3rd xpub; 2 seeds only; 1 seed + definition; 3 xpubs, no seed). The lab answers in plain boxes: how many xpubs are known and where each comes from, whether the coins can be found (every xpub known, first address shown), whether they can be spent (enough seeds to sign), what is still needed, and the lesson: keep the definition with every seed backup. When xpubs are missing it also shows the address a wallet built from only the xpubs you have would get, a different wallet with no coins.
+- The multisig card's Build from xpubs and Check or restore a wallet panels were the same computation, so they are now one panel, **From xpubs**, for new and existing wallets alike; a setup file can be pasted there and the optional "first address shown by your wallet" check sits at its bottom. The demo note points to the lab.
+
 ## v2.5.4 — 2026-09-13
 
 - Switching between Build from xpubs, Generate the seeds here and Check or restore a wallet now clears the whole card: xpubs, seeds, the address check, the wallet name and the policy go back to their defaults, so each panel starts from a fresh slate.

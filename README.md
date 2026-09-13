@@ -28,7 +28,8 @@ KeyPath is a modern re-imagining of Ian Coleman's [BIP39 tool](https://github.co
 - Account extended keys with optional SLIP-132 prefixes (ypub/zpub/upub/vpub), extended keys at the derivation path
 - Output descriptors with checksums for Bitcoin Core / Sparrow
 - Address table with path / address / public key / WIF columns, hardened children, paging, click-to-copy, CSV download and copy
-- **Multisig wallet builder** in three panels: build from the xpubs each cosigner's device exported, generate every seed here, or check and restore an existing wallet from its xpubs or setup file; pick the threshold and P2WSH, P2SH-P2WSH or **P2TR (Taproot multisig)**, and get the `sortedmulti` or `tr(NUMS, sortedmulti_a(…))` descriptor with checksum, a hardware-wallet setup file, and the wallet's first addresses for cross-device verification (BIP48, BIP67, BIP341); paste the first address a wallet shows and KeyPath confirms whether the keys rebuild that wallet
+- **Multisig wallet builder** in two panels: from the xpubs each device exported (new wallet, or an existing wallet's xpubs or setup file to check and restore it), or generate every seed here; pick the threshold and P2WSH, P2SH-P2WSH or **P2TR (Taproot multisig)**, and get the `sortedmulti` or `tr(NUMS, sortedmulti_a(…))` descriptor with checksum, a hardware-wallet setup file, and the wallet's first addresses for cross-device verification (BIP48, BIP67, BIP341); paste the first address a wallet shows and KeyPath confirms whether the keys rebuild that wallet
+- **Multisig lab**: a sandbox 2-of-3 built from the public test seeds where you tick which seeds, xpubs and wallet definition you still have and see whether the coins can be found and spent, to learn what a multisig backup must contain
 - BIP85 child phrases (one master phrase, many independent child phrases by index)
 - Bitcoin mainnet and testnet/signet, light and dark themes, "Hide all private info" blur for screen sharing
 
