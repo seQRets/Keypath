@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.7.3 — 2026-09-13
+
+- BlueWallet is listed among the wallets that import the descriptor and the setup file (verified in its source: it reads `sortedmulti` descriptors and the Policy / Format / Derivation setup-file lines for P2WSH and P2SH-P2WSH). The Taproot note says BlueWallet cannot import Taproot multisig.
+
 ## v2.7.2 — 2026-09-13
 
 - Multisig lab: the status under each seed is now just "xpub known" or "xpub missing", so the table no longer shifts when a box is checked. Where each xpub comes from is still stated in the Xpubs known box.
