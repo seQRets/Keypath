@@ -7,7 +7,7 @@
 <meta name="description" content="KeyPath: generate or inspect a BIP39 recovery phrase, back it up with SLIP-39 Shamir shares, and derive BIP32 keys and Bitcoin addresses, legacy through Taproot. Single file, runs entirely offline in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-HU3E3wIYjI7W9U54mMZh9JMNllNfz8USsNfWE/ayI/Q=' 'sha256-0BhAgun4q8Wd9AtKlenlXruedGTI5WA6ZiPmR6v3xCA='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-HU3E3wIYjI7W9U54mMZh9JMNllNfz8USsNfWE/ayI/Q=' 'sha256-FcGNLsiRfvFU8ABno3Dw8CgVOq3fU6cwBs1bugzMY/Y='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <script>try{if(localStorage.getItem("keypath-tips")==="off")document.documentElement.classList.add("no-tips");}catch(e){}try{var t=localStorage.getItem("keypath-theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}else if(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches){document.documentElement.setAttribute("data-theme","dark");}}catch(e){}</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23d2761a'/><g fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='10' cy='16' r='5'/><path d='M15 16h5'/><path d='M20 16l6-5.5M20 16l6 5.5'/></g><circle cx='27' cy='9.5' r='1.8' fill='%23fff'/><circle cx='27' cy='22.5' r='1.8' fill='%23fff'/></svg>">
 <style>
@@ -839,13 +839,13 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
     <div class="console-bar"><span class="n">6</span> Multisig wallet<button type="button" class="tip" data-tip="multisig" aria-label="What does this mean?">?</button><div class="bar-actions"><button type="button" class="barbtn" id="msClearBtn">Clear</button></div></div>
     <div class="console-body">
       <p class="console-intro">A multisig wallet is controlled by several seeds and needs some of them, for example 2 of 3, to spend. Each seed is one recovery phrase, kept on its own device. KeyPath combines their public keys (xpubs) into the wallet; it never needs the seeds. Pick what you are doing:</p>
-      <div class="mode-toggle" role="group" aria-label="Multisig mode">
-        <button class="mode-btn" id="msModeBuild" type="button" aria-pressed="true">Build a wallet from xpubs</button>
-        <button class="mode-btn" id="msModeGen" type="button" aria-pressed="false">Generate multisig seeds</button>
-      </div>
-      <p class="help ms-build" style="margin:0.8rem 0 0">Paste the xpub from each device, or an existing wallet's xpubs or setup file, and choose how many signatures are needed.</p>
-      <p class="help ms-gen" style="margin:0.8rem 0 0">KeyPath creates every seed here and builds the wallet from their xpubs. This is the simplest way, but every seed passes through this computer. <strong>For the strongest setup, create each seed on its own device</strong> and use Build a wallet from xpubs.</p>
-      <details class="adv ms-build ms-gen" id="msHowto">
+      <div style="text-align:center"><div class="mode-toggle" role="group" aria-label="Multisig mode">
+        <button class="mode-btn" id="msModeBuild" type="button" aria-pressed="true">Build a wallet</button>
+        <button class="mode-btn" id="msModeRestore" type="button" aria-pressed="false">Restore a wallet</button>
+      </div></div>
+      <p class="help ms-build" style="margin:0.8rem 0 0">Choose how many signatures are needed of how many seeds. Then either paste the xpub from each device into the box below, or let KeyPath create the seeds here. <strong>Seeds made on their own devices are the strongest setup</strong>; seeds created here all pass through this computer.</p>
+      <p class="help ms-restore" style="margin:0.8rem 0 0">Enter what you have of an existing wallet, in any mix: its seeds, its xpubs, or its setup file. KeyPath rebuilds the wallet's addresses and definition from them.</p>
+      <details class="adv ms-build" id="msHowto">
         <summary>How a multisig wallet is set up</summary>
         <div class="adv-body">
           <div class="limits" style="margin-top:0.9rem">
@@ -860,29 +860,35 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
 
       <div class="row" style="margin-top:1.1rem">
         <label class="narrow w10"><span class="small-label">Signatures needed<button type="button" class="tip" data-tip="msthreshold" aria-label="What does this mean?">?</button></span><select id="msThreshold"></select></label>
-        <span class="of ms-gen" aria-hidden="true">of</span>
-        <label class="narrow ms-gen"><span class="small-label">Seeds<button type="button" class="tip" data-tip="cosigner" aria-label="What does this mean?">?</button></span><select id="msGenCount"></select></label>
-        <label class="narrow ms-gen"><span class="small-label">Words per seed<button type="button" class="tip" data-tip="wordcount" aria-label="What does this mean?">?</button></span><select id="msGenWords"><option>12</option><option>24</option></select></label>
+        <span class="of ms-build" aria-hidden="true">of</span>
+        <label class="narrow ms-build"><span class="small-label">Seeds<button type="button" class="tip" data-tip="cosigner" aria-label="What does this mean?">?</button></span><select id="msGenCount"></select></label>
+        <label class="narrow ms-build"><span class="small-label">Words per seed<button type="button" class="tip" data-tip="wordcount" aria-label="What does this mean?">?</button></span><select id="msGenWords"><option>12</option><option>24</option></select></label>
         <label class="mid"><span class="small-label">Script type<button type="button" class="tip" data-tip="msscript" aria-label="What does this mean?">?</button></span><select id="msScript2"><option value="p2wsh">P2WSH (native SegWit)</option><option value="p2sh-p2wsh">P2SH-P2WSH (nested)</option><option value="p2tr">P2TR (Taproot multisig)</option></select></label>
+        <label class="narrow ms-restore"><span class="small-label">Account<button type="button" class="tip" data-tip="account" aria-label="What does this mean?">?</button></span><input type="number" id="msAccount" class="mono" min="0" step="1" value="0"></label>
+        <span class="ms-restore help" style="align-self:flex-end;padding-bottom:0.7rem">Seeds are derived at <code id="msPathLbl">m/48'/0'/0'/2'</code></span>
       </div>
       <p class="help hidden" id="msTrNote" style="margin:0.6rem 0 0">Taproot multisig is the newest type: spending is cheaper and reveals less about the wallet. It is supported by Sparrow, Bitcoin Core 24 and later, and recent hardware wallets; older wallets and BlueWallet cannot import it. Every device holding a seed must support it.</p>
 
-      <div class="gen-strip ms-gen">
+      <div class="gen-strip ms-build">
         <div class="row">
-          <button type="button" class="btn primary" id="msGenBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"/></svg>Create the seeds and build the wallet</button>
+          <button type="button" class="btn primary" id="msGenBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"/></svg>Create the seeds here</button>
           <button type="button" class="btn hidden" id="msGenEye" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg>Reveal seeds</button>
           <button type="button" class="barbtn" id="msDemoBtn" style="margin-left:auto;align-self:center">Try the demo wallet</button>
         </div>
-        <p class="help" style="margin:0.6rem 0 0">Write each seed down and store them apart.</p>
+        <p class="help" style="margin:0.6rem 0 0">Creates one seed per line of the policy above and fills in their xpubs below. Write each seed down and store them apart.</p>
         <div id="msGen" class="secret"></div>
       </div>
 
+      <div class="field ms-restore" style="margin-top:1.1rem">
+        <label class="field-label" for="msSeeds">Seeds<button type="button" class="tip" data-tip="cosigner" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span><span class="hint">One recovery phrase per line, any language, no passphrase. Each seed's xpub is derived at the path above.</span></label>
+        <textarea id="msSeeds" class="mono secret" rows="3" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="abandon abandon … about&#10;abandon abandon … actual"></textarea>
+      </div>
       <div class="field" style="margin-top:1.1rem" id="msKeysField">
-        <div class="field-head"><label class="field-label" for="msKeys">Xpubs<button type="button" class="tip" data-tip="xpub" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span><span class="hint ms-build">Paste each device's xpub on its own line, or paste a setup file. Never paste seeds or private keys here.</span><span class="hint ms-gen">These are derived from the seeds above.</span></label></div>
+        <div class="field-head"><label class="field-label" for="msKeys">Xpubs<button type="button" class="tip" data-tip="xpub" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span><span class="hint ms-build">Paste each device's xpub on its own line; Create the seeds here fills this in for you. Never paste seeds or private keys here.</span><span class="hint ms-restore">One xpub per line, or paste a setup file. Leave empty if you entered every seed above.</span></label></div>
         <textarea id="msKeys" class="mono" rows="5" spellcheck="false" autocomplete="off" placeholder="[73c5da0a/48h/0h/0h/2h]xpub6E64WfdQwBGz…&#10;[a1b2c3d4/48h/0h/0h/2h]xpub6Dk3…"></textarea>
       </div>
-      <div class="field ms-build" style="margin-top:1rem">
-        <label class="field-label" for="msExpect">First address shown by your wallet <span class="hint">Optional. Paste it and KeyPath says whether these xpubs rebuild that wallet.</span></label>
+      <div class="field ms-restore" style="margin-top:1rem">
+        <label class="field-label" for="msExpect">First address shown by your wallet <span class="hint">Optional. Paste it and KeyPath says whether these seeds and xpubs rebuild that wallet.</span></label>
         <input type="text" id="msExpect" class="mono" spellcheck="false" autocomplete="off" placeholder="bc1q… or bc1p… or 3…">
       </div>
       <div class="meter" id="msStatus"></div>
@@ -983,7 +989,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest/download/SHA256SUMS.txt" rel="noopener noreferrer">SHA256SUMS.txt</a>
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest" target="_blank" rel="noopener noreferrer">Release notes</a>
       </div>
-      <p class="dl-note">This page is KeyPath v2.7.5. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
+      <p class="dl-note">This page is KeyPath v2.8.0. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
     </div>
   </section>
 
@@ -1010,7 +1016,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
       </div>
     </div>
     <div class="foot-bottom">
-      <span class="credit">KeyPath v2.7.5 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
+      <span class="credit">KeyPath v2.8.0 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
       <span>Provided "as is", without warranty. Verify addresses in a second tool before sending significant funds.</span>
     </div>
   </footer>
@@ -21790,7 +21796,7 @@ $('menuPanel').querySelectorAll('a').forEach((a) => a.addEventListener('click', 
 $('fpValue').addEventListener('click', async () => { if (S.root && (await copyText(fpHex(S.root)))) toast('Fingerprint copied'); });
 $('phraseFpVal').addEventListener('click', async () => { if (S.root && (await copyText(fpHex(S.root)))) toast('Fingerprint copied'); });
 $('clearBtn').addEventListener('click', () => {
-  for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR', 'msKeys']) $(id).value = ''; $('msGen').innerHTML = ''; msUpdate();
+  for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR', 'msKeys', 'msSeeds']) $(id).value = ''; $('msGen').innerHTML = ''; msUpdate();
   $('entropyLen').value = 'raw'; $('entropyType').value = 'auto'; entropyLenTouched = false; $('entropyWeak').classList.add('hidden'); $('startIdx').value = '0';
   S.rootFromKey = false; $('rootOut').textContent = '';
   onPhraseInput(false); shamirClear(); shamirRecover(); toast('Cleared');
@@ -22257,23 +22263,39 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('qrMo
 
 /* ---------------- multisig wallet (BIP48 / BIP67 / descriptors) ---------------- */
 let msLast = null, msKeysSeen = '', msDemoKeys = null, msModeV = 'build';
+// Restore: seeds typed in directly, each derived at m/48'/coin'/account'/script'. Returns { cosigners, errors }.
+function msSeedCosigners(text, script, account) {
+  const cosigners = [], errors = [], netc = net();
+  text.split(/\r?\n/).forEach((raw, i) => {
+    const line = raw.trim().toLowerCase(); if (!line) return;
+    const words = line.split(/\s+/);
+    if (![12, 15, 18, 21, 24].includes(words.length)) { errors.push(`seed line ${i + 1}: a seed has 12, 15, 18, 21 or 24 words (this line has ${words.length})`); return; }
+    const lang = detectLang(words);
+    if (!lang || !bip39.validateMnemonic(words.join(' '), wordlists[lang].words)) { errors.push(`seed line ${i + 1}: not a valid seed (check every word and the last one, which carries the checksum)`); return; }
+    const root = HDKey.fromMasterSeed(bip39.mnemonicToSeedSync(words.join(wordlists[lang].sep || ' '), ''), { private: netc.xprv, public: netc.xpub });
+    const c = multisig.cosignerFromNode(root, [48 + H, netc.coin + H, account + H, multisig.SCRIPT_INDEX[script] + H]);
+    cosigners.push({ ...c, net: S.net, source: `seed line ${i + 1}` });
+  });
+  return { cosigners, errors };
+}
 // Two exclusive panels: build (paste xpubs, new or existing wallet) and gen (generate every seed here).
 // Everything in the card back to its empty state: keys, seeds, name, address check, policy.
 function msReset() {
-  $('msKeys').value = ''; $('msExpect').value = ''; msGenCover(false); $('msGen').innerHTML = ''; $('msGenEye').classList.add('hidden');
+  $('msKeys').value = ''; $('msSeeds').value = ''; $('msExpect').value = ''; $('msAccount').value = '0'; msGenCover(false); $('msGen').innerHTML = ''; $('msGenEye').classList.add('hidden');
   $('msName').value = 'KeyPath multisig'; $('msThreshold').value = '2'; $('msGenCount').value = '3'; $('msGenWords').value = '12'; $('msScript2').value = 'p2wsh';
   msDemoKeys = null; msKeysSeen = '';
 }
 function msMode(m) {
   if (m !== msModeV) msReset(); // a fresh slate for each panel
   msModeV = m;
-  for (const [id, v] of [['msModeBuild', 'build'], ['msModeGen', 'gen']]) $(id).setAttribute('aria-pressed', m === v);
+  for (const [id, v] of [['msModeBuild', 'build'], ['msModeRestore', 'restore']]) $(id).setAttribute('aria-pressed', m === v);
   const card = $('multisig-card');
-  for (const v of ['build', 'gen']) card.querySelectorAll('.ms-' + v).forEach((el) => el.classList.toggle('hidden', !el.classList.contains('ms-' + m)));
+  for (const v of ['build', 'restore']) card.querySelectorAll('.ms-' + v).forEach((el) => el.classList.toggle('hidden', !el.classList.contains('ms-' + m)));
   msUpdate();
 }
 function msInit() {
-  for (const [id, v] of [['msModeBuild', 'build'], ['msModeGen', 'gen']]) $(id).addEventListener('click', () => msMode(v));
+  for (const [id, v] of [['msModeBuild', 'build'], ['msModeRestore', 'restore']]) $(id).addEventListener('click', () => msMode(v));
+  $('msSeeds').addEventListener('input', debounce(msUpdate, 250)); $('msAccount').addEventListener('input', debounce(msUpdate, 250));
   for (let i = 1; i <= 15; i++) $('msThreshold').insertAdjacentHTML('beforeend', `<option>${i}</option>`);
   $('msThreshold').value = '2';
   $('msKeys').addEventListener('input', debounce(msUpdate, 250));
@@ -22283,7 +22305,7 @@ function msInit() {
   $('cosignerToMs').addEventListener('click', () => {
     const line = $('cosignerLine').dataset.value; if (!line) return toast('Enter a phrase first');
     if ($('msKeys').value.includes(line)) { toast('Already in the list'); }
-    else { if (msModeV === 'gen') msMode('build'); $('msKeys').value = ($('msKeys').value.trim() ? $('msKeys').value.trim() + '\n' : '') + line; $('msScript2').value = $('msScript').value; msUpdate(); toast('Xpub added to the multisig wallet'); }
+    else { if (msModeV !== 'build') msMode('build'); $('msKeys').value = ($('msKeys').value.trim() ? $('msKeys').value.trim() + '\n' : '') + line; $('msScript2').value = $('msScript').value; msUpdate(); toast('Xpub added to the multisig wallet'); }
     $('multisig-card').scrollIntoView({ behavior: 'smooth' });
   });
   $('msDownload').addEventListener('click', () => {
@@ -22335,35 +22357,43 @@ function msGenerate(demo) {
 function msUpdate() {
   msLast = null; $('msOut').classList.add('hidden'); $('msWarnings').innerHTML = '';
   $('msTrNote').classList.toggle('hidden', $('msScript2').value !== 'p2tr');
-  const text = $('msKeys').value;
-  // In Generate mode the xpubs are a result, not an input: read-only, and shown only once seeds exist.
-  $('msKeys').readOnly = msModeV === 'gen'; $('msKeysField').classList.toggle('hidden', msModeV === 'gen' && !text.trim());
-  if (!text.trim()) {
-    const msg = msModeV === 'gen' ? 'Press the button above to create the seeds.' : 'Waiting for the xpub lines. The wallet is built as soon as two or more are pasted.';
+  const text = $('msKeys').value, seedText = msModeV === 'restore' ? $('msSeeds').value : '';
+  const account = Math.max(0, parseInt($('msAccount').value, 10) || 0);
+  $('msPathLbl').textContent = `m/48'/${net().coin}'/${account}'/${multisig.SCRIPT_INDEX[$('msScript2').value]}'`;
+  if (!text.trim() && !seedText.trim()) {
+    const msg = msModeV === 'restore' ? 'Waiting for the wallet\'s seeds, xpubs or setup file.' : 'Waiting for the xpubs: paste them from each device, or press Create the seeds here.';
     setMeter('msStatus', note(msg)); return;
   }
   const parsed = multisig.parseCosigners(text, VERSION_TABLE);
+  const fromSeeds = msSeedCosigners(seedText, $('msScript2').value, account);
+  // a seed and its own xpub both entered count once
+  const seedKeys = new Set(fromSeeds.cosigners.map((c) => multisig.serExt(c.node, 0, false)));
+  const dup = parsed.cosigners.filter((c) => seedKeys.has(multisig.serExt(c.node, 0, false))).length;
+  parsed.cosigners = [...fromSeeds.cosigners, ...parsed.cosigners.filter((c) => !seedKeys.has(multisig.serExt(c.node, 0, false)))];
+  parsed.errors = [...fromSeeds.errors, ...parsed.errors];
+  if (dup) parsed.errors.push(`${dup === 1 ? 'one xpub line is' : dup + ' xpub lines are'} the xpub of a seed entered above, so it is counted once (level: note)`);
   if (parsed.meta.threshold) $('msThreshold').value = String(parsed.meta.threshold);
   if (text !== msKeysSeen) { msKeysSeen = text; if (parsed.cosigners.length >= 2 && parsed.cosigners.length <= 15) $('msGenCount').value = String(parsed.cosigners.length); } // "of N" follows newly pasted keys, but never overrides a later choice
   if (parsed.meta.script) $('msScript2').value = parsed.meta.script;
   if (parsed.meta.name && $('msName').value === 'KeyPath multisig') $('msName').value = parsed.meta.name;
   const threshold = +$('msThreshold').value, script = $('msScript2').value, cos = parsed.cosigners, n = net();
   $('msTrNote').classList.toggle('hidden', script !== 'p2tr');
-  const problems = [...parsed.errors.map((e) => ({ level: 'bad', text: e })), ...multisig.validate(threshold, cos, S.net)];
+  const problems = [...parsed.errors.map((e) => (e.endsWith('(level: note)') ? { level: 'warn', text: e.replace(' (level: note)', '.') } : { level: 'bad', text: e })), ...multisig.validate(threshold, cos, S.net)];
   $('msWarnings').innerHTML = problems.map((p) => `<div class="inputwarn${p.level === 'bad' ? ' bad' : ''}"><p>${esc(p.text)}</p></div>`).join('');
-  if (problems.some((p) => p.level === 'bad')) { setMeter('msStatus', count(`${cos.length} xpub${cos.length === 1 ? '' : 's'} read`, 'bad')); return; }
+  if (problems.some((p) => p.level === 'bad')) { setMeter('msStatus', count(`${cos.length} key${cos.length === 1 ? '' : 's'} read`, 'bad')); return; }
   const d = multisig.buildDescriptors(threshold, cos, script, n.xpub);
   const name = $('msName').value.trim() || 'KeyPath multisig';
   const config = multisig.coldcardConfig(name, threshold, cos, script, n.xpub);
   msLast = { config, name };
   setBox('msDesc', d.combined); setBox('msDescRecv', d.receive); setBox('msDescChange', d.change); setBox('msConfig', config);
   const chain = +$('msChain').value, rows = Math.min(100, Math.max(1, parseInt($('msRows').value, 10) || 5));
-  $('msAddrBody').innerHTML = Array.from({ length: rows }, (_, i) => { const a = multisig.multisigAddress(threshold, cos, script, chain, i, n); return `<tr><td class="idx">${chain}/${i}</td><td><span data-c="${esc(a)}">${esc(a)}</span></td></tr>`; }).join('');
   const demo = text.trim() === msDemoKeys;
-  const what = msModeV === 'gen' ? `built from the ${cos.length} generated seeds` : `built from the ${cos.length} pasted xpubs`;
+  $('msAddrBody').innerHTML = Array.from({ length: rows }, (_, i) => { const a = multisig.multisigAddress(threshold, cos, script, chain, i, n); return `<tr><td class="idx">${chain}/${i}</td><td><span data-c="${esc(a)}">${esc(a)}</span></td></tr>`; }).join('');
+  const nS = fromSeeds.cosigners.length, nX = cos.length - nS;
+  const what = msModeV === 'restore' ? `rebuilt from ${nS ? nS + ' seed' + (nS === 1 ? '' : 's') : ''}${nS && nX ? ' and ' : ''}${nX ? nX + ' xpub' + (nX === 1 ? '' : 's') : ''}` : demo || $('msGen').children.length ? `built from the ${cos.length} seeds created here` : `built from the ${cos.length} pasted xpubs`;
   setMeter('msStatus', count(`${threshold} of ${cos.length} · ${multisig.MS_FORMAT[script]} · ${S.net === 'mainnet' ? 'mainnet' : 'testnet'}${demo ? ' · demo' : ''}`, demo ? 'warn' : 'ok') + note(demo ? `Demo wallet ${what}, from the public test seeds: explore it, never fund it. The Multisig lab below shows what is needed to recover such a wallet.` : `Wallet ${what}.`));
   // Does the pasted first address belong to the wallet these keys rebuild? Search the first 50 receive and change addresses.
-  const expect = msModeV === 'build' ? $('msExpect').value.trim().toLowerCase() : '';
+  const expect = msModeV === 'restore' ? $('msExpect').value.trim().toLowerCase() : '';
   if (expect) {
     let hit = null;
     for (let c = 0; c < 2 && !hit; c++) for (let i = 0; i < 50; i++) { if (multisig.multisigAddress(threshold, cos, script, c, i, n).toLowerCase() === expect) { hit = `${c}/${i}`; break; } }
@@ -22464,7 +22494,7 @@ function initTips() {
 
 /* ---------------- session hygiene ---------------- */
 function wipeAll() {
-  for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR', 'msKeys']) $(id).value = ''; $('msGen').innerHTML = ''; msUpdate();
+  for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR', 'msKeys', 'msSeeds']) $(id).value = ''; $('msGen').innerHTML = ''; msUpdate();
   $('rootOut').textContent = ''; S.rootFromKey = false; S.seed = null; S.root = null; S.shRecovered = null;
   onPhraseInput(false); shamirClear(); shamirRecover();
   $('qrModal').hidden = true; $('qrWrap').innerHTML = '';

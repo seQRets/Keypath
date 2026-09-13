@@ -179,7 +179,7 @@ $('menuPanel').querySelectorAll('a').forEach((a) => a.addEventListener('click', 
 $('fpValue').addEventListener('click', async () => { if (S.root && (await copyText(fpHex(S.root)))) toast('Fingerprint copied'); });
 $('phraseFpVal').addEventListener('click', async () => { if (S.root && (await copyText(fpHex(S.root)))) toast('Fingerprint copied'); });
 $('clearBtn').addEventListener('click', () => {
-  for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR', 'msKeys']) $(id).value = ''; $('msGen').innerHTML = ''; msUpdate();
+  for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR', 'msKeys', 'msSeeds']) $(id).value = ''; $('msGen').innerHTML = ''; msUpdate();
   $('entropyLen').value = 'raw'; $('entropyType').value = 'auto'; entropyLenTouched = false; $('entropyWeak').classList.add('hidden'); $('startIdx').value = '0';
   S.rootFromKey = false; $('rootOut').textContent = '';
   onPhraseInput(false); shamirClear(); shamirRecover(); toast('Cleared');
@@ -646,23 +646,39 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('qrMo
 
 /* ---------------- multisig wallet (BIP48 / BIP67 / descriptors) ---------------- */
 let msLast = null, msKeysSeen = '', msDemoKeys = null, msModeV = 'build';
+// Restore: seeds typed in directly, each derived at m/48'/coin'/account'/script'. Returns { cosigners, errors }.
+function msSeedCosigners(text, script, account) {
+  const cosigners = [], errors = [], netc = net();
+  text.split(/\r?\n/).forEach((raw, i) => {
+    const line = raw.trim().toLowerCase(); if (!line) return;
+    const words = line.split(/\s+/);
+    if (![12, 15, 18, 21, 24].includes(words.length)) { errors.push(`seed line ${i + 1}: a seed has 12, 15, 18, 21 or 24 words (this line has ${words.length})`); return; }
+    const lang = detectLang(words);
+    if (!lang || !bip39.validateMnemonic(words.join(' '), wordlists[lang].words)) { errors.push(`seed line ${i + 1}: not a valid seed (check every word and the last one, which carries the checksum)`); return; }
+    const root = HDKey.fromMasterSeed(bip39.mnemonicToSeedSync(words.join(wordlists[lang].sep || ' '), ''), { private: netc.xprv, public: netc.xpub });
+    const c = multisig.cosignerFromNode(root, [48 + H, netc.coin + H, account + H, multisig.SCRIPT_INDEX[script] + H]);
+    cosigners.push({ ...c, net: S.net, source: `seed line ${i + 1}` });
+  });
+  return { cosigners, errors };
+}
 // Two exclusive panels: build (paste xpubs, new or existing wallet) and gen (generate every seed here).
 // Everything in the card back to its empty state: keys, seeds, name, address check, policy.
 function msReset() {
-  $('msKeys').value = ''; $('msExpect').value = ''; msGenCover(false); $('msGen').innerHTML = ''; $('msGenEye').classList.add('hidden');
+  $('msKeys').value = ''; $('msSeeds').value = ''; $('msExpect').value = ''; $('msAccount').value = '0'; msGenCover(false); $('msGen').innerHTML = ''; $('msGenEye').classList.add('hidden');
   $('msName').value = 'KeyPath multisig'; $('msThreshold').value = '2'; $('msGenCount').value = '3'; $('msGenWords').value = '12'; $('msScript2').value = 'p2wsh';
   msDemoKeys = null; msKeysSeen = '';
 }
 function msMode(m) {
   if (m !== msModeV) msReset(); // a fresh slate for each panel
   msModeV = m;
-  for (const [id, v] of [['msModeBuild', 'build'], ['msModeGen', 'gen']]) $(id).setAttribute('aria-pressed', m === v);
+  for (const [id, v] of [['msModeBuild', 'build'], ['msModeRestore', 'restore']]) $(id).setAttribute('aria-pressed', m === v);
   const card = $('multisig-card');
-  for (const v of ['build', 'gen']) card.querySelectorAll('.ms-' + v).forEach((el) => el.classList.toggle('hidden', !el.classList.contains('ms-' + m)));
+  for (const v of ['build', 'restore']) card.querySelectorAll('.ms-' + v).forEach((el) => el.classList.toggle('hidden', !el.classList.contains('ms-' + m)));
   msUpdate();
 }
 function msInit() {
-  for (const [id, v] of [['msModeBuild', 'build'], ['msModeGen', 'gen']]) $(id).addEventListener('click', () => msMode(v));
+  for (const [id, v] of [['msModeBuild', 'build'], ['msModeRestore', 'restore']]) $(id).addEventListener('click', () => msMode(v));
+  $('msSeeds').addEventListener('input', debounce(msUpdate, 250)); $('msAccount').addEventListener('input', debounce(msUpdate, 250));
   for (let i = 1; i <= 15; i++) $('msThreshold').insertAdjacentHTML('beforeend', `<option>${i}</option>`);
   $('msThreshold').value = '2';
   $('msKeys').addEventListener('input', debounce(msUpdate, 250));
@@ -672,7 +688,7 @@ function msInit() {
   $('cosignerToMs').addEventListener('click', () => {
     const line = $('cosignerLine').dataset.value; if (!line) return toast('Enter a phrase first');
     if ($('msKeys').value.includes(line)) { toast('Already in the list'); }
-    else { if (msModeV === 'gen') msMode('build'); $('msKeys').value = ($('msKeys').value.trim() ? $('msKeys').value.trim() + '\n' : '') + line; $('msScript2').value = $('msScript').value; msUpdate(); toast('Xpub added to the multisig wallet'); }
+    else { if (msModeV !== 'build') msMode('build'); $('msKeys').value = ($('msKeys').value.trim() ? $('msKeys').value.trim() + '\n' : '') + line; $('msScript2').value = $('msScript').value; msUpdate(); toast('Xpub added to the multisig wallet'); }
     $('multisig-card').scrollIntoView({ behavior: 'smooth' });
   });
   $('msDownload').addEventListener('click', () => {
@@ -724,35 +740,43 @@ function msGenerate(demo) {
 function msUpdate() {
   msLast = null; $('msOut').classList.add('hidden'); $('msWarnings').innerHTML = '';
   $('msTrNote').classList.toggle('hidden', $('msScript2').value !== 'p2tr');
-  const text = $('msKeys').value;
-  // In Generate mode the xpubs are a result, not an input: read-only, and shown only once seeds exist.
-  $('msKeys').readOnly = msModeV === 'gen'; $('msKeysField').classList.toggle('hidden', msModeV === 'gen' && !text.trim());
-  if (!text.trim()) {
-    const msg = msModeV === 'gen' ? 'Press the button above to create the seeds.' : 'Waiting for the xpub lines. The wallet is built as soon as two or more are pasted.';
+  const text = $('msKeys').value, seedText = msModeV === 'restore' ? $('msSeeds').value : '';
+  const account = Math.max(0, parseInt($('msAccount').value, 10) || 0);
+  $('msPathLbl').textContent = `m/48'/${net().coin}'/${account}'/${multisig.SCRIPT_INDEX[$('msScript2').value]}'`;
+  if (!text.trim() && !seedText.trim()) {
+    const msg = msModeV === 'restore' ? 'Waiting for the wallet\'s seeds, xpubs or setup file.' : 'Waiting for the xpubs: paste them from each device, or press Create the seeds here.';
     setMeter('msStatus', note(msg)); return;
   }
   const parsed = multisig.parseCosigners(text, VERSION_TABLE);
+  const fromSeeds = msSeedCosigners(seedText, $('msScript2').value, account);
+  // a seed and its own xpub both entered count once
+  const seedKeys = new Set(fromSeeds.cosigners.map((c) => multisig.serExt(c.node, 0, false)));
+  const dup = parsed.cosigners.filter((c) => seedKeys.has(multisig.serExt(c.node, 0, false))).length;
+  parsed.cosigners = [...fromSeeds.cosigners, ...parsed.cosigners.filter((c) => !seedKeys.has(multisig.serExt(c.node, 0, false)))];
+  parsed.errors = [...fromSeeds.errors, ...parsed.errors];
+  if (dup) parsed.errors.push(`${dup === 1 ? 'one xpub line is' : dup + ' xpub lines are'} the xpub of a seed entered above, so it is counted once (level: note)`);
   if (parsed.meta.threshold) $('msThreshold').value = String(parsed.meta.threshold);
   if (text !== msKeysSeen) { msKeysSeen = text; if (parsed.cosigners.length >= 2 && parsed.cosigners.length <= 15) $('msGenCount').value = String(parsed.cosigners.length); } // "of N" follows newly pasted keys, but never overrides a later choice
   if (parsed.meta.script) $('msScript2').value = parsed.meta.script;
   if (parsed.meta.name && $('msName').value === 'KeyPath multisig') $('msName').value = parsed.meta.name;
   const threshold = +$('msThreshold').value, script = $('msScript2').value, cos = parsed.cosigners, n = net();
   $('msTrNote').classList.toggle('hidden', script !== 'p2tr');
-  const problems = [...parsed.errors.map((e) => ({ level: 'bad', text: e })), ...multisig.validate(threshold, cos, S.net)];
+  const problems = [...parsed.errors.map((e) => (e.endsWith('(level: note)') ? { level: 'warn', text: e.replace(' (level: note)', '.') } : { level: 'bad', text: e })), ...multisig.validate(threshold, cos, S.net)];
   $('msWarnings').innerHTML = problems.map((p) => `<div class="inputwarn${p.level === 'bad' ? ' bad' : ''}"><p>${esc(p.text)}</p></div>`).join('');
-  if (problems.some((p) => p.level === 'bad')) { setMeter('msStatus', count(`${cos.length} xpub${cos.length === 1 ? '' : 's'} read`, 'bad')); return; }
+  if (problems.some((p) => p.level === 'bad')) { setMeter('msStatus', count(`${cos.length} key${cos.length === 1 ? '' : 's'} read`, 'bad')); return; }
   const d = multisig.buildDescriptors(threshold, cos, script, n.xpub);
   const name = $('msName').value.trim() || 'KeyPath multisig';
   const config = multisig.coldcardConfig(name, threshold, cos, script, n.xpub);
   msLast = { config, name };
   setBox('msDesc', d.combined); setBox('msDescRecv', d.receive); setBox('msDescChange', d.change); setBox('msConfig', config);
   const chain = +$('msChain').value, rows = Math.min(100, Math.max(1, parseInt($('msRows').value, 10) || 5));
-  $('msAddrBody').innerHTML = Array.from({ length: rows }, (_, i) => { const a = multisig.multisigAddress(threshold, cos, script, chain, i, n); return `<tr><td class="idx">${chain}/${i}</td><td><span data-c="${esc(a)}">${esc(a)}</span></td></tr>`; }).join('');
   const demo = text.trim() === msDemoKeys;
-  const what = msModeV === 'gen' ? `built from the ${cos.length} generated seeds` : `built from the ${cos.length} pasted xpubs`;
+  $('msAddrBody').innerHTML = Array.from({ length: rows }, (_, i) => { const a = multisig.multisigAddress(threshold, cos, script, chain, i, n); return `<tr><td class="idx">${chain}/${i}</td><td><span data-c="${esc(a)}">${esc(a)}</span></td></tr>`; }).join('');
+  const nS = fromSeeds.cosigners.length, nX = cos.length - nS;
+  const what = msModeV === 'restore' ? `rebuilt from ${nS ? nS + ' seed' + (nS === 1 ? '' : 's') : ''}${nS && nX ? ' and ' : ''}${nX ? nX + ' xpub' + (nX === 1 ? '' : 's') : ''}` : demo || $('msGen').children.length ? `built from the ${cos.length} seeds created here` : `built from the ${cos.length} pasted xpubs`;
   setMeter('msStatus', count(`${threshold} of ${cos.length} · ${multisig.MS_FORMAT[script]} · ${S.net === 'mainnet' ? 'mainnet' : 'testnet'}${demo ? ' · demo' : ''}`, demo ? 'warn' : 'ok') + note(demo ? `Demo wallet ${what}, from the public test seeds: explore it, never fund it. The Multisig lab below shows what is needed to recover such a wallet.` : `Wallet ${what}.`));
   // Does the pasted first address belong to the wallet these keys rebuild? Search the first 50 receive and change addresses.
-  const expect = msModeV === 'build' ? $('msExpect').value.trim().toLowerCase() : '';
+  const expect = msModeV === 'restore' ? $('msExpect').value.trim().toLowerCase() : '';
   if (expect) {
     let hit = null;
     for (let c = 0; c < 2 && !hit; c++) for (let i = 0; i < 50; i++) { if (multisig.multisigAddress(threshold, cos, script, c, i, n).toLowerCase() === expect) { hit = `${c}/${i}`; break; } }
@@ -853,7 +877,7 @@ function initTips() {
 
 /* ---------------- session hygiene ---------------- */
 function wipeAll() {
-  for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR', 'msKeys']) $(id).value = ''; $('msGen').innerHTML = ''; msUpdate();
+  for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR', 'msKeys', 'msSeeds']) $(id).value = ''; $('msGen').innerHTML = ''; msUpdate();
   $('rootOut').textContent = ''; S.rootFromKey = false; S.seed = null; S.root = null; S.shRecovered = null;
   onPhraseInput(false); shamirClear(); shamirRecover();
   $('qrModal').hidden = true; $('qrWrap').innerHTML = '';

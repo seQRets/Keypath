@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.8.0 — 2026-09-14
+
+**Build a wallet / Restore a wallet.**
+
+- The multisig card has two centred tabs. **Build a wallet**: choose the policy, then paste the xpub from each device or press "Create the seeds here" (with the demo wallet beside it). **Restore a wallet**: enter what you have of an existing wallet in any mix, its seeds, its xpubs or its setup file, and get its addresses and definition back, with the optional first-address check.
+- **Seeds can be entered directly.** The Restore tab has a Seeds box (blurred with Hide private info): one recovery phrase per line in any language, no passphrase. Each seed's xpub is derived at m/48'/coin'/account'/script', shown next to a new Account field, so nobody has to run each seed through the top of the page and copy its xpub by hand. A seed and its own xpub entered together count once, and the status line says what the wallet was rebuilt from, for example "2 seeds and 1 xpub".
+
 ## v2.7.5 — 2026-09-13
 
 - The Multisig lab starts with nothing checked.
