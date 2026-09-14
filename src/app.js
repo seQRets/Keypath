@@ -40,7 +40,7 @@ const S = {
   root: null, rootFromKey: false, rootPublicOnly: false, computedRootKey: '',
   tab: 'bip84', account: 0, change: 0, coin: 0, customPath: "m/0'/0", customScript: 'p2wpkh', slip132: false,
   pathNode: null, pathIndices: null, script: 'p2wpkh',
-  hardened: false, start: 0, count: 20, rows: [], renderToken: 0,
+  hardened: false, start: 0, count: 10, rows: [], renderToken: 0,
 };
 const net = () => NETS[S.net];
 
@@ -450,7 +450,6 @@ function derive() {
   }
   S.script = script; S.pathIndices = idx;
   $('pathOut').textContent = pathToString(idx); $('pathLbl2').textContent = pathToString(idx);
-  $('addrTypeNote').textContent = SCRIPT_NAMES[script];
   if (!S.root) return clear('Waiting for a root key…');
   const fp = fpHex(S.root);
   let pathNode;
@@ -497,7 +496,7 @@ document.querySelectorAll('.cols .chip').forEach((c) => c.addEventListener('clic
 }));
 $('hardened').addEventListener('change', () => { S.hardened = $('hardened').checked; derive(); });
 $('startIdx').addEventListener('input', debounce(() => { S.start = Math.max(0, parseInt($('startIdx').value, 10) || 0); renderRows(); }, 250));
-$('rowCount').addEventListener('input', debounce(() => { S.count = Math.min(1000, Math.max(1, parseInt($('rowCount').value, 10) || 20)); renderRows(); }, 250));
+$('rowCount').addEventListener('input', debounce(() => { S.count = Math.min(1000, Math.max(1, parseInt($('rowCount').value, 10) || 10)); renderRows(); }, 250));
 $('moreBtn').addEventListener('click', () => { S.start += S.count; $('startIdx').value = S.start; renderRows(true); });
 
 function renderRows(append = false) {
@@ -671,7 +670,7 @@ function msSeedCosigners(text, script, account) {
 // Two exclusive panels: build (paste xpubs, new or existing wallet) and gen (generate every seed here).
 // Everything in the card back to its empty state: keys, seeds, name, address check, policy.
 function msReset() {
-  $('msKeys').value = ''; $('msSeeds').value = ''; $('msExpect').value = ''; $('msAccount').value = '0'; msGenCover(false); $('msGen').innerHTML = ''; $('msGenEye').classList.add('hidden');
+  $('msKeys').value = ''; $('msSeeds').value = ''; $('msAccount').value = '0'; msGenCover(false); $('msGen').innerHTML = ''; $('msGenEye').classList.add('hidden');
   $('msName').value = 'KeyPath multisig'; $('msThreshold').value = '2'; $('msGenCount').value = '3'; $('msGenWords').value = '12'; $('msScript2').value = 'p2wsh';
   msDemoKeys = null; msKeysSeen = '';
 }
@@ -691,7 +690,6 @@ function msInit() {
   $('msKeys').addEventListener('input', debounce(msUpdate, 250));
   for (const id of ['msThreshold', 'msScript2', 'msName', 'msChain']) $(id).addEventListener('change', msUpdate);
   $('msRows').addEventListener('input', debounce(msUpdate, 250));
-  $('msExpect').addEventListener('input', debounce(msUpdate, 250));
   $('cosignerToMs').addEventListener('click', () => {
     const line = $('cosignerLine').dataset.value; if (!line) return toast('Enter a phrase first');
     if ($('msKeys').value.includes(line)) { toast('Already in the list'); }
@@ -710,7 +708,7 @@ function msInit() {
   $('msGenCount').value = '3';
   $('msGenBtn').addEventListener('click', () => msGenerate(false));
   $('msDemoBtn').addEventListener('click', () => msGenerate(true));
-  $('msClearBtn').addEventListener('click', () => { msReset(); msUpdate(); toast('Multisig wallet cleared'); });
+  for (const id of ['msClearBtn', 'msClearBtn2']) $(id).addEventListener('click', () => { msReset(); msUpdate(); toast('Multisig wallet cleared'); });
   $('msGenEye').addEventListener('click', () => msGenCover(!$('msGen').classList.contains('covered')));
   $('msGenCount').addEventListener('change', () => { if (+$('msThreshold').value > +$('msGenCount').value) $('msThreshold').value = $('msGenCount').value; msUpdate(); });
   document.addEventListener('click', async (e) => { const b = e.target.closest('#msGen .copy'); if (!b) return; if (await copyText(b.dataset.text, true)) { b.classList.add('done'); b.textContent = 'copied'; setTimeout(() => { b.classList.remove('done'); b.textContent = 'copy'; }, 1100); } });
@@ -738,7 +736,6 @@ function msGenerate(demo) {
   $('msThreshold').value = String(t);
   $('msName').value = `KeyPath ${demo ? 'demo ' : ''}${t}-of-${n}`;
   $('msKeys').value = cosigners.map((c) => c.line).join('\n'); msDemoKeys = demo ? $('msKeys').value : null;
-  $('msExpect').value = demo ? multisig.multisigAddress(t, cosigners, script, 0, 0, netc) : ''; // the demo pre-fills its own first address so the "delete a line" experiment shows No match
   $('msGen').innerHTML = `<div class="share-list">${cosigners.map((c, i) => `<div class="share"><button class="copy" type="button" data-text="${esc(c.phrase)}">copy</button><h4>Seed ${i + 1} of ${n}<small>fingerprint ${esc(c.fp)}</small></h4><ol>${c.phrase.split(' ').map((w, j) => `<li><i>${j + 1}</i><b>${esc(w)}</b></li>`).join('')}</ol></div>`).join('')}</div>`;
   msGenCover(!demo); $('msGenEye').classList.remove('hidden');
   msUpdate(); setHidden(!demo); // demo phrases are public: reveal the page, like the phrase card's demo does
@@ -782,15 +779,6 @@ function msUpdate() {
   const nS = fromSeeds.cosigners.length, nX = cos.length - nS;
   const what = msModeV === 'restore' ? `rebuilt from ${nS ? nS + ' seed' + (nS === 1 ? '' : 's') : ''}${nS && nX ? ' and ' : ''}${nX ? nX + ' xpub' + (nX === 1 ? '' : 's') : ''}` : demo || $('msGen').children.length ? `built from the ${cos.length} seeds created here` : `built from the ${cos.length} pasted xpubs`;
   setMeter('msStatus', count(`${threshold} of ${cos.length} · ${multisig.MS_FORMAT[script]} · ${S.net === 'mainnet' ? 'mainnet' : 'testnet'}${demo ? ' · demo' : ''}`, demo ? 'warn' : 'ok') + note(demo ? `Demo wallet ${what}, from the public test seeds: explore it, never fund it. The Multisig lab below shows what is needed to recover such a wallet.` : `Wallet ${what}.`));
-  // Does the pasted first address belong to the wallet these keys rebuild? Search the first 50 receive and change addresses.
-  const expect = msModeV === 'restore' ? $('msExpect').value.trim().toLowerCase() : '';
-  if (expect) {
-    let hit = null;
-    for (let c = 0; c < 2 && !hit; c++) for (let i = 0; i < 50; i++) { if (multisig.multisigAddress(threshold, cos, script, c, i, n).toLowerCase() === expect) { hit = `${c}/${i}`; break; } }
-    $('msWarnings').insertAdjacentHTML('afterbegin', hit
-      ? `<div class="inputwarn good"><p><strong>Match.</strong> These keys rebuild the wallet that owns that address (${hit === '0/0' ? 'the first receive address' : 'address ' + hit}).</p></div>`
-      : `<div class="inputwarn bad"><p><strong>No match.</strong> These ${cos.length} keys with ${threshold} of ${cos.length} and ${multisig.MS_FORMAT[script]} do not rebuild the wallet that owns that address (checked the first 50 receive and change addresses). An xpub is missing or wrong, or the signatures needed or script type differ. Having enough seeds to sign is not enough: rebuilding a multisig wallet needs the xpub of every seed, which is what the wallet definition holds.</p></div>`);
-  }
   $('msOut').classList.remove('hidden');
 }
 
@@ -903,7 +891,7 @@ idleReset();
 function netStatus() {
   const off = navigator.onLine === false; const el = $('netStatus');
   el.hidden = false; el.classList.toggle('off', off);
-  $('netStatusText').textContent = off ? 'This computer is offline. Good.' : 'This computer is connected to a network. For real funds, disconnect before generating or entering a phrase.';
+  $('netStatusText').textContent = off ? 'This computer is offline. Good.' : 'This computer is connected to a network. For real funds, disconnect before generating or entering a seed phrase.';
 }
 addEventListener('online', netStatus); addEventListener('offline', netStatus); netStatus();
 

@@ -1,5 +1,18 @@
 # Changelog
 
+## v2.8.6 — 2026-09-14
+
+- Empty secret boxes (the phrase, passphrase, entropy, Shamir shares, multisig seeds) are no longer blurred while private info is hidden; the blur applies once they hold something.
+- The network notice at the top says "seed phrase" instead of "phrase".
+- The Shamir backup card opens in plain words: split the seed phrase into backup pieces called shares, choose how many are needed to get it back, with a 2-of-3 example.
+- Plain-English introductions for Seed & master key, Derivation path, Derived addresses and the Multisig wallet card, including its Build and Restore explanations and the Restore field hints.
+- The address table shows 10 rows by default instead of 20.
+- Multisig card: the Build a wallet / Restore a wallet switch is the first thing in the card, followed by one paragraph for the chosen side; the shared introduction that said KeyPath never needs the seeds is gone. Clear sits beside "Create the seeds here" in Build and beside Account in Restore, instead of in the card header.
+- The Split / Recover switch in the Shamir card is centred, like the Build / Restore switch in the multisig card.
+- The definitions section is now titled "KeyPath glossary" (and the nav pill says Glossary). The KeyPath name in the footer is styled like the logo at the top, orange "Key" and dark "Path", and is larger.
+- The small right-hand labels in card headers (SLIP-39, the address type, "2-of-3 · demo seeds") are gone; card headers are now just a number and a name.
+- The "First address shown by your wallet" box is gone from Restore a wallet: the address table right below already shows the first address to compare, and the Multisig lab teaches what a backup needs.
+
 ## v2.8.5 — 2026-09-14
 
 - The entropy panel is much shorter: the heading, the explanatory paragraph and the "Advanced feature" box are gone, replaced by one hint on the Entropy field. The details about how dice are hashed moved into the Entropy definition behind the "?".

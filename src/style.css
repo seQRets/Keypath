@@ -232,6 +232,7 @@ select { appearance: none; -webkit-appearance: none; padding-right: 2.1rem; back
 html.hide-secrets .secret { filter: blur(7px); user-select: none; pointer-events: none; }
 /* Fields stay usable while blurred: you can click into them and type without ever showing the text. */
 html.hide-secrets .secret:is(input, textarea, [contenteditable]) { pointer-events: auto; user-select: text; }
+html.hide-secrets .secret:is(input, textarea):placeholder-shown { filter: none; } /* an empty box has nothing to hide */
 html.hide-secrets .secret:is(input, textarea, [contenteditable]):focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 30%, transparent); border-color: var(--danger); }
 
 /* ---------- entropy panel ---------- */
@@ -318,8 +319,9 @@ h2 { font-size: 1.4rem; font-weight: 600; letter-spacing: -0.015em; margin-botto
 /* ---------- footer ---------- */
 footer.site { margin-top: 4.5rem; border-top: 1px solid var(--line); padding: 2.25rem 0 3rem; }
 .foot-top { display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: space-between; align-items: flex-start; margin-bottom: 1.75rem; }
-.foot-brand .fb-name { font-family: var(--display); font-weight: 800; font-size: 1.05rem; letter-spacing: -0.02em; margin-bottom: 0.3rem; }
-.foot-brand .fb-name .op { color: var(--accent); }
+.foot-brand .fb-name { font-family: var(--display); font-weight: 800; font-size: 1.9rem; letter-spacing: -0.032em; line-height: 1; margin-bottom: 0.5rem; }
+.foot-brand .fb-name .op { color: var(--ink); }
+.foot-brand .fb-name .op .key { color: var(--accent); } /* same treatment as the header logo */
 .foot-brand p { color: var(--ink-soft); font-size: 0.88rem; max-width: 42ch; }
 .foot-links { display: flex; flex-wrap: wrap; gap: 0.6rem; }
 .foot-links a { display: inline-flex; align-items: center; gap: 0.45rem; font-size: 0.86rem; font-weight: 500; text-decoration: none; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: var(--pill); padding: 0.45rem 0.95rem; box-shadow: var(--shadow); transition: border-color .15s ease, transform .15s ease, color .15s ease; }

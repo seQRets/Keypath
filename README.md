@@ -28,14 +28,14 @@ KeyPath is a modern re-imagining of Ian Coleman's [BIP39 tool](https://github.co
 - Account extended keys with optional SLIP-132 prefixes (ypub/zpub/upub/vpub), extended keys at the derivation path
 - Output descriptors with checksums for Bitcoin Core / Sparrow
 - Address table with path / address / public key / WIF columns, hardened children, paging, click-to-copy, CSV download and copy
-- **Multisig wallet builder** with Build and Restore tabs: build from the xpubs each device exported or create the seeds here; restore from any mix of seeds, xpubs and a setup file (seeds are derived at the BIP48 path for the chosen account and script type); pick the threshold and P2WSH, P2SH-P2WSH or **P2TR (Taproot multisig)**, and get the `sortedmulti` or `tr(NUMS, sortedmulti_a(…))` descriptor with checksum, a hardware-wallet setup file, and the wallet's first addresses for cross-device verification (BIP48, BIP67, BIP341); paste the first address a wallet shows and KeyPath confirms whether the keys rebuild that wallet
+- **Multisig wallet builder** with Build and Restore tabs: build from the xpubs each device exported or create the seeds here; restore from any mix of seeds, xpubs and a setup file (seeds are derived at the BIP48 path for the chosen account and script type); pick the threshold and P2WSH, P2SH-P2WSH or **P2TR (Taproot multisig)**, and get the `sortedmulti` or `tr(NUMS, sortedmulti_a(…))` descriptor with checksum, a hardware-wallet setup file, and the wallet's first addresses for cross-device verification (BIP48, BIP67, BIP341)
 - **Multisig lab**: a sandbox 2-of-3 built from the public test seeds where you tick which seeds, xpubs and wallet definition you still have and see whether the coins can be found and spent, to learn what a multisig backup must contain
 - BIP85 child phrases (one master phrase, many independent child phrases by index)
 - Bitcoin mainnet and testnet/signet, light and dark themes, "Hide all private info" blur for screen sharing
 
 Styled to match the [OP_RETURN Message Builder](https://seqrets.github.io/op_return/): parchment palette, orange accent, IBM Plex type, pill navigation and terminal-style output boxes.
 
-- Plain-language tooltips: a "?" beside every label that uses a technical term, plus a collapsible "KeyPath definitions" list. Both come from one glossary in `src/glossary.js`, so a definition is written once
+- Plain-language tooltips: a "?" beside every label that uses a technical term, plus a collapsible "KeyPath glossary" list. Both come from one glossary in `src/glossary.js`, so a definition is written once
 
 ## Project layout
 

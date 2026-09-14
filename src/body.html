@@ -33,7 +33,7 @@
       <a href="#addresses-card">Addresses</a>
       <a href="#multisig-card">Multisig</a>
       <a href="#lab-card">Lab</a>
-      <a href="#about">Definitions</a>
+      <a href="#about">Glossary</a>
       <a href="#offline" class="tap">Security</a>
     </nav>
   </header>
@@ -134,13 +134,13 @@
 
   <!-- ===================== 02 Shamir backup ===================== -->
   <section class="console" id="shamir-card" aria-label="Shamir backup">
-    <div class="console-bar"><span class="n">2</span> Shamir backup<button type="button" class="tip" data-tip="shamir" aria-label="What does this mean?">?</button> <span class="right" data-tip="slip39">SLIP-39</span></div>
+    <div class="console-bar"><span class="n">2</span> Shamir backup<button type="button" class="tip" data-tip="shamir" aria-label="What does this mean?">?</button></div>
     <div class="console-body">
-      <p class="console-intro">Split the entropy behind the phrase into SLIP-39 shares, the Shamir standard used by Trezor. Choose how many shares to make and how many are needed to recover; any set that meets the threshold rebuilds the exact phrase above, while fewer shares reveal nothing at all.</p>
-      <div class="mode-toggle" role="group" aria-label="Shamir mode">
+      <p class="console-intro">Split your seed phrase into several backup pieces, called shares, and choose how many of them are needed to get it back. For example, make 3 shares and require 2: store them in different places, and any 2 of the 3 rebuild the exact phrase above, while one share alone reveals nothing. This is the SLIP-39 standard used by Trezor.</p>
+      <div style="text-align:center"><div class="mode-toggle" role="group" aria-label="Shamir mode">
         <button class="mode-btn" id="shSplit" type="button" aria-pressed="true">Split into shares</button>
         <button class="mode-btn" id="shRecover" type="button" aria-pressed="false">Recover from shares</button>
-      </div>
+      </div></div>
 
       <div id="shamirSplit" class="tabpanel">
         <div class="row">
@@ -175,7 +175,7 @@
   <section class="console" id="seed-card" aria-label="Seed and master key">
     <div class="console-bar"><span class="n">3</span> Seed &amp; master key<button type="button" class="tip" data-tip="seed" aria-label="What does this mean?">?</button></div>
     <div class="console-body">
-      <p class="console-intro">The phrase and passphrase are stretched into a 512-bit seed, and the seed becomes the BIP32 master key at the root of the tree.</p>
+      <p class="console-intro">Your seed phrase, plus the passphrase if you use one, is turned into a single master key. Every address the wallet will ever use comes from that one key, which is why the phrase alone can restore everything.</p>
       <div class="fp-row">
         <div class="fp-box" id="fpBox"><span class="fp-label">Master fingerprint<button type="button" class="tip" data-tip="fingerprint" aria-label="What does this mean?">?</button></span><span class="fp-value" id="fpValue">—</span><span class="fp-note">The first four bytes of the master key's hash. Wallets show it so you can confirm a phrase and passphrase are the ones you expect, without revealing anything.</span></div>
       </div>
@@ -214,7 +214,7 @@
   <section class="console" id="derivation-card" aria-label="Derivation path">
     <div class="console-bar"><span class="n">4</span> Derivation path<button type="button" class="tip" data-tip="derivation" aria-label="What does this mean?">?</button></div>
     <div class="console-body">
-      <p class="console-intro">Pick the <span class="gloss" data-tip="bip">BIP standard</span> your wallet uses. Each one walks a different branch of the same tree and produces a different address format.</p>
+      <p class="console-intro">Different wallets make their addresses in different ways, each named after the <span class="gloss" data-tip="bip">standard</span> it follows. Pick the one your wallet uses, and KeyPath shows the same keys and addresses your wallet would.</p>
       <div class="mode-toggle" role="tablist" id="tabs" aria-label="Derivation standard">
         <button class="mode-btn" role="tab" data-tab="bip44" aria-selected="false" aria-pressed="false">BIP44<span class="tsub">1…</span></button>
         <button class="mode-btn" role="tab" data-tab="bip49" aria-selected="false" aria-pressed="false">BIP49<span class="tsub">3…</span></button>
@@ -304,9 +304,9 @@
 
   <!-- ===================== 04 Addresses ===================== -->
   <section class="console" id="addresses-card" aria-label="Derived addresses">
-    <div class="console-bar"><span class="n">5</span> Derived addresses<button type="button" class="tip" data-tip="addresses" aria-label="What does this mean?">?</button> <span class="right" id="addrTypeNote"></span></div>
+    <div class="console-bar"><span class="n">5</span> Derived addresses<button type="button" class="tip" data-tip="addresses" aria-label="What does this mean?">?</button></div>
     <div class="console-body">
-      <p class="console-intro">Children of the path above, derived from the extended key. Click any address or key to copy it.</p>
+      <p class="console-intro">These are the addresses your wallet would show for the path chosen above, with the key behind each one. Click any address or key to copy it.</p>
       <div class="toolbar">
         <div class="cols" role="group" aria-label="Columns">
           <button type="button" class="chip" data-col="path" aria-pressed="true">Path</button>
@@ -328,7 +328,7 @@
       </div>
       <div class="more">
         <label class="narrow"><span class="small-label">Start index<button type="button" class="tip" data-tip="startindex" aria-label="What does this mean?">?</button></span><input type="number" id="startIdx" class="mono" value="0" min="0" step="1"></label>
-        <label class="narrow"><span class="small-label">Rows<button type="button" class="tip" data-tip="rows" aria-label="What does this mean?">?</button></span><input type="number" id="rowCount" class="mono" value="20" min="1" max="1000" step="1"></label>
+        <label class="narrow"><span class="small-label">Rows<button type="button" class="tip" data-tip="rows" aria-label="What does this mean?">?</button></span><input type="number" id="rowCount" class="mono" value="10" min="1" max="1000" step="1"></label>
         <button type="button" class="btn" id="moreBtn">Show more rows</button>
         <span class="meter" id="addrStatus"></span>
       </div>
@@ -337,15 +337,14 @@
 
   <!-- ===================== 6 Multisig wallet ===================== -->
   <section class="console" id="multisig-card" aria-label="Multisig wallet">
-    <div class="console-bar"><span class="n">6</span> Multisig wallet<button type="button" class="tip" data-tip="multisig" aria-label="What does this mean?">?</button><div class="bar-actions"><button type="button" class="barbtn" id="msClearBtn">Clear</button></div></div>
+    <div class="console-bar"><span class="n">6</span> Multisig wallet<button type="button" class="tip" data-tip="multisig" aria-label="What does this mean?">?</button></div>
     <div class="console-body">
-      <p class="console-intro">A multisig wallet is controlled by several seeds and needs some of them, for example 2 of 3, to spend. Each seed is one recovery phrase, kept on its own device. KeyPath combines their public keys (xpubs) into the wallet; it never needs the seeds. Pick what you are doing:</p>
       <div style="text-align:center"><div class="mode-toggle" role="group" aria-label="Multisig mode">
         <button class="mode-btn" id="msModeBuild" type="button" aria-pressed="true">Build a wallet</button>
         <button class="mode-btn" id="msModeRestore" type="button" aria-pressed="false">Restore a wallet</button>
       </div></div>
-      <p class="help ms-build" style="margin:0.8rem 0 0">Choose how many signatures are needed of how many seeds. Then either paste the xpub from each device into the box below, or let KeyPath create the seeds here. <strong>Seeds made on their own devices are the strongest setup</strong>; seeds created here all pass through this computer.</p>
-      <p class="help ms-restore" style="margin:0.8rem 0 0">Enter what you have of an existing wallet, in any mix: its seeds, its xpubs, or its setup file. KeyPath rebuilds the wallet's addresses and definition from them.</p>
+      <p class="console-intro ms-build" style="margin-top:1rem">A multisig wallet is shared between several seed phrases, and a set number of them must sign together to spend, for example 2 of 3. Choose how many seeds the wallet will have and how many of them must sign. Then either paste each device's xpub (the seed's public key) into the box below, or let KeyPath create all the seeds for you. <strong>Creating each seed on its own device is safer</strong>, because seeds created here all pass through this computer.</p>
+      <p class="console-intro ms-restore" style="margin-top:1rem">To rebuild a multisig wallet that already exists, enter whatever you still have from it: seed phrases, xpubs, a setup file, or a mix of them. KeyPath works out the wallet's addresses and its definition from what you enter.</p>
       <details class="adv ms-build" id="msHowto">
         <summary>How a multisig wallet is set up</summary>
         <div class="adv-body">
@@ -366,13 +365,15 @@
         <label class="narrow ms-build"><span class="small-label">Words per seed<button type="button" class="tip" data-tip="wordcount" aria-label="What does this mean?">?</button></span><select id="msGenWords"><option>12</option><option>24</option></select></label>
         <label class="mid"><span class="small-label">Script type<button type="button" class="tip" data-tip="msscript" aria-label="What does this mean?">?</button></span><select id="msScript2"><option value="p2wsh">P2WSH (native SegWit)</option><option value="p2sh-p2wsh">P2SH-P2WSH (nested)</option><option value="p2tr">P2TR (Taproot multisig)</option></select></label>
         <label class="narrow ms-restore"><span class="small-label">Account<button type="button" class="tip" data-tip="account" aria-label="What does this mean?">?</button></span><input type="number" id="msAccount" class="mono" min="0" step="1" value="0"></label>
-        <span class="ms-restore help" style="align-self:flex-end;padding-bottom:0.7rem">Seeds are derived at <code id="msPathLbl">m/48'/0'/0'/2'</code></span>
+        <button type="button" class="btn ms-restore" id="msClearBtn2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>Clear</button>
       </div>
+      <p class="help ms-restore" style="margin:0.6rem 0 0">Each seed's xpub is worked out along the path <code id="msPathLbl">m/48'/0'/0'/2'</code>.</p>
       <p class="help hidden" id="msTrNote" style="margin:0.6rem 0 0">Taproot multisig is the newest type: spending is cheaper and reveals less about the wallet. It is supported by Sparrow, Bitcoin Core 24 and later, and recent hardware wallets; older wallets and BlueWallet cannot import it. Every device holding a seed must support it.</p>
 
       <div class="gen-strip ms-build">
         <div class="row">
           <button type="button" class="btn primary" id="msGenBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"/></svg>Create the seeds here</button>
+          <button type="button" class="btn" id="msClearBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>Clear</button>
           <button type="button" class="btn hidden" id="msGenEye" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg>Reveal seeds</button>
           <button type="button" class="barbtn" id="msDemoBtn" style="margin-left:auto;align-self:center">Try the demo wallet</button>
         </div>
@@ -381,16 +382,12 @@
       </div>
 
       <div class="field ms-restore" style="margin-top:1.1rem">
-        <label class="field-label" for="msSeeds">Seeds<button type="button" class="tip" data-tip="cosigner" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span><span class="hint">One recovery phrase per line, any language, no passphrase. Each seed's xpub is derived at the path above.</span></label>
+        <label class="field-label" for="msSeeds">Seeds<button type="button" class="tip" data-tip="cosigner" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span><span class="hint">Type or paste one seed phrase per line. Any language works; do not add a passphrase.</span></label>
         <textarea id="msSeeds" class="mono secret" rows="3" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="abandon abandon … about&#10;abandon abandon … actual"></textarea>
       </div>
       <div class="field" style="margin-top:1.1rem" id="msKeysField">
-        <div class="field-head"><label class="field-label" for="msKeys">Xpubs<button type="button" class="tip" data-tip="xpub" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span><span class="hint ms-build">Paste each device's xpub on its own line; Create the seeds here fills this in for you. Never paste seeds or private keys here.</span><span class="hint ms-restore">One xpub per line, or paste a setup file. Leave empty if you entered every seed above.</span></label></div>
+        <div class="field-head"><label class="field-label" for="msKeys">Xpubs<button type="button" class="tip" data-tip="xpub" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span><span class="hint ms-build">Paste each device's xpub on its own line; Create the seeds here fills this in for you. Never paste seeds or private keys here.</span><span class="hint ms-restore">Paste one xpub per line, or paste a whole setup file. Leave this empty if you entered every seed above.</span></label></div>
         <textarea id="msKeys" class="mono" rows="5" spellcheck="false" autocomplete="off" placeholder="[73c5da0a/48h/0h/0h/2h]xpub6E64WfdQwBGz…&#10;[a1b2c3d4/48h/0h/0h/2h]xpub6Dk3…"></textarea>
-      </div>
-      <div class="field ms-restore" style="margin-top:1rem">
-        <label class="field-label" for="msExpect">First address shown by your wallet <span class="hint">Optional. Paste it and KeyPath says whether these seeds and xpubs rebuild that wallet.</span></label>
-        <input type="text" id="msExpect" class="mono" spellcheck="false" autocomplete="off" placeholder="bc1q… or bc1p… or 3…">
       </div>
       <div class="meter" id="msStatus"></div>
       <div id="msWarnings"></div>
@@ -422,7 +419,7 @@
 
   <!-- ===================== 7 Multisig lab ===================== -->
   <section class="console" id="lab-card" aria-label="Multisig lab">
-    <div class="console-bar"><span class="n">7</span> Multisig lab<button type="button" class="tip" data-tip="lab" aria-label="What does this mean?">?</button><span class="right">2-of-3 · demo seeds</span></div>
+    <div class="console-bar"><span class="n">7</span> Multisig lab<button type="button" class="tip" data-tip="lab" aria-label="What does this mean?">?</button></div>
     <div class="console-body">
       <p class="console-intro">What do you need to recover a multisig wallet? Experiment here. The lab wallet is a 2-of-3 built from the three public test seeds, so nothing here is secret. Check the boxes for what you still have and see whether the coins can be found and spent.</p>
       <div class="row" style="margin-bottom:0.9rem">
@@ -495,7 +492,7 @@
   </section>
 
   <section class="section" id="about">
-    <h2>KeyPath definitions</h2>
+    <h2>KeyPath glossary</h2>
     <details class="adv defs">
       <summary>Show all definitions</summary>
       <div class="adv-body"><dl class="deflist" id="defList"></dl></div>
@@ -505,7 +502,7 @@
   <footer class="site">
     <div class="foot-top">
       <div class="foot-brand">
-        <div class="fb-name"><span class="op">KeyPath</span></div>
+        <div class="fb-name"><span class="op"><span class="key">Key</span>Path</span></div>
         <p>A modern re-imagining of Ian Coleman's BIP39 tool, with Taproot. Nothing you type leaves this page.</p>
       </div>
       <div class="foot-links">
