@@ -318,7 +318,11 @@ $('generateBtn').addEventListener('click', () => {
   onPhraseInput(true);
   setHidden(true); // a freshly generated phrase is private from the first moment
 });
-$('phrase').addEventListener('input', debounce(() => onPhraseInput(false), 220));
+$('phrase').addEventListener('input', debounce(() => {
+  const wasValid = S.phraseValid; onPhraseInput(false);
+  // the moment a typed or pasted phrase becomes valid it is real money: hide everything private (the demo phrase stays visible)
+  if (S.phraseValid && !wasValid && splitWords($('phrase').value).join(' ') !== DEMO_PHRASE) setHidden(true);
+}, 220));
 // Demo: the well-known BIP39 test phrase, so people can explore every feature without creating a real seed.
 const DEMO_PHRASE = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
 $('demoBtn').addEventListener('click', () => {

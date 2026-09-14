@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.8.1 — 2026-09-14
+
+- Typing or pasting a phrase into the Recovery phrase field now hides all private information the moment the phrase becomes valid, the same as Generate does. The demo phrase stays visible.
+
 ## v2.8.0 — 2026-09-14
 
 **Build a wallet / Restore a wallet.**
