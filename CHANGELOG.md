@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.8.8 — 2026-09-14
+
+- The passphrase box no longer discourages use. Its placeholder reads: "Optional. Adds a second secret to your wallet: write it down and store it apart from the seed phrase."
+
 ## v2.8.7 — 2026-09-14
 
 - Typed entropy (dice, coins, cards, hex) stays readable while it is being entered. The moment it is enough for a phrase of the chosen length, all private information hides. If the phrase disappears again, for example after choosing more words so the entropy no longer suffices, the page opens back up until the threshold is reached again. Clear and Reveal work as before.
