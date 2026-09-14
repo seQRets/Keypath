@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.8.7 — 2026-09-14
+
+- Typed entropy (dice, coins, cards, hex) stays readable while it is being entered. The moment it is enough for a phrase of the chosen length, all private information hides. If the phrase disappears again, for example after choosing more words so the entropy no longer suffices, the page opens back up until the threshold is reached again. Clear and Reveal work as before.
+- With a fixed word count, no phrase is shown until the entropy really has enough bits for it (for dice, 50 rolls for 12 words, 100 for 24); the status line counts how many more are needed. Before, a phrase appeared from the first roll with a warning that it was weaker than it looked.
+
 ## v2.8.6 — 2026-09-14
 
 - Empty secret boxes (the phrase, passphrase, entropy, Shamir shares, multisig seeds) are no longer blurred while private info is hidden; the blur applies once they hold something.

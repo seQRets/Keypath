@@ -180,7 +180,7 @@ $('fpValue').addEventListener('click', async () => { if (S.root && (await copyTe
 $('phraseFpVal').addEventListener('click', async () => { if (S.root && (await copyText(fpHex(S.root)))) toast('Fingerprint copied'); });
 $('clearBtn').addEventListener('click', () => {
   for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR', 'msKeys', 'msSeeds']) $(id).value = ''; $('msGen').innerHTML = ''; msUpdate();
-  $('entropyLen').value = 'raw'; $('entropyType').value = 'auto'; entropyLenTouched = false; $('entropyWeak').classList.add('hidden'); $('startIdx').value = '0';
+  $('entropyLen').value = 'raw'; $('entropyType').value = 'auto'; entropyLenTouched = false; $('startIdx').value = '0';
   S.rootFromKey = false; $('rootOut').textContent = '';
   onPhraseInput(false); shamirClear(); shamirRecover(); setHidden(false); toast('Cleared'); // nothing private is left, so the blur comes off too
 });
@@ -224,18 +224,30 @@ function checksumBits(entBytes) {
 }
 
 // Rebuild the phrase from whatever is in the entropy box (user typed entropy).
+// The entropy box stays readable while it is being typed; the moment it holds enough for a phrase, everything private
+// hides, and if the phrase disappears again (more words chosen, entropy edited) the page opens back up.
 function setMnemonicFromEntropy() {
+  const wasValid = S.phraseValid;
+  setMnemonicFromEntropyInner();
+  if (S.phraseValid && !wasValid) setHidden(true);
+  else if (!S.phraseValid && wasValid) setHidden(false);
+}
+function setMnemonicFromEntropyInner() {
   const raw = $('entropy').value;
   const typeSel = $('entropyType').value;
   const e = entropyFromString(raw, typeSel === 'auto' ? undefined : typeSel);
   // Until the user picks a mode, dice get hashed the way hardware wallets do (word count from the Words selector); everything else stays raw.
   if (!entropyLenTouched && e.binaryStr.length) { const want = e.base.str === 'base 6 (dice)' ? String(S.words) : 'raw'; if ($('entropyLen').value !== want) $('entropyLen').value = want; }
   const lenSel = $('entropyLen').value;
-  $('entropyWeak').classList.add('hidden');
   $('diceRawNote').classList.toggle('hidden', !(lenSel === 'raw' && e.base.str === 'base 6 (dice)' && e.binaryStr.length));
   if (!e.binaryStr.length) { $('phrase').value = ''; renderEntropyDetails(e, null); onPhraseInput(true); return; }
   const r = entropyBits(e, lenSel);
-  $('entropyWeak').classList.toggle('hidden', !r.weak);
+  if (r.weak) {
+    // A fixed word count with fewer real bits than it needs: no phrase until the threshold is reached, so nothing looks safer than it is.
+    const need = parseInt(lenSel, 10) * 32 / 3, more = Math.ceil((need - r.fullBits) / Math.log2(e.base.asInt));
+    renderEntropyDetails(e, null, `${r.fullBits} of the ${need} bits needed for ${lenSel} words: about ${more} more ${(e.base.str === 'card' ? 'card' : e.base.str === 'base 6 (dice)' ? 'roll' : 'event') + (more === 1 ? '' : 's')}.`);
+    $('phrase').value = ''; onPhraseInput(true); return;
+  }
   if (!r.entBytes) {
     const hashedOk = r.fullBits >= 128;
     renderEntropyDetails(e, null, `Raw mode has ${r.bits.length} unbiased bits and needs 128 for 12 words: about ${r.needMore} more ${e.base.str === 'card' ? 'cards' : 'events'}.` + (hashedOk ? ` Or choose "12 words" above: hashing uses all ${Math.log2(e.base.asInt).toFixed(2)} bits per event and your ${r.fullBits} bits are already enough.` : ''));
@@ -288,7 +300,6 @@ function setEntropyFromPhrase() {
 }
 $('showEntropy').addEventListener('click', () => { const on = $('showEntropy').getAttribute('aria-pressed') !== 'true'; $('showEntropy').setAttribute('aria-pressed', on); $('entropyPanel').classList.toggle('hidden', !on); $('showEntropy').textContent = on ? 'Hide entropy details' : 'Show entropy details'; });
 $('entropy').addEventListener('input', debounce(setMnemonicFromEntropy, 200));
-$('entropy').addEventListener('change', () => { if (S.phraseValid) setHidden(true); });
 $('entropyType').addEventListener('change', setMnemonicFromEntropy);
 let entropyLenTouched = false; // once the user picks a mode, stop choosing for them
 $('entropyLen').addEventListener('change', () => { entropyLenTouched = true; setMnemonicFromEntropy(); });
@@ -312,7 +323,7 @@ $('generateBtn').addEventListener('click', () => {
   const data = crypto.getRandomValues(new Uint8Array(strength / 8));
   $('phrase').value = bip39.entropyToMnemonic(data, wordlists[S.lang].words);
   // Like the original: show the drawn entropy, in raw mode, so the details panel describes this phrase.
-  $('entropy').value = hex.encode(data); $('entropyLen').value = 'raw'; $('entropyWeak').classList.add('hidden');
+  $('entropy').value = hex.encode(data); $('entropyLen').value = 'raw';
   renderEntropyDetails(entropyFromString($('entropy').value, $('entropyType').value === 'auto' ? undefined : $('entropyType').value), data);
   onPhraseInput(true);
   setHidden(true); // a freshly generated phrase is private from the first moment
