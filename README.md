@@ -22,7 +22,7 @@ KeyPath is a modern re-imagining of Ian Coleman's [BIP39 tool](https://github.co
 - Optional BIP39 passphrase
 - **SLIP-39 Shamir backup**: split the entropy behind the phrase into T-of-N share mnemonics (Trezor's standard, 20 or 33 words each, optional share passphrase, extendable flag), recover the exact BIP39 phrase from any threshold of shares, one-click test of a fresh share set
 - "Show entropy details" panel, ported from the original: entropy input (binary, base 6, dice, base 10, hex, playing cards) with the same debiased bit encoding, time-to-crack estimate, event count, bits per event, raw binary, checksum bits and word indexes. Generate fills the panel with the bytes it drew; a typed phrase shows its own entropy. Raw mode keeps only the unbiased bits per event (1.67 per die roll, so about 77 rolls for 12 words); fixed lengths hash the input and count the full 2.58 bits per roll, so 50 rolls suffice
-- SeedQR export (Standard and Compact SeedQR, as read by SeedSigner, Krux, Sparrow and Passport) shown in a modal
+- SeedQR export (Standard and Compact SeedQR, as read by SeedSigner, Krux, Sparrow and Passport) shown in a modal; the entropy box has its own copy and plain-text QR buttons
 - BIP39 seed, BIP32 root key, master fingerprint shown prominently. Paste an xprv/xpub (or ypub/zpub/tpub…) to derive from a key instead of a phrase
 - Derivation tabs: BIP44 (P2PKH), BIP49 (P2SH-P2WPKH), BIP84 (P2WPKH), **BIP86 (P2TR Taproot, bech32m)**, **BIP48 (multisig cosigner key for P2WSH, P2SH-P2WSH or Taproot multisig, with Zpub/Ypub prefixes and the key-origin line)**, and Custom (any path plus any script type, covering the original BIP32 and BIP141 tabs)
 - Account extended keys with optional SLIP-132 prefixes (ypub/zpub/upub/vpub), extended keys at the derivation path
@@ -93,4 +93,4 @@ Address derivation was checked against the official test vectors in BIP44/49/84/
 
 ## License
 
-MIT. Cryptography by noble-curves, noble-hashes, scure-bip32, scure-bip39 and scure-base (MIT). QR codes by qrcode-generator (MIT).
+MIT. Cryptography by noble-curves, noble-hashes, scure-bip32, scure-bip39 and scure-base (MIT). QR codes by [paulmillr/qr](https://github.com/paulmillr/qr) (MIT), a zero-dependency encoder from the author of the noble and scure libraries; the test suite reads every code it draws back with the same library's decoder.

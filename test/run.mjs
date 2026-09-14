@@ -1,6 +1,7 @@
 // Test vectors for KeyPath. Run with `npm test` (builds first, then checks dist/lib.bundle.js).
 import { readFileSync } from 'node:fs';
 import * as btcSigner from '@scure/btc-signer'; // test-only reference implementation, not bundled
+import decodeQR from 'qr/decode.js'; // test-only: read back the codes the bundle draws
 const BTC = new Function(readFileSync(new URL('../dist/lib.bundle.js', import.meta.url), 'utf8') + '; return BTC;')();
 const { bip39, wordlists, HDKey, schnorr, secp256k1, hash160, base58check, bech32, bech32m, hex, slip39, entropy, multisig } = BTC;
 const en = wordlists.english.words;
@@ -105,6 +106,27 @@ check('BIP86', p2tr(root.derive("m/86'/0'/0'/0/0").publicKey), 'bc1p5cyxnuxmeuwu
   const backT = multisig.parseCosigners(cct, table);
   check('setup file round trip: P2TR script', backT.meta.script, 'p2tr');
   check('setup file round trip: P2TR address', multisig.multisigAddress(2, backT.cosigners, 'p2tr', 0, 0, netM), 'bc1pwwej59cyn4zmnp3pyjdmjtdn8ag9hm2wqhfc28tm7ntegzfcmzqst9w59z');
+}
+
+/* ---- QR codes (paulmillr/qr): SeedQR payloads round-trip through the library's own decoder ---- */
+{
+  const { encodeQR } = BTC;
+  const B = 2; // the library draws its 2-module quiet zone into raw output too
+  const toImage = (m, px = 4, pad = 4) => { const n = m.length, w = (n + 2 * pad) * px, data = new Uint8ClampedArray(w * w * 4).fill(255); for (let y = 0; y < w; y++) for (let x = 0; x < w; x++) { const my = Math.floor(y / px) - pad, mx = Math.floor(x / px) - pad; if (my >= 0 && my < n && mx >= 0 && mx < n && m[my][mx]) { const i = (y * w + x) * 4; data[i] = data[i + 1] = data[i + 2] = 0; } } return { width: w, height: w, data }; };
+  const words = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about'.split(' ');
+  const digits = words.map((w) => String(en.indexOf(w)).padStart(4, '0')).join('');
+  const std = encodeQR(digits, 'raw', { ecc: 'low', encoding: 'numeric', border: B });
+  check('Standard SeedQR (12 words) is a 25×25 code', std.length - 2 * B, 25);
+  check('Standard SeedQR decodes to the 48 digits', decodeQR(toImage(std)), digits);
+  const ent = bip39.mnemonicToEntropy(words.join(' '), en);
+  const l1 = Array.from(ent, (b) => String.fromCharCode(b)).join('');
+  const compact = encodeQR(l1, 'raw', { ecc: 'low', encoding: 'byte', border: B, textEncoder: (t) => Uint8Array.from(t, (c) => c.charCodeAt(0)) });
+  check('Compact SeedQR (16 bytes) is a 21×21 code', compact.length - 2 * B, 21);
+  const back = decodeQR(toImage(compact));
+  check('Compact SeedQR decodes to the entropy bytes', Array.from(back, (c) => c.charCodeAt(0)).map((b) => b.toString(16).padStart(2, '0')).join(''), hex.encode(ent));
+  const dice = '5455166441346642362333165523212234151363253263223232553225134324163321663414';
+  check('Entropy QR decodes to the typed rolls', decodeQR(toImage(encodeQR(dice, 'raw', { ecc: 'low', border: B }))), dice);
+  check('SVG output is an svg element', encodeQR(dice, 'svg', { ecc: 'low', border: 2 }).startsWith('<svg'), true);
 }
 
 /* ---- SLIP-39 official vectors ---- */

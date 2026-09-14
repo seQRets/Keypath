@@ -42,8 +42,8 @@ export {
 };
 import * as slip39 from './slip39.js';
 export { slip39 };
-import qrcode from 'qrcode-generator';
-export { qrcode };
+import encodeQR from 'qr';
+export { encodeQR };
 import * as entropy from './entropy.js';
 export { entropy };
 import * as multisig from './multisig.js';

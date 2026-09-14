@@ -70,7 +70,13 @@
       <div class="entropy-panel hidden" id="entropyPanel">
         <div class="field">
           <label class="field-label" for="entropy">Entropy<button type="button" class="tip" data-tip="entropy" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span><span class="hint">Generate fills this in. Or type your own dice, coins or cards and the phrase is rebuilt from them. Use only something genuinely random: never words, key-mashing or a birthday.</span></label>
-          <textarea id="entropy" class="mono secret" rows="3" spellcheck="false" autocomplete="off" placeholder="e.g. 3512446213564316524352… (dice) or ahqs9dtc… (cards)"></textarea>
+          <div class="ta-wrap">
+            <textarea id="entropy" class="mono secret" rows="3" spellcheck="false" autocomplete="off" placeholder="e.g. 3512446213564316524352… (dice) or ahqs9dtc… (cards)"></textarea>
+            <div class="ta-actions">
+              <button type="button" class="iconbtn" id="entropyCopy" aria-label="Copy the entropy" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h3"/></svg></button>
+              <button type="button" class="iconbtn" id="entropyQrBtn" aria-label="Show the entropy as a QR code" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v2M17 20h4M14 20h1"/></svg></button>
+            </div>
+          </div>
         </div>
         <div class="row">
           <label class="grow"><span class="small-label">Entropy type<button type="button" class="tip" data-tip="entropytype" aria-label="What does this mean?">?</button></span>
@@ -522,8 +528,8 @@
   <div class="modal-backdrop" data-close></div>
   <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="qrTitle">
     <div class="modal-head"><h3 id="qrTitle">Seed QR</h3><button type="button" class="barbtn" data-close>Close</button></div>
-    <p class="modal-note">Scan with SeedSigner, Krux, Sparrow, Passport or any wallet that reads SeedQR. <strong>This code is your entire phrase.</strong> Anyone who photographs it owns your coins.</p>
-    <div class="mode-toggle" role="group" aria-label="SeedQR format" style="margin-bottom:1rem">
+    <p class="modal-note" id="qrNote">Scan with SeedSigner, Krux, Sparrow, Passport or any wallet that reads SeedQR. <strong>This code is your entire phrase.</strong> Anyone who photographs it owns your coins.</p>
+    <div class="mode-toggle" role="group" aria-label="SeedQR format" style="margin-bottom:1rem" id="qrFormats">
       <button class="mode-btn" id="qrStd" type="button" aria-pressed="true">Standard SeedQR</button>
       <button class="mode-btn" id="qrCompact" type="button" aria-pressed="false">Compact SeedQR</button>
     </div>

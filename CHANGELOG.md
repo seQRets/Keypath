@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.9.0 — 2026-09-14
+
+**QR codes now come from paulmillr/qr.**
+
+- The QR library is now [qr](https://github.com/paulmillr/qr) by Paul Miller, the author of the noble and scure cryptography libraries KeyPath already relies on: zero dependencies, a few hundred lines, and it ships a decoder. qrcode-generator is gone. The test suite now encodes the Standard and Compact SeedQR of the test phrase and an entropy string, then reads each code back with the library's decoder and checks the payload and the symbol size (25×25 and 21×21).
+- The entropy box has the same two buttons as the phrase box: copy the entropy (clipboard cleared after 60 seconds) and show it as a plain-text QR code for moving it to another device. The QR modal says which kind of code it is showing.
+
 ## v2.8.8 — 2026-09-14
 
 - The passphrase box no longer discourages use. Its placeholder reads: "Optional. Adds a second secret to your wallet: write it down and store it apart from the seed phrase."

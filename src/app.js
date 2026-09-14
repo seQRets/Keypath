@@ -1,6 +1,6 @@
 (() => {
 'use strict';
-const { bip39, wordlists, HDKey, secp256k1, schnorr, sha256, sha512, hmac, base58check, bech32, bech32m, hex, slip39, qrcode, multisig } = BTC;
+const { bip39, wordlists, HDKey, secp256k1, schnorr, sha256, sha512, hmac, base58check, bech32, bech32m, hex, slip39, encodeQR, multisig } = BTC;
 const hash160 = BTC.hash160;
 const $ = (id) => document.getElementById(id);
 const H = 0x80000000;
@@ -374,6 +374,7 @@ function onPhraseInput(fromEntropy) {
   recompute();
   shamirPhraseChanged();
   $('seedQrBtn').disabled = !S.phraseValid; $('phraseCopy').disabled = !S.phraseValid;
+  const hasEnt = !!$('entropy').value.trim(); $('entropyCopy').disabled = !hasEnt; $('entropyQrBtn').disabled = !hasEnt;
 }
 
 /* ---------------- seed & root ---------------- */
@@ -634,22 +635,49 @@ function shamirRecover() {
 
 /* ---------------- Seed QR ---------------- */
 let qrFormat = 'standard';
-function seedQrOpen() {
-  if (!S.phraseValid) return;
-  seedQrRender(); document.querySelector('.qr-stage').classList.add('covered'); $('qrModal').hidden = false; $('qrModal').querySelector('[data-close]:not(.modal-backdrop)').focus();
+let qrMode = 'seed'; // 'seed' (SeedQR of the phrase) or 'entropy' (the typed entropy as plain text)
+const QR_NOTES = {
+  seed: 'Scan with SeedSigner, Krux, Sparrow, Passport or any wallet that reads SeedQR. <strong>This code is your entire phrase.</strong> Anyone who photographs it owns your coins.',
+  entropy: 'The entropy exactly as typed, as a plain text QR code, for moving it to another device. <strong>This code is the seed of your phrase.</strong> Anyone who photographs it owns your coins.',
+};
+function qrOpen(mode) {
+  qrMode = mode;
+  $('qrTitle').textContent = mode === 'seed' ? 'Seed QR' : 'Entropy QR'; $('qrNote').innerHTML = QR_NOTES[mode]; $('qrFormats').classList.toggle('hidden', mode !== 'seed');
+  if (mode === 'seed') seedQrRender(); else entropyQrRender();
+  document.querySelector('.qr-stage').classList.add('covered'); $('qrModal').hidden = false; $('qrModal').querySelector('[data-close]:not(.modal-backdrop)').focus();
+}
+function seedQrOpen() { if (S.phraseValid) qrOpen('seed'); }
+// SVG for the modal: paulmillr/qr, error correction L, 2-module quiet zone. Returns the module count too.
+function qrSvg(text, opts) {
+  const o = { ecc: 'low', border: 2, ...opts };
+  return { svg: encodeQR(text, 'svg', o), modules: encodeQR(text, 'raw', o).length - 2 * o.border }; // raw output includes the quiet zone
+}
+const latin1 = (bytes) => Array.from(bytes, (b) => String.fromCharCode(b)).join('');
+const latin1Encoder = (t) => Uint8Array.from(t, (c) => c.charCodeAt(0));
+function entropyQrRender() {
+  const text = $('entropy').value.trim();
+  const q = qrSvg(text, {});
+  $('qrWrap').innerHTML = q.svg;
+  $('qrFoot').textContent = `${text.length} characters as text · ${q.modules}×${q.modules}`;
+  $('qrFp').innerHTML = '';
 }
 function seedQrRender() {
   const wl = wordlists[S.lang].words; const idx = S.phraseWords.map((w) => wl.indexOf(w));
-  const qr = qrcode(0, 'L');
-  if (qrFormat === 'standard') qr.addData(idx.map((i) => String(i).padStart(4, '0')).join(''), 'Numeric');
-  else { const ent = bip39.mnemonicToEntropy(S.phraseWords.join(' '), wl); qr.addData(Array.from(ent, (b) => String.fromCharCode(b)).join(''), 'Byte'); }
-  qr.make();
-  $('qrWrap').innerHTML = qr.createSvgTag({ cellSize: 4, margin: 2, scalable: true });
-  $('qrFoot').textContent = qrFormat === 'standard' ? `${S.phraseWords.length} words as ${S.phraseWords.length * 4} digits · version ${qr.getModuleCount()}×${qr.getModuleCount()}` : `${S.phraseWords.length * 32 / 3 / 8} raw entropy bytes · version ${qr.getModuleCount()}×${qr.getModuleCount()}`;
+  const q = qrFormat === 'standard'
+    ? qrSvg(idx.map((i) => String(i).padStart(4, '0')).join(''), { encoding: 'numeric' })
+    : qrSvg(latin1(bip39.mnemonicToEntropy(S.phraseWords.join(' '), wl)), { encoding: 'byte', textEncoder: latin1Encoder });
+  $('qrWrap').innerHTML = q.svg;
+  $('qrFoot').textContent = qrFormat === 'standard' ? `${S.phraseWords.length} words as ${S.phraseWords.length * 4} digits · ${q.modules}×${q.modules}` : `${S.phraseWords.length * 32 / 3 / 8} raw entropy bytes · ${q.modules}×${q.modules}`;
   $('qrFp').innerHTML = S.root ? `Master fingerprint${$('passphrase').value ? ' (with your passphrase)' : ''}<b>${esc(fpHex(S.root))}</b>` : '';
   $('qrStd').setAttribute('aria-pressed', qrFormat === 'standard'); $('qrCompact').setAttribute('aria-pressed', qrFormat !== 'standard');
 }
 $('seedQrBtn').addEventListener('click', seedQrOpen);
+$('entropyQrBtn').addEventListener('click', () => { if ($('entropy').value.trim()) qrOpen('entropy'); });
+$('entropyCopy').addEventListener('click', async () => {
+  const b = $('entropyCopy'), v = $('entropy').value.trim(); if (!v) return;
+  if (await copyText(v, true)) { b.classList.add('done'); toast('Entropy copied; the clipboard is cleared in 60 seconds'); setTimeout(() => b.classList.remove('done'), 1100); }
+});
+$('entropy').addEventListener('input', () => { const has = !!$('entropy').value.trim(); $('entropyCopy').disabled = !has; $('entropyQrBtn').disabled = !has; });
 $('phraseCopy').addEventListener('click', async () => {
   const b = $('phraseCopy');
   if (await copyText(S.phraseWords.join(wordlists[S.lang].sep || ' '), true)) { b.classList.add('done'); toast('Phrase copied; the clipboard is cleared in 60 seconds'); setTimeout(() => b.classList.remove('done'), 1100); }
