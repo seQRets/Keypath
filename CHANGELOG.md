@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.8.4 — 2026-09-14
+
+- Clear in the Recovery phrase card also turns the blur off, since nothing private is left on the page.
+
 ## v2.8.3 — 2026-09-14
 
 - Copying works while private info is hidden. The phrase's copy button, the copy buttons on secret boxes, the Shamir share copies and the multisig seed cards all copy through the blur, so a secret can be moved somewhere private without ever being shown on screen. The clipboard is still cleared after 60 seconds.
