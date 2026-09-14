@@ -62,7 +62,7 @@ npm install
 npm run build
 ```
 
-`src/slip39.js` is a port of the SLIP-39 reference implementation with the official 1024-word list embedded. `build.mjs` bundles `src/lib.js` (the audited [noble](https://paulmillr.com/noble/) and [scure](https://github.com/paulmillr/scure-bip39) libraries) with esbuild and assembles `src/app.html`, `src/style.css`, `src/body.html` and `src/app.js` into `dist/index.html`.
+`src/slip39.js` is a port of the SLIP-39 reference implementation with the official 1024-word list embedded. `build.mjs` bundles `src/lib.js` (the [noble](https://paulmillr.com/noble/) and [scure](https://github.com/paulmillr/scure-bip39) libraries and the [qr](https://github.com/paulmillr/qr) encoder; see Libraries under Security for their audits) with esbuild and assembles `src/app.html`, `src/style.css`, `src/body.html` and `src/app.js` into `dist/index.html`.
 
 ## Dice rolls
 
@@ -79,13 +79,28 @@ The Mnemonic length menu can be switched to **Raw entropy (no hashing)**, an unb
 - **Integrity.** `npm run build` writes `dist/SHA256SUMS.txt`. Tagging `vX.Y.Z` publishes a release whose assets are the committed file and that sums file; the workflow refuses to release if they disagree.
 - **Out of scope.** Malware on the host, browser extensions, screen capture and clipboard sync are outside what a page can defend against; the page tells users to work offline in a fresh browser profile without extensions.
 
+### Libraries
+
+Everything cryptographic comes from Paul Miller's noble and scure libraries, chosen because they are small, dependency-free and independently audited. The QR encoder is by the same author. The audit list below is taken from each package's own README at the bundled version; the PDFs are in each package's `audit/` folder.
+
+| Library | Used for | Audits |
+|---|---|---|
+| @noble/curves 2.4.0 | secp256k1 keys, Schnorr / Taproot tweaks | Trail of Bits, Feb 2023 (secp256k1 and the core modules) and Aug 2026 (everything); Cure53, Sep 2024; Kudelski, Sep 2023 |
+| @noble/hashes 2.4.0 | SHA-256, SHA-512, HMAC, PBKDF2, RIPEMD-160 | Cure53, Jan 2022 (everything used here) |
+| @scure/bip39 2.4.0 | phrases, checksums, seed derivation | Cure53, Jan 2022; author self-audit, Apr 2026 |
+| @scure/bip32 2.4.0 | BIP32 keys and derivation paths | Cure53, Jan 2022; author self-audit, Apr 2026 |
+| @scure/base 2.4.0 | base58check, bech32, bech32m, hex | Cure53, Jan 2022; author self-audit, Apr 2026 |
+| qr 0.7.0 | SeedQR and entropy QR codes | Not independently audited. Zero dependencies, a few hundred lines, and it ships a decoder: the test suite reads every code the page draws back with it and checks the payload. A QR encoder never touches keys or randomness; a bug in it could only produce a code that fails to scan |
+
+The SLIP-39 implementation is KeyPath's own port of the Trezor reference code, verified against all 45 official vectors. @scure/btc-signer is a test-only dependency used to cross-check Taproot multisig addresses; nothing of it is bundled.
+
 ## Tests
 
 ```bash
 npm test
 ```
 
-Builds, then runs `test/run.mjs`: the dice vectors (hashed and raw), the event encodings for every input type, the BIP44/49/84/86 vectors, multisig (BIP48 keys, BIP67 sorting, P2WSH and P2SH-P2WSH addresses cross-checked against an independent Python implementation, Taproot multisig addresses cross-checked against `@scure/btc-signer` and the BIP341 wallet vectors, descriptor checksums, setup-file round trips), and all 45 official SLIP-39 vectors including share re-encoding.
+Builds, then runs `test/run.mjs`: the dice vectors (hashed and raw), the event encodings for every input type, the BIP44/49/84/86 vectors, multisig (BIP48 keys, BIP67 sorting, P2WSH and P2SH-P2WSH addresses cross-checked against an independent Python implementation, Taproot multisig addresses cross-checked against `@scure/btc-signer` and the BIP341 wallet vectors, descriptor checksums, setup-file round trips), the QR codes (Standard and Compact SeedQR of the test phrase and an entropy string are encoded, then read back with the QR library's own decoder and checked for payload and symbol size), and all 45 official SLIP-39 vectors including share re-encoding.
 
 ## Verification
 
