@@ -493,3 +493,6 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
 .iconbtn:hover:not(:disabled) { color: var(--accent-ink); border-color: var(--accent); }
 .iconbtn:disabled { opacity: 0.45; cursor: default; }
 .iconbtn.done { color: var(--ok); border-color: var(--ok); }
+
+/* copying stays possible while blurred: the secret never has to be shown to be moved somewhere private */
+html.hide-secrets .secret .copy, html.hide-secrets .secret .iconbtn, #msGen.covered .share-list .copy { pointer-events: auto; filter: none; }

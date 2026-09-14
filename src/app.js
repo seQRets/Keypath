@@ -190,7 +190,6 @@ document.addEventListener('click', async (e) => {
   const btn = e.target.closest('.copy'); if (!btn) return;
   const el = $(btn.dataset.copy); const v = el.dataset.value || '';
   if (!v) return toast('Nothing to copy');
-  if (document.documentElement.classList.contains('hide-secrets') && el.classList.contains('secret')) return toast('Private info is hidden');
   if (await copyText(v, el.classList.contains('secret'))) { btn.classList.add('done'); btn.textContent = 'copied'; setTimeout(() => { btn.classList.remove('done'); btn.textContent = 'copy'; }, 1100); if (el.classList.contains('secret')) toast('Copied · clipboard clears in 60 s'); }
 });
 if (!(window.crypto && crypto.getRandomValues)) { $('rngWarn').classList.remove('hidden'); $('generateBtn').disabled = true; }
@@ -573,7 +572,7 @@ function shamirInit() {
   $('shInput').addEventListener('input', debounce(shamirRecover, 250));
   $('shPassR').addEventListener('input', debounce(shamirRecover, 250));
   $('shUse').addEventListener('click', () => { if (!S.shRecovered) return; $('phrase').value = S.shRecovered.phrase; onPhraseInput(false); setHidden(true); $('phrase-card').scrollIntoView({ behavior: 'smooth' }); toast('Phrase loaded'); });
-  document.addEventListener('click', async (e) => { const b = e.target.closest('.share .copy'); if (!b) return; if (document.documentElement.classList.contains('hide-secrets')) return toast('Private info is hidden'); if (await copyText(b.dataset.text, true)) { b.classList.add('done'); b.textContent = 'copied'; setTimeout(() => { b.classList.remove('done'); b.textContent = 'copy'; }, 1100); } });
+  document.addEventListener('click', async (e) => { const b = e.target.closest('.share .copy'); if (!b) return; if (await copyText(b.dataset.text, true)) { b.classList.add('done'); b.textContent = 'copied'; setTimeout(() => { b.classList.remove('done'); b.textContent = 'copy'; }, 1100); } });
   shamirPhraseChanged();
 }
 function shamirMode(m) {
@@ -597,7 +596,7 @@ function shamirMake() {
   setMeter('shStatus', count(`${t} of ${n} shares`, 'ok') + note(`${shares[0].split(' ').length} words each · `) + `<span class="meter-note gloss" data-tip="setid">set identifier ${info.identifier}</span>` + (pass ? note(' · passphrase protected') : ''));
   $('shShares').innerHTML = `<div class="share-list">${shares.map((m, i) => `<div class="share"><button class="copy" type="button" data-text="${esc(m)}">copy</button><h4>Share ${i + 1} of ${n}<small>any ${t} recover</small></h4><ol>${m.split(' ').map((w, j) => `<li><i>${j + 1}</i><b>${esc(w)}</b></li>`).join('')}</ol></div>`).join('')}</div>
     <div class="share-actions"><button type="button" class="btn small" id="shCopyAll">Copy all shares</button><button type="button" class="btn small" id="shTest">Test recovery with these shares</button></div>`;
-  $('shCopyAll').addEventListener('click', async () => { if (document.documentElement.classList.contains('hide-secrets')) return toast('Private info is hidden'); if (await copyText(shares.map((m, i) => `Share ${i + 1} of ${n} (${t} needed): ${m}`).join('\n'), true)) toast('All shares copied · clipboard clears in 60 s'); });
+  $('shCopyAll').addEventListener('click', async () => { if (await copyText(shares.map((m, i) => `Share ${i + 1} of ${n} (${t} needed): ${m}`).join('\n'), true)) toast('All shares copied · clipboard clears in 60 s'); });
   $('shTest').addEventListener('click', () => { $('shInput').value = shares.slice(0, t).join('\n'); $('shPassR').value = pass; shamirMode('recover'); shamirRecover(); });
   $('shNote').classList.remove('hidden');
 }
@@ -642,7 +641,6 @@ function seedQrRender() {
 }
 $('seedQrBtn').addEventListener('click', seedQrOpen);
 $('phraseCopy').addEventListener('click', async () => {
-  if (document.documentElement.classList.contains('hide-secrets')) return toast('Private info is hidden');
   const b = $('phraseCopy');
   if (await copyText(S.phraseWords.join(wordlists[S.lang].sep || ' '), true)) { b.classList.add('done'); toast('Phrase copied; the clipboard is cleared in 60 seconds'); setTimeout(() => b.classList.remove('done'), 1100); }
 });
@@ -715,7 +713,7 @@ function msInit() {
   $('msClearBtn').addEventListener('click', () => { msReset(); msUpdate(); toast('Multisig wallet cleared'); });
   $('msGenEye').addEventListener('click', () => msGenCover(!$('msGen').classList.contains('covered')));
   $('msGenCount').addEventListener('change', () => { if (+$('msThreshold').value > +$('msGenCount').value) $('msThreshold').value = $('msGenCount').value; msUpdate(); });
-  document.addEventListener('click', async (e) => { const b = e.target.closest('#msGen .copy'); if (!b) return; if (document.documentElement.classList.contains('hide-secrets') || $('msGen').classList.contains('covered')) return toast('Private info is hidden'); if (await copyText(b.dataset.text, true)) { b.classList.add('done'); b.textContent = 'copied'; setTimeout(() => { b.classList.remove('done'); b.textContent = 'copy'; }, 1100); } });
+  document.addEventListener('click', async (e) => { const b = e.target.closest('#msGen .copy'); if (!b) return; if (await copyText(b.dataset.text, true)) { b.classList.add('done'); b.textContent = 'copied'; setTimeout(() => { b.classList.remove('done'); b.textContent = 'copy'; }, 1100); } });
   msMode('build');
 }
 // The generated phrases have their own cover, independent of the page-wide Hide private info, so revealing

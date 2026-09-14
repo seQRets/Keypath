@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.8.3 — 2026-09-14
+
+- Copying works while private info is hidden. The phrase's copy button, the copy buttons on secret boxes, the Shamir share copies and the multisig seed cards all copy through the blur, so a secret can be moved somewhere private without ever being shown on screen. The clipboard is still cleared after 60 seconds.
+
 ## v2.8.2 — 2026-09-14
 
 - Two small buttons sit in the top-right corner of the Recovery phrase box: copy the phrase (the clipboard is cleared after 60 seconds; refused while private info is hidden) and show the Seed QR. The Seed QR button in the card header moved there.

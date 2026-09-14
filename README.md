@@ -74,7 +74,7 @@ The Mnemonic length menu can be switched to **Raw entropy (no hashing)**, an unb
 
 - **No network.** A Content Security Policy in the page blocks every outbound connection (`default-src 'none'`, `connect-src 'none'`) and allows only the build's own inline scripts by SHA-256 hash, so an injected or modified script will not run. `referrer` is `no-referrer` and external links open in a new tab with `noopener noreferrer`.
 - **No storage of secrets.** Only the theme and the tooltip preference are kept in `localStorage`. All fields are wiped on `pagehide`; private values are blurred automatically whenever a phrase is generated and again after five minutes idle.
-- **Clipboard.** Copying a secret clears it from the clipboard after 60 seconds.
+- **Clipboard.** Copying a secret clears it from the clipboard after 60 seconds. Copy buttons work while values are blurred, so a secret can be moved to a private place without being shown.
 - **XSS.** Every dynamic HTML insertion is escaped; the bundle contains no `eval` or `Function`.
 - **Integrity.** `npm run build` writes `dist/SHA256SUMS.txt`. Tagging `vX.Y.Z` publishes a release whose assets are the committed file and that sums file; the workflow refuses to release if they disagree.
 - **Out of scope.** Malware on the host, browser extensions, screen capture and clipboard sync are outside what a page can defend against; the page tells users to work offline in a fresh browser profile without extensions.
