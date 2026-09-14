@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.8.5 — 2026-09-14
+
+- The entropy panel is much shorter: the heading, the explanatory paragraph and the "Advanced feature" box are gone, replaced by one hint on the Entropy field. The details about how dice are hashed moved into the Entropy definition behind the "?".
+
 ## v2.8.4 — 2026-09-14
 
 - Clear in the Recovery phrase card also turns the blur off, since nothing private is left on the page.

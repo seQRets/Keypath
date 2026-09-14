@@ -68,11 +68,8 @@
       </div>
 
       <div class="entropy-panel hidden" id="entropyPanel">
-        <div class="panel-title">Entropy<button type="button" class="tip" data-tip="entropy" aria-label="What does this mean?">?</button></div>
-        <p class="panel-note">The raw randomness behind the phrase. Generate fills this with the bytes it drew; you can also type your own from dice, coins or cards and the phrase is rebuilt from it. The checksum is added for you. Dice are hashed exactly as typed, the way hardware wallets that accept dice do it, with the word count taken from the Words selector: 50 rolls are enough for 12 words, 100 for 24. Other inputs are used raw unless you choose a word count.</p>
-        <div class="inputwarn" style="margin:0 0 1rem"><p><strong>Advanced feature.</strong> Entropy must come from something genuinely random: fair dice, fair coins, a well-shuffled deck. Not song lyrics, not key-mashing, not your birthday. You are not a good source of entropy, and a phrase built from weak entropy can be guessed.</p></div>
         <div class="field">
-          <label class="field-label" for="entropy">Entropy<button type="button" class="tip" data-tip="entropy" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span></label>
+          <label class="field-label" for="entropy">Entropy<button type="button" class="tip" data-tip="entropy" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span><span class="hint">Generate fills this in. Or type your own dice, coins or cards and the phrase is rebuilt from them. Use only something genuinely random: never words, key-mashing or a birthday.</span></label>
           <textarea id="entropy" class="mono secret" rows="3" spellcheck="false" autocomplete="off" placeholder="e.g. 3512446213564316524352… (dice) or ahqs9dtc… (cards)"></textarea>
         </div>
         <div class="row">
