@@ -363,7 +363,7 @@ function onPhraseInput(fromEntropy) {
   if (!fromEntropy) setEntropyFromPhrase();
   recompute();
   shamirPhraseChanged();
-  $('seedQrBtn').disabled = !S.phraseValid;
+  $('seedQrBtn').disabled = !S.phraseValid; $('phraseCopy').disabled = !S.phraseValid;
 }
 
 /* ---------------- seed & root ---------------- */
@@ -641,6 +641,11 @@ function seedQrRender() {
   $('qrStd').setAttribute('aria-pressed', qrFormat === 'standard'); $('qrCompact').setAttribute('aria-pressed', qrFormat !== 'standard');
 }
 $('seedQrBtn').addEventListener('click', seedQrOpen);
+$('phraseCopy').addEventListener('click', async () => {
+  if (document.documentElement.classList.contains('hide-secrets')) return toast('Private info is hidden');
+  const b = $('phraseCopy');
+  if (await copyText(S.phraseWords.join(wordlists[S.lang].sep || ' '), true)) { b.classList.add('done'); toast('Phrase copied; the clipboard is cleared in 60 seconds'); setTimeout(() => b.classList.remove('done'), 1100); }
+});
 $('qrReveal').addEventListener('click', () => document.querySelector('.qr-stage').classList.remove('covered'));
 $('qrHide').addEventListener('click', () => document.querySelector('.qr-stage').classList.add('covered'));
 $('qrStd').addEventListener('click', () => { qrFormat = 'standard'; seedQrRender(); });

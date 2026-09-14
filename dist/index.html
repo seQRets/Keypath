@@ -7,7 +7,7 @@
 <meta name="description" content="KeyPath: generate or inspect a BIP39 recovery phrase, back it up with SLIP-39 Shamir shares, and derive BIP32 keys and Bitcoin addresses, legacy through Taproot. Single file, runs entirely offline in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-HU3E3wIYjI7W9U54mMZh9JMNllNfz8USsNfWE/ayI/Q=' 'sha256-zm2BkAtbniDZvjntMop9XALNPzibnIVXE61q6qMXLrs='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-HU3E3wIYjI7W9U54mMZh9JMNllNfz8USsNfWE/ayI/Q=' 'sha256-LSAwdcaZaJmaSPhZCTrfDteRUrwHzHs4zs5MbcpmndQ='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <script>try{if(localStorage.getItem("keypath-tips")==="off")document.documentElement.classList.add("no-tips");}catch(e){}try{var t=localStorage.getItem("keypath-theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}else if(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches){document.documentElement.setAttribute("data-theme","dark");}}catch(e){}</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23d2761a'/><g fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='10' cy='16' r='5'/><path d='M15 16h5'/><path d='M20 16l6-5.5M20 16l6 5.5'/></g><circle cx='27' cy='9.5' r='1.8' fill='%23fff'/><circle cx='27' cy='22.5' r='1.8' fill='%23fff'/></svg>">
 <style>
@@ -497,6 +497,16 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
 .limit .lm-tag { padding-top: 0.05rem; }
 .limit.good .lm-tag { color: var(--ok); } .limit.no .lm-tag, .limit.warn .lm-tag { color: var(--danger); }
 
+/* icon buttons inside a text box (copy, QR) */
+.ta-wrap { position: relative; }
+.ta-wrap textarea { padding-right: 5.4rem; }
+.ta-actions { position: absolute; top: 0.55rem; right: 0.6rem; display: flex; gap: 0.35rem; }
+.iconbtn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); color: var(--ink-soft); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; transition: color .15s ease, border-color .15s ease; }
+.iconbtn svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.iconbtn:hover:not(:disabled) { color: var(--accent-ink); border-color: var(--accent); }
+.iconbtn:disabled { opacity: 0.45; cursor: default; }
+.iconbtn.done { color: var(--ok); border-color: var(--ok); }
+
 </style>
 </head>
 <body>
@@ -549,7 +559,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
 
   <!-- ===================== 01 Phrase ===================== -->
   <section class="console" id="phrase-card" aria-label="Recovery phrase">
-    <div class="console-bar"><span class="n">1</span> Recovery phrase<button type="button" class="tip" data-tip="phrase" aria-label="What does this mean?">?</button><div class="bar-actions"><button type="button" class="barbtn" id="showEntropy" aria-pressed="false">Show entropy details</button><button type="button" class="barbtn" id="seedQrBtn" disabled>Seed QR</button><button type="button" class="barbtn eye" id="hideSecrets" aria-pressed="false"><svg class="ic-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.8A9.8 9.8 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3.2 3.9M6.6 6.6C4 8.4 2.5 12 2.5 12s3.5 6.5 9.5 6.5a9.6 9.6 0 0 0 4.1-.9"/></svg><span>Hide private info</span></button></div></div>
+    <div class="console-bar"><span class="n">1</span> Recovery phrase<button type="button" class="tip" data-tip="phrase" aria-label="What does this mean?">?</button><div class="bar-actions"><button type="button" class="barbtn" id="showEntropy" aria-pressed="false">Show entropy details</button><button type="button" class="barbtn eye" id="hideSecrets" aria-pressed="false"><svg class="ic-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.8A9.8 9.8 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3.2 3.9M6.6 6.6C4 8.4 2.5 12 2.5 12s3.5 6.5 9.5 6.5a9.6 9.6 0 0 0 4.1-.9"/></svg><span>Hide private info</span></button></div></div>
     <div class="console-body">
       <p class="console-intro">Generate a fresh phrase or type an existing one. The last word carries a <span class="gloss" data-tip="checksum">checksum</span>, so a phrase invented by hand will almost never validate.</p>
 
@@ -614,7 +624,13 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
 
       <div class="field" style="margin-top:1.2rem">
         <div class="field-head"><label class="field-label" for="phrase">BIP39 mnemonic<button type="button" class="tip" data-tip="mnemonic" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span></label><button type="button" class="barbtn" id="demoBtn" title="Fill in the well-known test phrase so you can explore the whole page without creating a real seed">Try the demo phrase</button></div>
-        <textarea id="phrase" class="mono secret" rows="3" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="Click Generate, or type or paste your own phrase here…"></textarea>
+        <div class="ta-wrap">
+          <textarea id="phrase" class="mono secret" rows="3" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="Click Generate, or type or paste your own phrase here…"></textarea>
+          <div class="ta-actions">
+            <button type="button" class="iconbtn" id="phraseCopy" aria-label="Copy the phrase" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h3"/></svg></button>
+            <button type="button" class="iconbtn" id="seedQrBtn" aria-label="Show the Seed QR" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v2M17 20h4M14 20h1"/></svg></button>
+          </div>
+        </div>
         <div class="meter" id="phraseStatus"></div>
         <div class="meter fp-line hidden" id="phraseFp"><span class="fp-key">Master fingerprint<button type="button" class="tip" data-tip="fingerprint" aria-label="What does this mean?">?</button></span><span class="fp-val" id="phraseFpVal"></span><span class="meter-note" id="phraseFpNote"></span></div>
         <details class="adv phrase-list hidden" id="phraseList">
@@ -989,7 +1005,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest/download/SHA256SUMS.txt" rel="noopener noreferrer">SHA256SUMS.txt</a>
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest" target="_blank" rel="noopener noreferrer">Release notes</a>
       </div>
-      <p class="dl-note">This page is KeyPath v2.8.1. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
+      <p class="dl-note">This page is KeyPath v2.8.2. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
     </div>
   </section>
 
@@ -1016,7 +1032,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
       </div>
     </div>
     <div class="foot-bottom">
-      <span class="credit">KeyPath v2.8.1 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
+      <span class="credit">KeyPath v2.8.2 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
       <span>Provided "as is", without warranty. Verify addresses in a second tool before sending significant funds.</span>
     </div>
   </footer>
@@ -21980,7 +21996,7 @@ function onPhraseInput(fromEntropy) {
   if (!fromEntropy) setEntropyFromPhrase();
   recompute();
   shamirPhraseChanged();
-  $('seedQrBtn').disabled = !S.phraseValid;
+  $('seedQrBtn').disabled = !S.phraseValid; $('phraseCopy').disabled = !S.phraseValid;
 }
 
 /* ---------------- seed & root ---------------- */
@@ -22258,6 +22274,11 @@ function seedQrRender() {
   $('qrStd').setAttribute('aria-pressed', qrFormat === 'standard'); $('qrCompact').setAttribute('aria-pressed', qrFormat !== 'standard');
 }
 $('seedQrBtn').addEventListener('click', seedQrOpen);
+$('phraseCopy').addEventListener('click', async () => {
+  if (document.documentElement.classList.contains('hide-secrets')) return toast('Private info is hidden');
+  const b = $('phraseCopy');
+  if (await copyText(S.phraseWords.join(wordlists[S.lang].sep || ' '), true)) { b.classList.add('done'); toast('Phrase copied; the clipboard is cleared in 60 seconds'); setTimeout(() => b.classList.remove('done'), 1100); }
+});
 $('qrReveal').addEventListener('click', () => document.querySelector('.qr-stage').classList.remove('covered'));
 $('qrHide').addEventListener('click', () => document.querySelector('.qr-stage').classList.add('covered'));
 $('qrStd').addEventListener('click', () => { qrFormat = 'standard'; seedQrRender(); });

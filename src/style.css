@@ -483,3 +483,13 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
 .mode-btn, .barbtn, .btn.small { font-size: 0.86rem; }
 .limit .lm-tag { padding-top: 0.05rem; }
 .limit.good .lm-tag { color: var(--ok); } .limit.no .lm-tag, .limit.warn .lm-tag { color: var(--danger); }
+
+/* icon buttons inside a text box (copy, QR) */
+.ta-wrap { position: relative; }
+.ta-wrap textarea { padding-right: 5.4rem; }
+.ta-actions { position: absolute; top: 0.55rem; right: 0.6rem; display: flex; gap: 0.35rem; }
+.iconbtn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); color: var(--ink-soft); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; transition: color .15s ease, border-color .15s ease; }
+.iconbtn svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.iconbtn:hover:not(:disabled) { color: var(--accent-ink); border-color: var(--accent); }
+.iconbtn:disabled { opacity: 0.45; cursor: default; }
+.iconbtn.done { color: var(--ok); border-color: var(--ok); }

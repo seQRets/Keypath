@@ -47,7 +47,7 @@
 
   <!-- ===================== 01 Phrase ===================== -->
   <section class="console" id="phrase-card" aria-label="Recovery phrase">
-    <div class="console-bar"><span class="n">1</span> Recovery phrase<button type="button" class="tip" data-tip="phrase" aria-label="What does this mean?">?</button><div class="bar-actions"><button type="button" class="barbtn" id="showEntropy" aria-pressed="false">Show entropy details</button><button type="button" class="barbtn" id="seedQrBtn" disabled>Seed QR</button><button type="button" class="barbtn eye" id="hideSecrets" aria-pressed="false"><svg class="ic-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.8A9.8 9.8 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3.2 3.9M6.6 6.6C4 8.4 2.5 12 2.5 12s3.5 6.5 9.5 6.5a9.6 9.6 0 0 0 4.1-.9"/></svg><span>Hide private info</span></button></div></div>
+    <div class="console-bar"><span class="n">1</span> Recovery phrase<button type="button" class="tip" data-tip="phrase" aria-label="What does this mean?">?</button><div class="bar-actions"><button type="button" class="barbtn" id="showEntropy" aria-pressed="false">Show entropy details</button><button type="button" class="barbtn eye" id="hideSecrets" aria-pressed="false"><svg class="ic-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.8A9.8 9.8 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3.2 3.9M6.6 6.6C4 8.4 2.5 12 2.5 12s3.5 6.5 9.5 6.5a9.6 9.6 0 0 0 4.1-.9"/></svg><span>Hide private info</span></button></div></div>
     <div class="console-body">
       <p class="console-intro">Generate a fresh phrase or type an existing one. The last word carries a <span class="gloss" data-tip="checksum">checksum</span>, so a phrase invented by hand will almost never validate.</p>
 
@@ -112,7 +112,13 @@
 
       <div class="field" style="margin-top:1.2rem">
         <div class="field-head"><label class="field-label" for="phrase">BIP39 mnemonic<button type="button" class="tip" data-tip="mnemonic" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span></label><button type="button" class="barbtn" id="demoBtn" title="Fill in the well-known test phrase so you can explore the whole page without creating a real seed">Try the demo phrase</button></div>
-        <textarea id="phrase" class="mono secret" rows="3" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="Click Generate, or type or paste your own phrase here…"></textarea>
+        <div class="ta-wrap">
+          <textarea id="phrase" class="mono secret" rows="3" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="Click Generate, or type or paste your own phrase here…"></textarea>
+          <div class="ta-actions">
+            <button type="button" class="iconbtn" id="phraseCopy" aria-label="Copy the phrase" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h3"/></svg></button>
+            <button type="button" class="iconbtn" id="seedQrBtn" aria-label="Show the Seed QR" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v2M17 20h4M14 20h1"/></svg></button>
+          </div>
+        </div>
         <div class="meter" id="phraseStatus"></div>
         <div class="meter fp-line hidden" id="phraseFp"><span class="fp-key">Master fingerprint<button type="button" class="tip" data-tip="fingerprint" aria-label="What does this mean?">?</button></span><span class="fp-val" id="phraseFpVal"></span><span class="meter-note" id="phraseFpNote"></span></div>
         <details class="adv phrase-list hidden" id="phraseList">

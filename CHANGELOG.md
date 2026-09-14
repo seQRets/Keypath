@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.8.2 — 2026-09-14
+
+- Two small buttons sit in the top-right corner of the Recovery phrase box: copy the phrase (the clipboard is cleared after 60 seconds; refused while private info is hidden) and show the Seed QR. The Seed QR button in the card header moved there.
+
 ## v2.8.1 — 2026-09-14
 
 - Typing or pasting a phrase into the Recovery phrase field now hides all private information the moment the phrase becomes valid, the same as Generate does. The demo phrase stays visible.
