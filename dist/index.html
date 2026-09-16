@@ -7,7 +7,7 @@
 <meta name="description" content="KeyPath: generate or inspect a BIP39 recovery phrase, back it up with SLIP-39 Shamir shares, and derive BIP32 keys and Bitcoin addresses, legacy through Taproot. Single file, runs entirely offline in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-KGyGbFlT6L3iM3cEUTWVPeqFogvswU11iSpvKVGASIE='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-WzVqWW907W99MWtlsQBk5KOdvSeRccx3h88PiR31dI8='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <script>try{if(localStorage.getItem("keypath-tips")==="off")document.documentElement.classList.add("no-tips");}catch(e){}try{var t=localStorage.getItem("keypath-theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}else if(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches){document.documentElement.setAttribute("data-theme","dark");}}catch(e){}</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23d2761a'/><g fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='10' cy='16' r='5'/><path d='M15 16h5'/><path d='M20 16l6-5.5M20 16l6 5.5'/></g><circle cx='27' cy='9.5' r='1.8' fill='%23fff'/><circle cx='27' cy='22.5' r='1.8' fill='%23fff'/></svg>">
 <style>
@@ -33,6 +33,8 @@
   --danger-wash: #f7e6e1;
   --ok: #4b8b3b;
   --ok-wash: #e9f1e3;
+  --on-accent: #fcf9f2; /* text on the accent colour */
+  --on-ink: #fcf9f2; /* text on the ink colour (toast, tips) */
   --radius: 10px;
   --radius-sm: 6px;
   --pill: 11px; /* softened pill: roughly half the height of a control */
@@ -45,25 +47,29 @@
 }
 :root[data-theme="dark"] {
   --bg: #000000;
-  --bg-grad: radial-gradient(1200px 600px at 50% -10%, #0e0e0e 0%, #050505 55%, #000000 100%);
-  --ink: #ededed;
-  --ink-soft: #a6a6a6;
-  --ink-faint: #767676;
-  --panel: #101010;
-  --panel-sunk: #0a0a0a;
-  --line: #2a2a2a;
-  --line-soft: #1e1e1e;
-  --term-bg: #000000;
-  --term-line: #262626;
-  --accent: #f0a04b;
-  --accent-ink: #f0a04b;
-  --accent-wash: #241708;
-  --danger: #e2705a;
-  --danger-wash: #26120e;
-  --ok: #86c06f;
-  --ok-wash: #142011;
-  --shadow: 0 1px 2px rgba(0,0,0,.6), 0 6px 20px -8px rgba(0,0,0,.8);
-  --shadow-lift: 0 1px 2px rgba(0,0,0,.7), 0 14px 34px -12px rgba(0,0,0,.9);
+  --bg-grad: none;
+  --ink: #f4f4f5;
+  --ink-soft: #a1a1aa;
+  --ink-faint: #6e6e77;
+  --panel: rgba(255,255,255,0.04);
+  --panel-sunk: rgba(255,255,255,0.03);
+  --line: rgba(255,255,255,0.10);
+  --line-soft: rgba(255,255,255,0.06);
+  --term-bg: #0a0a0a;
+  --term-line: rgba(255,255,255,0.10);
+  --accent: #f59e0b;
+  --accent-ink: #f59e0b;
+  --accent-wash: rgba(245,158,11,0.12);
+  --danger: #ef4444;
+  --danger-wash: rgba(239,68,68,0.12);
+  --ok: #2cdd96;
+  --ok-wash: rgba(44,221,150,0.10);
+  --shadow: none;
+  --shadow-lift: 0 14px 34px -12px rgba(0,0,0,.9);
+  --on-accent: #000;
+  --on-ink: #000;
+  --radius: 20px;
+  --radius-sm: 12px;
   color-scheme: dark;
 }
 
@@ -159,7 +165,7 @@ h1 .sub { display: block; font-family: var(--sans); font-size: 1.15rem; font-wei
 .bar-actions { margin-left: auto; display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: flex-end; }
 .barbtn { font-family: var(--sans); font-size: 0.76rem; font-weight: 600; padding: 0.28rem 0.75rem; border-radius: var(--pill); border: 1.5px solid var(--line); background: var(--panel); color: var(--ink-soft); cursor: pointer; transition: background .15s ease, color .15s ease, border-color .15s ease; white-space: nowrap; }
 .barbtn:hover { border-color: var(--accent); color: var(--accent-ink); }
-.barbtn[aria-pressed="true"] { background: var(--accent-ink); border-color: var(--accent-ink); color: var(--panel); }
+.barbtn[aria-pressed="true"] { background: var(--accent-ink); border-color: var(--accent-ink); color: var(--on-accent); }
 .barbtn.danger:hover { border-color: var(--danger); color: var(--danger); }
 .console-body { padding: 1.4rem 1.4rem 1.5rem; }
 .console-body + .console-body { border-top: 1px solid var(--line-soft); }
@@ -213,8 +219,8 @@ select { appearance: none; -webkit-appearance: none; padding-right: 2.1rem; back
 /* buttons */
 .btn { font-family: var(--sans); font-size: 0.9rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.55rem 1.1rem; border-radius: var(--pill); border: 1.5px solid var(--line); background: var(--panel-sunk); color: var(--ink-soft); cursor: pointer; transition: background .15s ease, color .15s ease, border-color .15s ease, transform .15s ease; white-space: nowrap; }
 .btn:hover { border-color: var(--accent); color: var(--accent-ink); transform: translateY(-1px); }
-.btn.primary { background: var(--accent-ink); border-color: var(--accent-ink); color: var(--panel); }
-.btn.primary:hover { color: var(--panel); filter: brightness(1.06); }
+.btn.primary { background: var(--accent-ink); border-color: var(--accent-ink); color: var(--on-accent); }
+.btn.primary:hover { color: var(--on-accent); filter: brightness(1.06); }
 .btn.small { font-size: 0.8rem; padding: 0.38rem 0.85rem; }
 #clearBtn:hover { border-color: var(--danger); color: var(--danger); }
 .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
@@ -341,14 +347,14 @@ footer.site { margin-top: 4.5rem; border-top: 1px solid var(--line); padding: 2.
 .foot-links a:hover { border-color: var(--accent); color: var(--accent-ink); transform: translateY(-1px); }
 .foot-links a svg { width: 14px; height: 14px; fill: currentColor; }
 .foot-links a.donate { border-color: color-mix(in srgb, var(--accent) 45%, transparent); background: var(--accent-wash); color: var(--accent-ink); }
-.foot-links a.donate:hover { background: var(--accent-ink); color: var(--panel); border-color: var(--accent-ink); }
+.foot-links a.donate:hover { background: var(--accent-ink); color: var(--on-accent); border-color: var(--accent-ink); }
 .adv .limits { gap: 0.6rem; }
 .adv .limit { background: var(--panel); }
 .foot-bottom { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; justify-content: space-between; align-items: center; font-size: 0.83rem; color: var(--ink-faint); border-top: 1px solid var(--line-soft); padding-top: 1.25rem; }
 .foot-bottom a { color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid var(--line); }
 .foot-bottom a:hover { color: var(--accent-ink); border-color: var(--accent); }
 
-.toast { position: fixed; bottom: 1.2rem; left: 50%; transform: translate(-50%, 20px); background: var(--ink); color: var(--panel); font-size: 0.84rem; font-weight: 600; padding: 0.55rem 1rem; border-radius: var(--pill); opacity: 0; pointer-events: none; transition: opacity .18s ease, transform .18s ease; z-index: 50; }
+.toast { position: fixed; bottom: 1.2rem; left: 50%; transform: translate(-50%, 20px); background: var(--ink); color: var(--on-ink); font-size: 0.84rem; font-weight: 600; padding: 0.55rem 1rem; border-radius: var(--pill); opacity: 0; pointer-events: none; transition: opacity .18s ease, transform .18s ease; z-index: 50; }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 .busy { display: inline-block; width: 12px; height: 12px; border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -418,12 +424,12 @@ details.phrase-list .adv-body { padding-top: 0.9rem; }
 
 /* ---------- tooltips ---------- */
 .tip { display: inline-grid; place-items: center; width: 16px; height: 16px; margin-left: 0.35rem; vertical-align: 1px; border-radius: 50%; border: 1.5px solid var(--ink-faint); background: transparent; color: var(--ink-faint); font-family: var(--sans); font-size: 0.66rem; font-weight: 700; line-height: 1; cursor: pointer; padding: 0; transition: color .12s ease, border-color .12s ease, background .12s ease; }
-.tip:hover, .tip[aria-expanded="true"] { color: var(--panel); background: var(--accent-ink); border-color: var(--accent-ink); }
+.tip:hover, .tip[aria-expanded="true"] { color: var(--on-accent); background: var(--accent-ink); border-color: var(--accent-ink); }
 .tip.static { cursor: default; margin: 0; }
 th .tip { margin-left: 0.3rem; vertical-align: 0; }
 .console-bar .tip { margin-left: 0.5rem; }
 .gloss { border-bottom: 1px dotted var(--ink-faint); }
-.tipbox { position: fixed; z-index: 60; max-width: min(320px, calc(100vw - 16px)); background: var(--ink); color: var(--panel); font-family: var(--sans); font-size: 0.86rem; line-height: 1.5; padding: 0.7rem 0.9rem; border-radius: var(--radius-sm); box-shadow: var(--shadow-lift); pointer-events: none; }
+.tipbox { position: fixed; z-index: 60; max-width: min(320px, calc(100vw - 16px)); background: var(--ink); color: var(--on-ink); font-family: var(--sans); font-size: 0.86rem; line-height: 1.5; padding: 0.7rem 0.9rem; border-radius: var(--radius-sm); box-shadow: var(--shadow-lift); pointer-events: none; }
 .tipbox strong { display: block; font-weight: 700; margin-bottom: 0.2rem; color: var(--accent); }
 :root[data-theme="dark"] .tipbox { background: #f2ece0; color: #23201a; }
 :root[data-theme="dark"] .tipbox strong { color: #a8590c; }
@@ -512,6 +518,33 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
 /* copying stays possible while blurred: the secret never has to be shown to be moved somewhere private */
 html.hide-secrets .secret .copy, html.hide-secrets .secret .iconbtn, #msGen.covered .share-list .copy { pointer-events: auto; filter: none; }
 
+/* IttyBitz-style dark theme: black glass cards, amber gradient actions, gradient brand mark (experiment) */
+.brandmark { display: none; }
+:root[data-theme="dark"] .brandmark { display: flex; justify-content: center; margin-bottom: 0.9rem; }
+:root[data-theme="dark"] .brandmark svg { width: 72px; height: 72px; filter: drop-shadow(0 8px 24px rgba(245,158,11,.35)); }
+:root[data-theme="dark"] h1 { letter-spacing: -0.04em; }
+:root[data-theme="dark"] h1 .op .path { background: linear-gradient(#ffffff 0%, #b8b8be 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
+:root[data-theme="dark"] h1 .op .key, :root[data-theme="dark"] .foot-brand .fb-name .op .key { background: linear-gradient(to bottom right, #fbbf24, #f97316 55%, #ef4444); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; padding-right: 0.12em; margin-right: -0.12em; } /* same gradient as the brand mark; each word clips its own gradient so neither paints under the other, and the padding keeps the y's tail inside the painted area */
+:root[data-theme="dark"] .btn.primary { background: linear-gradient(to bottom right, #f59e0b, #f97316 55%, #ef4444); border: 1.5px solid transparent; background-clip: padding-box; color: #000; font-weight: 700; box-shadow: 0 6px 18px -6px rgba(245,158,11,.55); }
+:root[data-theme="dark"] .btn.primary:hover { color: #000; filter: brightness(1.08); }
+:root[data-theme="dark"] .mode-btn[aria-pressed="true"] { background: linear-gradient(to bottom right, #f59e0b, #f97316 55%, #ef4444); color: #000; font-weight: 700; box-shadow: none; }
+:root[data-theme="dark"] .console { background: var(--panel); border-color: var(--line); backdrop-filter: blur(10px); }
+:root[data-theme="dark"] .console-bar { background: rgba(255,255,255,0.03); }
+:root[data-theme="dark"] .console-bar .n { background: linear-gradient(to bottom right, #f59e0b, #f97316 55%, #ef4444); color: #000; font-weight: 800; }
+:root[data-theme="dark"] input[type="text"], :root[data-theme="dark"] input[type="number"], :root[data-theme="dark"] select, :root[data-theme="dark"] textarea { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.10); }
+:root[data-theme="dark"] .gen-strip select, :root[data-theme="dark"] .gen-strip input { background: rgba(255,255,255,0.04); }
+:root[data-theme="dark"] .tipbox { background: #18181b; color: #f4f4f5; border: 1px solid rgba(255,255,255,0.12); }
+:root[data-theme="dark"] .tipbox strong { color: #f59e0b; }
+
+/* dark theme: pills that highlight on hover and stay highlighted while selected (lab scenarios, address columns) */
+:root[data-theme="dark"] .barbtn[aria-pressed="true"] { background: rgba(245,158,11,0.14); border-color: #f59e0b; color: #f59e0b; }
+:root[data-theme="dark"] .chip { border: 1.5px solid rgba(255,255,255,0.10); background: transparent; color: var(--ink-soft); }
+:root[data-theme="dark"] .chip:hover { border-color: #f59e0b; color: #f59e0b; }
+:root[data-theme="dark"] .chip[aria-pressed="true"] { background: rgba(245,158,11,0.14); border-color: #f59e0b; color: #f59e0b; box-shadow: none; }
+:root[data-theme="dark"] .cols { background: transparent; border: none; padding: 0; gap: 0.4rem; }
+:root[data-theme="dark"] .barbtn { border-color: rgba(255,255,255,0.14); }
+:root[data-theme="dark"] .barbtn:hover { border-color: #f59e0b; color: #f59e0b; }
+
 </style>
 </head>
 <body>
@@ -540,7 +573,8 @@ html.hide-secrets .secret .copy, html.hide-secrets .secret .iconbtn, #msGen.cove
   </div>
 
   <header class="masthead" id="top">
-    <h1><span class="op"><span class="key">Key</span>Path</span><span class="sub">BIP39 Seed Phrase Generator</span></h1>
+    <div class="brandmark" aria-hidden="true"><svg viewBox="0 0 512 512" width="72" height="72"><defs><linearGradient id="kpGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fbbf24"/><stop offset="55%" stop-color="#f97316"/><stop offset="100%" stop-color="#ef4444"/></linearGradient></defs><rect x="16" y="16" width="480" height="480" rx="112" fill="url(#kpGrad)"/><g fill="none" stroke="#fff" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"><circle cx="190" cy="256" r="74"/><path d="M264 256h176M382 256v62M440 256v50"/></g></svg></div>
+    <h1><span class="op"><span class="key">Key</span><span class="path">Path</span></span><span class="sub">BIP39 Seed Phrase Generator</span></h1>
     <p class="lede">Generate or paste a recovery phrase, split it into Shamir backup shares, follow it down the BIP32 tree, and see the Bitcoin addresses it controls, legacy through Taproot. Runs entirely in this <a href="#download">file</a>, in your browser.</p>
     <nav class="topnav" aria-label="Jump to a section">
       <a href="#phrase-card">Phrase</a>
@@ -952,6 +986,7 @@ html.hide-secrets .secret .copy, html.hide-secrets .secret .iconbtn, #msGen.cove
         <button type="button" class="barbtn" data-lab="1,1,0|0,0,0|0">2 seeds only</button>
         <button type="button" class="barbtn" data-lab="1,0,0|0,0,0|1">1 seed + definition</button>
         <button type="button" class="barbtn" data-lab="0,0,0|1,1,1|0">3 xpubs, no seed</button>
+        <button type="button" class="barbtn" id="labClear">Clear</button>
       </div>
       <div class="tablewrap"><table class="lab" id="labTable"><thead><tr><th>Seed</th><th>I have the seed</th><th>I have its xpub</th></tr></thead><tbody id="labRows"></tbody></table></div>
       <p class="help" style="margin:0.6rem 0 0">An xpub can always be produced from its seed, but a seed can never be produced from its xpub.</p>
@@ -1009,7 +1044,7 @@ html.hide-secrets .secret .copy, html.hide-secrets .secret .iconbtn, #msGen.cove
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest/download/SHA256SUMS.txt" rel="noopener noreferrer">SHA256SUMS.txt</a>
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest" target="_blank" rel="noopener noreferrer">Release notes</a>
       </div>
-      <p class="dl-note">This page is KeyPath v2.9.1. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
+      <p class="dl-note">This page is KeyPath v2.10.0. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
     </div>
   </section>
 
@@ -1024,7 +1059,7 @@ html.hide-secrets .secret .copy, html.hide-secrets .secret .iconbtn, #msGen.cove
   <footer class="site">
     <div class="foot-top">
       <div class="foot-brand">
-        <div class="fb-name"><span class="op"><span class="key">Key</span>Path</span></div>
+        <div class="fb-name"><span class="op"><span class="key">Key</span><span class="path">Path</span></span></div>
         <p>A modern re-imagining of Ian Coleman's BIP39 tool, with Taproot. Nothing you type leaves this page.</p>
       </div>
       <div class="foot-links">
@@ -1036,7 +1071,7 @@ html.hide-secrets .secret .copy, html.hide-secrets .secret .iconbtn, #msGen.cove
       </div>
     </div>
     <div class="foot-bottom">
-      <span class="credit">KeyPath v2.9.1 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
+      <span class="credit">KeyPath v2.10.0 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
       <span>Provided "as is", without warranty. Verify addresses in a second tool before sending significant funds.</span>
     </div>
   </footer>
@@ -22499,10 +22534,16 @@ function labInit() {
     }
     out += box('', 'Lesson', 'Keep the wallet definition with every seed backup. Then any 2 of the 3 seeds, plus that one public file, recover the wallet.');
     $('labVerdict').innerHTML = out;
+    // the scenario button matching the current boxes stays highlighted
+    // (an xpub implied by its seed is ignored on both sides, since ticking a seed ticks its xpub)
+    const norm = (spec) => { const [sd, xp, df] = spec.split('|'); const S = sd.split(','), X = xp.split(','); return S.join(',') + '|' + X.map((v, i) => (S[i] === '1' ? '0' : v)).join(',') + '|' + df; };
+    const cur = norm([h.seed, h.xpub].map((a) => a.map((v) => (v ? '1' : '0')).join(',')).join('|') + '|' + (h.def ? '1' : '0'));
+    $('lab-card').querySelectorAll('[data-lab]').forEach((b) => b.setAttribute('aria-pressed', norm(b.dataset.lab) === cur));
   };
   const set = (spec) => { const [sd, xp, df] = spec.split('|'); sd.split(',').forEach((v, i) => { $('labRows').querySelector(`[data-lab-seed="${i}"]`).checked = v === '1'; }); xp.split(',').forEach((v, i) => { $('labRows').querySelector(`[data-lab-xpub="${i}"]`).checked = v === '1'; }); $('labDef').checked = df === '1'; update(); };
   $('lab-card').addEventListener('change', update);
   $('lab-card').querySelectorAll('[data-lab]').forEach((b) => b.addEventListener('click', () => set(b.dataset.lab)));
+  $('labClear').addEventListener('click', () => set('0,0,0|0,0,0|0'));
   set('0,0,0|0,0,0|0');
 }
 

@@ -864,10 +864,16 @@ function labInit() {
     }
     out += box('', 'Lesson', 'Keep the wallet definition with every seed backup. Then any 2 of the 3 seeds, plus that one public file, recover the wallet.');
     $('labVerdict').innerHTML = out;
+    // the scenario button matching the current boxes stays highlighted
+    // (an xpub implied by its seed is ignored on both sides, since ticking a seed ticks its xpub)
+    const norm = (spec) => { const [sd, xp, df] = spec.split('|'); const S = sd.split(','), X = xp.split(','); return S.join(',') + '|' + X.map((v, i) => (S[i] === '1' ? '0' : v)).join(',') + '|' + df; };
+    const cur = norm([h.seed, h.xpub].map((a) => a.map((v) => (v ? '1' : '0')).join(',')).join('|') + '|' + (h.def ? '1' : '0'));
+    $('lab-card').querySelectorAll('[data-lab]').forEach((b) => b.setAttribute('aria-pressed', norm(b.dataset.lab) === cur));
   };
   const set = (spec) => { const [sd, xp, df] = spec.split('|'); sd.split(',').forEach((v, i) => { $('labRows').querySelector(`[data-lab-seed="${i}"]`).checked = v === '1'; }); xp.split(',').forEach((v, i) => { $('labRows').querySelector(`[data-lab-xpub="${i}"]`).checked = v === '1'; }); $('labDef').checked = df === '1'; update(); };
   $('lab-card').addEventListener('change', update);
   $('lab-card').querySelectorAll('[data-lab]').forEach((b) => b.addEventListener('click', () => set(b.dataset.lab)));
+  $('labClear').addEventListener('click', () => set('0,0,0|0,0,0|0'));
   set('0,0,0|0,0,0|0');
 }
 

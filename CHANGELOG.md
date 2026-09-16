@@ -1,5 +1,14 @@
 # Changelog
 
+## v2.10.0 — 2026-09-16
+
+**A new dark theme in the style of IttyBitz.**
+
+- Dark mode is redesigned around a true black page with glass cards: a faint white tint, soft white borders and 20-pixel corners. The accent is amber, and primary buttons, the selected side of each switch and the step badges wear an amber → orange → red gradient. Text on those gradient surfaces is bolder so it stays readable.
+- A gradient key brand mark now sits above the title in dark mode. The word "Key" carries the same gradient as the mark, in the header and in the footer, while "Path" is silver. Each word clips its own gradient, so the tail of the y no longer picks up a stray sliver of the other word's colour.
+- Lab scenario pills and address-column chips highlight orange on hover and stay highlighted while selected, and the Multisig lab gains a Clear pill.
+- Typography stays IBM Plex in both themes.
+
 ## v2.9.1 — 2026-09-16
 
 - The number in each card header is now a small round badge instead of a bold numeral beside the title, so "1 Recovery phrase" no longer reads as "one recovery phrase".

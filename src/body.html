@@ -23,7 +23,8 @@
   </div>
 
   <header class="masthead" id="top">
-    <h1><span class="op"><span class="key">Key</span>Path</span><span class="sub">BIP39 Seed Phrase Generator</span></h1>
+    <div class="brandmark" aria-hidden="true"><svg viewBox="0 0 512 512" width="72" height="72"><defs><linearGradient id="kpGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fbbf24"/><stop offset="55%" stop-color="#f97316"/><stop offset="100%" stop-color="#ef4444"/></linearGradient></defs><rect x="16" y="16" width="480" height="480" rx="112" fill="url(#kpGrad)"/><g fill="none" stroke="#fff" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"><circle cx="190" cy="256" r="74"/><path d="M264 256h176M382 256v62M440 256v50"/></g></svg></div>
+    <h1><span class="op"><span class="key">Key</span><span class="path">Path</span></span><span class="sub">BIP39 Seed Phrase Generator</span></h1>
     <p class="lede">Generate or paste a recovery phrase, split it into Shamir backup shares, follow it down the BIP32 tree, and see the Bitcoin addresses it controls, legacy through Taproot. Runs entirely in this <a href="#download">file</a>, in your browser.</p>
     <nav class="topnav" aria-label="Jump to a section">
       <a href="#phrase-card">Phrase</a>
@@ -435,6 +436,7 @@
         <button type="button" class="barbtn" data-lab="1,1,0|0,0,0|0">2 seeds only</button>
         <button type="button" class="barbtn" data-lab="1,0,0|0,0,0|1">1 seed + definition</button>
         <button type="button" class="barbtn" data-lab="0,0,0|1,1,1|0">3 xpubs, no seed</button>
+        <button type="button" class="barbtn" id="labClear">Clear</button>
       </div>
       <div class="tablewrap"><table class="lab" id="labTable"><thead><tr><th>Seed</th><th>I have the seed</th><th>I have its xpub</th></tr></thead><tbody id="labRows"></tbody></table></div>
       <p class="help" style="margin:0.6rem 0 0">An xpub can always be produced from its seed, but a seed can never be produced from its xpub.</p>
@@ -507,7 +509,7 @@
   <footer class="site">
     <div class="foot-top">
       <div class="foot-brand">
-        <div class="fb-name"><span class="op"><span class="key">Key</span>Path</span></div>
+        <div class="fb-name"><span class="op"><span class="key">Key</span><span class="path">Path</span></span></div>
         <p>A modern re-imagining of Ian Coleman's BIP39 tool, with Taproot. Nothing you type leaves this page.</p>
       </div>
       <div class="foot-links">
