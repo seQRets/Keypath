@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.10.1 — 2026-09-16
+
+- The browser tab icon is now the brand mark: the amber → orange → red gradient tile with the key glyph, replacing the old flat orange icon with the branching-path design. It matches the logo above the title and stays readable at tab size.
+
 ## v2.10.0 — 2026-09-16
 
 **A new dark theme in the style of IttyBitz.**
