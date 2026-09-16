@@ -155,13 +155,21 @@ function detectLang(words) {
 
 /* ---------------- chrome ---------------- */
 /* ---------------- top-right menu ---------------- */
-function themeLabel() { $('themeBtn').querySelector('span').textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? 'Light mode' : 'Dark mode'; }
-$('themeBtn').addEventListener('click', () => {
-  const cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', cur);
-  try { localStorage.setItem('keypath-theme', cur); } catch (e) {}
+/* theme: "system" is the default and follows the computer live; a click cycles system -> dark -> light -> system */
+const themeMedia = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+function themeMode() { try { const s = localStorage.getItem('keypath-theme'); return s === 'dark' || s === 'light' ? s : 'system'; } catch (e) { return 'system'; } }
+function themeLabel() { $('themeBtn').querySelector('span').textContent = { system: 'Dark mode', dark: 'Light mode', light: 'System theme' }[themeMode()]; }
+function applyTheme(mode) {
+  const dark = mode === 'dark' || (mode === 'system' && themeMedia && themeMedia.matches);
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
   themeLabel();
+}
+$('themeBtn').addEventListener('click', () => {
+  const next = { system: 'dark', dark: 'light', light: 'system' }[themeMode()];
+  try { if (next === 'system') localStorage.removeItem('keypath-theme'); else localStorage.setItem('keypath-theme', next); } catch (e) {}
+  applyTheme(next);
 });
+if (themeMedia && themeMedia.addEventListener) themeMedia.addEventListener('change', () => { if (themeMode() === 'system') applyTheme('system'); });
 themeLabel();
 function setHidden(on) {
   $('hideSecrets').setAttribute('aria-pressed', on); document.documentElement.classList.toggle('hide-secrets', on);

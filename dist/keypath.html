@@ -7,7 +7,7 @@
 <meta name="description" content="KeyPath: generate or inspect a BIP39 recovery phrase, back it up with SLIP-39 Shamir shares, and derive BIP32 keys and Bitcoin addresses, legacy through Taproot. Single file, runs entirely offline in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-WzVqWW907W99MWtlsQBk5KOdvSeRccx3h88PiR31dI8='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-hpPX2IrM3eDcixglPN9dOIKcuwrQDJ/m7JEP+rs/P10='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <script>try{if(localStorage.getItem("keypath-tips")==="off")document.documentElement.classList.add("no-tips");}catch(e){}try{var t=localStorage.getItem("keypath-theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}else if(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches){document.documentElement.setAttribute("data-theme","dark");}}catch(e){}</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fbbf24'/><stop offset='.55' stop-color='%23f97316'/><stop offset='1' stop-color='%23ef4444'/></linearGradient></defs><rect width='512' height='512' rx='116' fill='url(%23g)'/><g fill='none' stroke='%23fff' stroke-width='48' stroke-linecap='round' stroke-linejoin='round'><circle cx='190' cy='256' r='74'/><path d='M264 256h176M382 256v62M440 256v50'/></g></svg>">
 <style>
@@ -1044,7 +1044,7 @@ html.hide-secrets .secret .copy, html.hide-secrets .secret .iconbtn, #msGen.cove
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest/download/SHA256SUMS.txt" rel="noopener noreferrer">SHA256SUMS.txt</a>
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest" target="_blank" rel="noopener noreferrer">Release notes</a>
       </div>
-      <p class="dl-note">This page is KeyPath v2.10.2. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
+      <p class="dl-note">This page is KeyPath v2.10.3. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
     </div>
   </section>
 
@@ -1071,7 +1071,7 @@ html.hide-secrets .secret .copy, html.hide-secrets .secret .iconbtn, #msGen.cove
       </div>
     </div>
     <div class="foot-bottom">
-      <span class="credit">KeyPath v2.10.2 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
+      <span class="credit">KeyPath v2.10.3 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
       <span>Provided "as is", without warranty. Verify addresses in a second tool before sending significant funds.</span>
     </div>
   </footer>
@@ -21825,13 +21825,21 @@ function detectLang(words) {
 
 /* ---------------- chrome ---------------- */
 /* ---------------- top-right menu ---------------- */
-function themeLabel() { $('themeBtn').querySelector('span').textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? 'Light mode' : 'Dark mode'; }
-$('themeBtn').addEventListener('click', () => {
-  const cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', cur);
-  try { localStorage.setItem('keypath-theme', cur); } catch (e) {}
+/* theme: "system" is the default and follows the computer live; a click cycles system -> dark -> light -> system */
+const themeMedia = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+function themeMode() { try { const s = localStorage.getItem('keypath-theme'); return s === 'dark' || s === 'light' ? s : 'system'; } catch (e) { return 'system'; } }
+function themeLabel() { $('themeBtn').querySelector('span').textContent = { system: 'Dark mode', dark: 'Light mode', light: 'System theme' }[themeMode()]; }
+function applyTheme(mode) {
+  const dark = mode === 'dark' || (mode === 'system' && themeMedia && themeMedia.matches);
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
   themeLabel();
+}
+$('themeBtn').addEventListener('click', () => {
+  const next = { system: 'dark', dark: 'light', light: 'system' }[themeMode()];
+  try { if (next === 'system') localStorage.removeItem('keypath-theme'); else localStorage.setItem('keypath-theme', next); } catch (e) {}
+  applyTheme(next);
 });
+if (themeMedia && themeMedia.addEventListener) themeMedia.addEventListener('change', () => { if (themeMode() === 'system') applyTheme('system'); });
 themeLabel();
 function setHidden(on) {
   $('hideSecrets').setAttribute('aria-pressed', on); document.documentElement.classList.toggle('hide-secrets', on);
