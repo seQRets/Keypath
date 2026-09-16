@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.9.1 — 2026-09-16
+
+- The number in each card header is now a small round badge instead of a bold numeral beside the title, so "1 Recovery phrase" no longer reads as "one recovery phrase".
+- Dark mode is now pure black with neutral greys instead of the brown wash: black page and terminal boxes, near-black cards, grey lines, off-white text. The orange accent and the red and green states are unchanged.
+
 ## v2.9.0 — 2026-09-14
 
 **QR codes now come from paulmillr/qr.**

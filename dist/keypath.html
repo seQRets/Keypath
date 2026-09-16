@@ -44,26 +44,26 @@
   color-scheme: light;
 }
 :root[data-theme="dark"] {
-  --bg: #15120d;
-  --bg-grad: radial-gradient(1200px 600px at 50% -10%, #221e16 0%, #18150f 55%, #12100b 100%);
-  --ink: #ece6da;
-  --ink-soft: #a8a091;
-  --ink-faint: #7b7466;
-  --panel: #1f1b14;
-  --panel-sunk: #191610;
-  --line: #362f24;
-  --line-soft: #2a251c;
-  --term-bg: #100e09;
-  --term-line: #2e2820;
+  --bg: #000000;
+  --bg-grad: radial-gradient(1200px 600px at 50% -10%, #0e0e0e 0%, #050505 55%, #000000 100%);
+  --ink: #ededed;
+  --ink-soft: #a6a6a6;
+  --ink-faint: #767676;
+  --panel: #101010;
+  --panel-sunk: #0a0a0a;
+  --line: #2a2a2a;
+  --line-soft: #1e1e1e;
+  --term-bg: #000000;
+  --term-line: #262626;
   --accent: #f0a04b;
   --accent-ink: #f0a04b;
-  --accent-wash: #2e2110;
+  --accent-wash: #241708;
   --danger: #e2705a;
-  --danger-wash: #2e1813;
+  --danger-wash: #26120e;
   --ok: #86c06f;
-  --ok-wash: #1d2a17;
-  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 20px -8px rgba(0,0,0,.5);
-  --shadow-lift: 0 1px 2px rgba(0,0,0,.5), 0 14px 34px -12px rgba(0,0,0,.7);
+  --ok-wash: #142011;
+  --shadow: 0 1px 2px rgba(0,0,0,.6), 0 6px 20px -8px rgba(0,0,0,.8);
+  --shadow-lift: 0 1px 2px rgba(0,0,0,.7), 0 14px 34px -12px rgba(0,0,0,.9);
   color-scheme: dark;
 }
 
@@ -154,7 +154,7 @@ h1 .sub { display: block; font-family: var(--sans); font-size: 1.15rem; font-wei
 .console { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-lift); overflow: hidden; margin-top: 1.75rem; scroll-margin-top: 1.5rem; }
 .console-bar { display: flex; align-items: center; gap: 0.55rem; padding: 0.7rem 1.1rem; background: var(--panel-sunk); border-bottom: 1px solid var(--line-soft); font-size: 0.82rem; font-weight: 500; color: var(--ink-faint); }
 .console-bar { font-size: 1.08rem; font-weight: 600; color: var(--ink-soft); }
-.console-bar .n { font-family: var(--sans); font-size: 1.08rem; font-weight: 700; color: var(--accent-ink); letter-spacing: -0.01em; }
+.console-bar .n { display: inline-flex; align-items: center; justify-content: center; width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--accent-ink); color: var(--panel); font-family: var(--sans); font-size: 0.82rem; font-weight: 700; letter-spacing: 0; margin-right: 0.2rem; flex: 0 0 auto; } /* a step badge, so "1 Recovery phrase" cannot read as "one recovery phrase" */
 .console-bar .right { margin-left: auto; font-family: var(--mono); font-size: 0.72rem; }
 .bar-actions { margin-left: auto; display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: flex-end; }
 .barbtn { font-family: var(--sans); font-size: 0.76rem; font-weight: 600; padding: 0.28rem 0.75rem; border-radius: var(--pill); border: 1.5px solid var(--line); background: var(--panel); color: var(--ink-soft); cursor: pointer; transition: background .15s ease, color .15s ease, border-color .15s ease; white-space: nowrap; }
@@ -1009,7 +1009,7 @@ html.hide-secrets .secret .copy, html.hide-secrets .secret .iconbtn, #msGen.cove
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest/download/SHA256SUMS.txt" rel="noopener noreferrer">SHA256SUMS.txt</a>
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest" target="_blank" rel="noopener noreferrer">Release notes</a>
       </div>
-      <p class="dl-note">This page is KeyPath v2.9.0. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
+      <p class="dl-note">This page is KeyPath v2.9.1. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
     </div>
   </section>
 
@@ -1036,7 +1036,7 @@ html.hide-secrets .secret .copy, html.hide-secrets .secret .iconbtn, #msGen.cove
       </div>
     </div>
     <div class="foot-bottom">
-      <span class="credit">KeyPath v2.9.0 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
+      <span class="credit">KeyPath v2.9.1 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
       <span>Provided "as is", without warranty. Verify addresses in a second tool before sending significant funds.</span>
     </div>
   </footer>
