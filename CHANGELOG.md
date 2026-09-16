@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.10.2 — 2026-09-16
+
+- The faintest grey in dark mode is a shade lighter, #78787f instead of #6e6e77. On black it measured 4.16:1, under the 4.5:1 minimum for body text, and now measures 4.79:1. It sets placeholder text, field hints, disabled labels and the footer line, so the change is small but it is the text that was hardest to read.
+- The lockfile is back in step with package.json. It still recorded version 2.8.8 and the qrcode-generator dependency that v2.9.0 removed.
+
 ## v2.10.1 — 2026-09-16
 
 - The browser tab icon is now the brand mark: the amber → orange → red gradient tile with the key glyph, replacing the old flat orange icon with the branching-path design. It matches the logo above the title and stays readable at tab size.
