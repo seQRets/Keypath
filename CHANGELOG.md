@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.11.2 — 2026-09-17
+
+- Dark is now the page's built-in default, set in the markup before any script runs. Viewers that do not run JavaScript at all, such as the macOS Quick Look preview, now show the file dark instead of light. The script then switches to light only where that is right: a saved light choice, or the hosted page on a computer set to light. A saved choice still wins everywhere; if a downloaded copy keeps opening light, pick "System theme" from the menu once to clear an old saved choice.
+
 ## v2.11.1 — 2026-09-17
 
 - The entropy details panel no longer exposes the secret while the card is hidden. Filtered entropy, raw binary, the binary checksum and the word indexes — each of which is the phrase in another form — now blur with the card. The harmless statistics (time to crack, event count, entropy type, bits per event, word and bit counts) stay readable.
