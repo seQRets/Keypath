@@ -7,8 +7,8 @@
 <meta name="description" content="KeyPath: generate or inspect a BIP39 recovery phrase, back it up with SLIP-39 Shamir shares, and derive BIP32 keys and Bitcoin addresses, legacy through Taproot. Single file, runs entirely offline in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-IxIpP4Kk3bVm+ppD1KHvteUDi3ffaWMuZwHwJ8qi70Y='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
-<script>try{if(localStorage.getItem("keypath-tips")==="off")document.documentElement.classList.add("no-tips");}catch(e){}try{var t=localStorage.getItem("keypath-theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}else if(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches){document.documentElement.setAttribute("data-theme","dark");}}catch(e){}</script>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-MkND71j06hkoWq098TO/ZA1lEL2fquq9aWUSwQ4ovZo=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-HuoBhcf0FCdk24eR/2OYyY7lngjf7I8aej07wmixLik='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<script>try{if(localStorage.getItem("keypath-tips")==="off")document.documentElement.classList.add("no-tips");}catch(e){}var t=null;try{t=localStorage.getItem("keypath-theme");}catch(e){}if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}else if(location.protocol==="file:"||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)){document.documentElement.setAttribute("data-theme","dark");}</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fbbf24'/><stop offset='.55' stop-color='%23f97316'/><stop offset='1' stop-color='%23ef4444'/></linearGradient></defs><rect width='512' height='512' rx='116' fill='url(%23g)'/><g fill='none' stroke='%23fff' stroke-width='48' stroke-linecap='round' stroke-linejoin='round'><circle cx='190' cy='256' r='74'/><path d='M264 256h176M382 256v62M440 256v50'/></g></svg>">
 <style>
 :root {
@@ -827,7 +827,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
             <div class="field"><label class="field-label">Account extended public key<button type="button" class="tip" data-tip="xpub" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span></label>
               <div class="term" id="acctXpub"><button class="copy" data-copy="acctXpub" type="button">copy</button></div></div>
           </div>
-          <label class="check hidden" id="slipWrap" style="margin-top:0.2rem"><input type="checkbox" id="slip132"> Use SLIP-132 prefixes (<span id="slipNames">ypub / zpub</span>) for the account keys<button type="button" class="tip" data-tip="slip132" aria-label="What does this mean?">?</button></label>
+          <label class="check hidden" id="slipWrap" style="margin-top:0.2rem"><input type="checkbox" id="slip132"> <span id="slipNames">xpub ↔ zpub</span><button type="button" class="tip" data-tip="slip132" aria-label="What does this mean?">?</button></label>
 
           <div id="descWrap">
           <h3 class="sec">Output descriptors<button type="button" class="tip" data-tip="descriptor" aria-label="What does this mean?">?</button></h3>
@@ -1048,7 +1048,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest/download/SHA256SUMS.txt" rel="noopener noreferrer">SHA256SUMS.txt</a>
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest" target="_blank" rel="noopener noreferrer">Release notes</a>
       </div>
-      <p class="dl-note">This page is KeyPath v2.11.0. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
+      <p class="dl-note">This page is KeyPath v2.11.1. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
     </div>
   </section>
 
@@ -1075,7 +1075,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
       </div>
     </div>
     <div class="foot-bottom">
-      <span class="credit">KeyPath v2.11.0 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
+      <span class="credit">KeyPath v2.11.1 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
       <span>Provided "as is", without warranty. Verify addresses in a second tool before sending significant funds.</span>
     </div>
   </footer>
@@ -21834,7 +21834,8 @@ const themeMedia = window.matchMedia ? window.matchMedia('(prefers-color-scheme:
 function themeMode() { try { const s = localStorage.getItem('keypath-theme'); return s === 'dark' || s === 'light' ? s : 'system'; } catch (e) { return 'system'; } }
 function themeLabel() { $('themeBtn').querySelector('span').textContent = { system: 'Dark mode', dark: 'Light mode', light: 'System theme' }[themeMode()]; }
 function applyTheme(mode) {
-  const dark = mode === 'dark' || (mode === 'system' && themeMedia && themeMedia.matches);
+  // a downloaded copy (file:) defaults to dark: offline browsers often hide or block the system preference
+  const dark = mode === 'dark' || (mode === 'system' && (location.protocol === 'file:' || (themeMedia && themeMedia.matches)));
   document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
   themeLabel();
 }
@@ -21844,7 +21845,7 @@ $('themeBtn').addEventListener('click', () => {
   applyTheme(next);
 });
 if (themeMedia && themeMedia.addEventListener) themeMedia.addEventListener('change', () => { if (themeMode() === 'system') applyTheme('system'); });
-themeLabel();
+applyTheme(themeMode()); // re-applied at boot so the theme is right even where storage is blocked (e.g. a downloaded file on file://)
 /* every card that can show a secret hides on its own; the eye in its header toggles just that card, the menu item sets them all */
 const SECRET_CARDS = ['phrase-card', 'shamir-card', 'seed-card', 'derivation-card', 'addresses-card', 'multisig-card'];
 function allHidden() { return SECRET_CARDS.every((id) => $(id).classList.contains('sec-hidden')); }
@@ -21972,7 +21973,8 @@ function renderEntropyDetails(e, entBytes, error) {
     rows.push(['Binary checksum', checksumBits(entBytes), '', 'checksumbits'], ['Word indexes', words.map((w) => wl.indexOf(w)).join(', '), '', 'indexes']);
   }
   const tipBtn = (k) => (k ? `<button type="button" class="tip" data-tip="${k}" aria-label="What does this mean?">?</button>` : '');
-  el.innerHTML = rows.map(([k, v, m, t]) => `<dt>${esc(k)}${tipBtn(t)}</dt><dd class="${m === 'sans' ? 'sans' : ''}">${m === 'html' ? v : esc(v)}</dd>`).join('');
+  const SECRET_ROWS = new Set(['filtered', 'rawbinary', 'checksumbits', 'indexes']); // these rows are the entropy in another form
+  el.innerHTML = rows.map(([k, v, m, t]) => `<dt>${esc(k)}${tipBtn(t)}</dt><dd class="${m === 'sans' ? 'sans' : ''}${SECRET_ROWS.has(t) ? ' secret' : ''}">${m === 'html' ? v : esc(v)}</dd>`).join('');
   if (error) setMeter('entropyStatus', count(error, 'bad'));
   else {
     const hashed = $('entropyLen').value !== 'raw'; const shown = hashed ? Math.floor(events.length * Math.log2(e.base.asInt)) : e.binaryStr.length;
@@ -22126,7 +22128,7 @@ function selectTab(tab) {
   const slip = ms ? (multisig.MS_VERSIONS[S.net][$('msScript').value] || {}).names : (std && net().slip[tab]);
   $('slipWrap').classList.toggle('hidden', !slip);
   $('msTrNote48').classList.toggle('hidden', !(ms && $('msScript').value === 'p2tr'));
-  if (slip) $('slipNames').textContent = slip.join(' / ');
+  if (slip) $('slipNames').textContent = `xpub ↔ ${slip[1]}`;
   derive();
 }
 for (const id of ['coin', 'account', 'change']) $(id).addEventListener('input', debounce(() => { S.coin = +$('coin').value || 0; S.account = +$('account').value || 0; S.change = +$('change').value || 0; derive(); }, 200));

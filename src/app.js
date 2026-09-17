@@ -160,7 +160,8 @@ const themeMedia = window.matchMedia ? window.matchMedia('(prefers-color-scheme:
 function themeMode() { try { const s = localStorage.getItem('keypath-theme'); return s === 'dark' || s === 'light' ? s : 'system'; } catch (e) { return 'system'; } }
 function themeLabel() { $('themeBtn').querySelector('span').textContent = { system: 'Dark mode', dark: 'Light mode', light: 'System theme' }[themeMode()]; }
 function applyTheme(mode) {
-  const dark = mode === 'dark' || (mode === 'system' && themeMedia && themeMedia.matches);
+  // a downloaded copy (file:) defaults to dark: offline browsers often hide or block the system preference
+  const dark = mode === 'dark' || (mode === 'system' && (location.protocol === 'file:' || (themeMedia && themeMedia.matches)));
   document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
   themeLabel();
 }
@@ -170,7 +171,7 @@ $('themeBtn').addEventListener('click', () => {
   applyTheme(next);
 });
 if (themeMedia && themeMedia.addEventListener) themeMedia.addEventListener('change', () => { if (themeMode() === 'system') applyTheme('system'); });
-themeLabel();
+applyTheme(themeMode()); // re-applied at boot so the theme is right even where storage is blocked (e.g. a downloaded file on file://)
 /* every card that can show a secret hides on its own; the eye in its header toggles just that card, the menu item sets them all */
 const SECRET_CARDS = ['phrase-card', 'shamir-card', 'seed-card', 'derivation-card', 'addresses-card', 'multisig-card'];
 function allHidden() { return SECRET_CARDS.every((id) => $(id).classList.contains('sec-hidden')); }
@@ -298,7 +299,8 @@ function renderEntropyDetails(e, entBytes, error) {
     rows.push(['Binary checksum', checksumBits(entBytes), '', 'checksumbits'], ['Word indexes', words.map((w) => wl.indexOf(w)).join(', '), '', 'indexes']);
   }
   const tipBtn = (k) => (k ? `<button type="button" class="tip" data-tip="${k}" aria-label="What does this mean?">?</button>` : '');
-  el.innerHTML = rows.map(([k, v, m, t]) => `<dt>${esc(k)}${tipBtn(t)}</dt><dd class="${m === 'sans' ? 'sans' : ''}">${m === 'html' ? v : esc(v)}</dd>`).join('');
+  const SECRET_ROWS = new Set(['filtered', 'rawbinary', 'checksumbits', 'indexes']); // these rows are the entropy in another form
+  el.innerHTML = rows.map(([k, v, m, t]) => `<dt>${esc(k)}${tipBtn(t)}</dt><dd class="${m === 'sans' ? 'sans' : ''}${SECRET_ROWS.has(t) ? ' secret' : ''}">${m === 'html' ? v : esc(v)}</dd>`).join('');
   if (error) setMeter('entropyStatus', count(error, 'bad'));
   else {
     const hashed = $('entropyLen').value !== 'raw'; const shown = hashed ? Math.floor(events.length * Math.log2(e.base.asInt)) : e.binaryStr.length;
@@ -452,7 +454,7 @@ function selectTab(tab) {
   const slip = ms ? (multisig.MS_VERSIONS[S.net][$('msScript').value] || {}).names : (std && net().slip[tab]);
   $('slipWrap').classList.toggle('hidden', !slip);
   $('msTrNote48').classList.toggle('hidden', !(ms && $('msScript').value === 'p2tr'));
-  if (slip) $('slipNames').textContent = slip.join(' / ');
+  if (slip) $('slipNames').textContent = `xpub ↔ ${slip[1]}`;
   derive();
 }
 for (const id of ['coin', 'account', 'change']) $(id).addEventListener('input', debounce(() => { S.coin = +$('coin').value || 0; S.account = +$('account').value || 0; S.change = +$('change').value || 0; derive(); }, 200));

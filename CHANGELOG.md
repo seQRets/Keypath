@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.11.1 — 2026-09-17
+
+- The entropy details panel no longer exposes the secret while the card is hidden. Filtered entropy, raw binary, the binary checksum and the word indexes — each of which is the phrase in another form — now blur with the card. The harmless statistics (time to crack, event count, entropy type, bits per event, word and bit counts) stay readable.
+- A downloaded copy of the file now opens in dark mode by default. Before, browsers that block storage for downloaded pages (Safari does) silently broke the theme detection and the file always opened light. The hosted page still follows the computer's theme, a choice made from the menu still wins everywhere, and the download stays byte-identical to the hosted file, so the hash check is unchanged.
+- The SLIP-132 checkbox in the Derivation path card is now labelled "xpub ↔ zpub" (or ypub, matching the address type), with the explanation kept behind its "?".
+
 ## v2.11.0 — 2026-09-17
 
 **Each card hides on its own, and Shamir recovery hides the page.**
