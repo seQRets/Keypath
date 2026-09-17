@@ -171,14 +171,21 @@ $('themeBtn').addEventListener('click', () => {
 });
 if (themeMedia && themeMedia.addEventListener) themeMedia.addEventListener('change', () => { if (themeMode() === 'system') applyTheme('system'); });
 themeLabel();
-function setHidden(on) {
-  $('hideSecrets').setAttribute('aria-pressed', on); document.documentElement.classList.toggle('hide-secrets', on);
-  const label = on ? 'Reveal private info' : 'Hide private info';
-  $('hideSecrets').querySelector('span').textContent = label;
-  $('menuHide').setAttribute('aria-pressed', on); $('menuHide').querySelector('span').textContent = label;
+/* every card that can show a secret hides on its own; the eye in its header toggles just that card, the menu item sets them all */
+const SECRET_CARDS = ['phrase-card', 'shamir-card', 'seed-card', 'derivation-card', 'addresses-card', 'multisig-card'];
+function allHidden() { return SECRET_CARDS.every((id) => $(id).classList.contains('sec-hidden')); }
+function setCardHidden(id, on) {
+  $(id).classList.toggle('sec-hidden', on);
+  const b = $(id).querySelector('.barbtn.eye');
+  b.setAttribute('aria-pressed', on); b.querySelector('span').textContent = on ? 'Reveal' : 'Hide';
+  const all = allHidden();
+  $('menuHide').setAttribute('aria-pressed', all); $('menuHide').querySelector('span').textContent = all ? 'Reveal private info' : 'Hide private info';
 }
-$('hideSecrets').addEventListener('click', () => setHidden($('hideSecrets').getAttribute('aria-pressed') !== 'true'));
-$('menuHide').addEventListener('click', () => setHidden(!document.documentElement.classList.contains('hide-secrets')));
+function setHidden(on) { for (const id of SECRET_CARDS) setCardHidden(id, on); }
+document.querySelectorAll('.barbtn.eye').forEach((b) => b.addEventListener('click', () => {
+  const card = b.closest('.console'); setCardHidden(card.id, !card.classList.contains('sec-hidden'));
+}));
+$('menuHide').addEventListener('click', () => setHidden(!allHidden()));
 function menuOpen(open) { $('menuBtn').setAttribute('aria-expanded', open); $('menuPanel').hidden = !open; }
 $('menuBtn').addEventListener('click', () => menuOpen($('menuPanel').hidden));
 document.addEventListener('click', (e) => { if (!$('menuPanel').hidden && !e.target.closest('#menuWrap')) menuOpen(false); });
@@ -550,7 +557,7 @@ function renderRows(append = false) {
 }
 $('addrBody').addEventListener('click', async (e) => {
   const s = e.target.closest('span[data-c]'); if (!s) return;
-  if (document.documentElement.classList.contains('hide-secrets') && s.closest('.secret')) return;
+  if (s.closest('.sec-hidden') && s.closest('.secret')) return;
   const isSecret = !!s.closest('.secret'); if (await copyText(s.dataset.c, isSecret)) toast(isSecret ? 'Copied · clipboard clears in 60 s' : 'Copied');
 });
 function csv() {
@@ -620,6 +627,7 @@ function shamirMake() {
   $('shNote').classList.remove('hidden');
 }
 function shamirRecover() {
+  const wasRecovered = !!S.shRecovered;
   S.shRecovered = null; $('shUse').classList.add('hidden');
   const lines = $('shInput').value.split(/\n+/).map((l) => l.trim()).filter(Boolean);
   const clear = (msg, cls = 'bad') => { setBox('shRecHex', '', { empty: 'Paste enough shares above.' }); setBox('shRecPhrase', ''); $('shRecLang').textContent = ''; setMeter('shRecStatus', msg ? count(msg, cls) : ''); };
@@ -636,6 +644,7 @@ function shamirRecover() {
   if (![16, 20, 24, 28, 32].includes(ent.length)) return clear(`Recovered a ${ent.length * 8}-bit secret, which is not a BIP39 entropy size.`);
   const phrase = bip39.entropyToMnemonic(ent, wordlists[S.lang].words);
   S.shRecovered = { phrase };
+  if (!wasRecovered && phrase !== DEMO_PHRASE) setHidden(true); // a freshly recovered phrase is private from the first moment
   setMeter('shRecStatus', count('recovered', 'ok') + note(`${ent.length * 8} bits from ${distinct} shares (set ${good[0].identifier}). A wrong share passphrase gives a different, valid-looking phrase, so check it against what you expect.`));
   setBox('shRecHex', hex.encode(ent)); setBox('shRecPhrase', phrase); $('shRecLang').textContent = wordlists[S.lang].name;
   $('shUse').classList.remove('hidden');
@@ -936,7 +945,7 @@ addEventListener('pagehide', wipeAll);
 let idleTimer;
 function idleReset() {
   clearTimeout(idleTimer);
-  idleTimer = setTimeout(() => { if (!document.documentElement.classList.contains('hide-secrets')) { setHidden(true); toast('Private info hidden after 5 minutes idle'); } }, 5 * 60 * 1000);
+  idleTimer = setTimeout(() => { if (!allHidden()) { setHidden(true); toast('Private info hidden after 5 minutes idle'); } }, 5 * 60 * 1000);
 }
 for (const ev of ['pointerdown', 'keydown', 'scroll', 'input']) addEventListener(ev, idleReset, { passive: true });
 idleReset();

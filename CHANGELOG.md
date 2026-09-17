@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.11.0 — 2026-09-17
+
+**Each card hides on its own, and Shamir recovery hides the page.**
+
+- Recovering a phrase from Shamir shares now hides all private information the moment the recovery succeeds, the same as generating or pasting a phrase does. Before, the recovered entropy and phrase appeared in the open. Recovering the demo phrase leaves the page open, and editing the shares after a deliberate reveal does not re-hide it.
+- Every card that can show a secret — Recovery phrase, Shamir backup, Seed & master key, Derivation path, Derived addresses and Multisig wallet — has an eye button in its top-right corner reading Hide or Reveal. It blurs or reveals just that card, so one section can be checked while the rest stay hidden. The menu's "Hide private info" still sets every card at once, and the automatic hiding (a new phrase, a recovery, five idle minutes) covers every card too.
+- In dark mode the open eye wears the same amber → orange → red gradient as the brand mark; the crossed eye stays red while a card is hidden. Copy buttons keep working through the blur, and empty boxes stay readable.
+
 ## v2.10.3 — 2026-09-16
 
 - The theme now follows your computer by default, and keeps following it while the page is open. The menu choice cycles from the system theme to dark, to light, and back to the system theme; picking the system theme forgets the stored choice. Before, the computer's preference was only read on the first visit, and one click pinned a theme for good.

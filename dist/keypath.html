@@ -7,7 +7,7 @@
 <meta name="description" content="KeyPath: generate or inspect a BIP39 recovery phrase, back it up with SLIP-39 Shamir shares, and derive BIP32 keys and Bitcoin addresses, legacy through Taproot. Single file, runs entirely offline in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-hpPX2IrM3eDcixglPN9dOIKcuwrQDJ/m7JEP+rs/P10='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T4s2QI40u3JoMOmuD7UmAY6D7xqCsaV68Pcyq9Ptr9A=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-IxIpP4Kk3bVm+ppD1KHvteUDi3ffaWMuZwHwJ8qi70Y='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <script>try{if(localStorage.getItem("keypath-tips")==="off")document.documentElement.classList.add("no-tips");}catch(e){}try{var t=localStorage.getItem("keypath-theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}else if(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches){document.documentElement.setAttribute("data-theme","dark");}}catch(e){}</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fbbf24'/><stop offset='.55' stop-color='%23f97316'/><stop offset='1' stop-color='%23ef4444'/></linearGradient></defs><rect width='512' height='512' rx='116' fill='url(%23g)'/><g fill='none' stroke='%23fff' stroke-width='48' stroke-linecap='round' stroke-linejoin='round'><circle cx='190' cy='256' r='74'/><path d='M264 256h176M382 256v62M440 256v50'/></g></svg>">
 <style>
@@ -248,11 +248,12 @@ select { appearance: none; -webkit-appearance: none; padding-right: 2.1rem; back
 
 /* secrets */
 .secret { transition: filter .15s ease; }
-html.hide-secrets .secret { filter: blur(7px); user-select: none; pointer-events: none; }
+/* each card carries its own hidden state; the menu's Hide/Reveal private info sets every card at once */
+.sec-hidden .secret { filter: blur(7px); user-select: none; pointer-events: none; }
 /* Fields stay usable while blurred: you can click into them and type without ever showing the text. */
-html.hide-secrets .secret:is(input, textarea, [contenteditable]) { pointer-events: auto; user-select: text; }
-html.hide-secrets .secret:is(input, textarea):placeholder-shown { filter: none; } /* an empty box has nothing to hide */
-html.hide-secrets .secret:is(input, textarea, [contenteditable]):focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 30%, transparent); border-color: var(--danger); }
+.sec-hidden .secret:is(input, textarea, [contenteditable]) { pointer-events: auto; user-select: text; }
+.sec-hidden .secret:is(input, textarea):placeholder-shown { filter: none; } /* an empty box has nothing to hide */
+.sec-hidden .secret:is(input, textarea, [contenteditable]):focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 30%, transparent); border-color: var(--danger); }
 
 /* ---------- entropy panel ---------- */
 .entropy-panel { margin-top: 1.1rem; background: var(--panel-sunk); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.1rem 1.2rem; }
@@ -516,7 +517,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
 .iconbtn.done { color: var(--ok); border-color: var(--ok); }
 
 /* copying stays possible while blurred: the secret never has to be shown to be moved somewhere private */
-html.hide-secrets .secret .copy, html.hide-secrets .secret .iconbtn, #msGen.covered .share-list .copy { pointer-events: auto; filter: none; }
+.sec-hidden .secret .copy, .sec-hidden .secret .iconbtn, #msGen.covered .share-list .copy { pointer-events: auto; filter: none; }
 
 /* IttyBitz-style dark theme: black glass cards, amber gradient actions, gradient brand mark (experiment) */
 .brandmark { display: none; }
@@ -544,11 +545,14 @@ html.hide-secrets .secret .copy, html.hide-secrets .secret .iconbtn, #msGen.cove
 :root[data-theme="dark"] .cols { background: transparent; border: none; padding: 0; gap: 0.4rem; }
 :root[data-theme="dark"] .barbtn { border-color: rgba(255,255,255,0.14); }
 :root[data-theme="dark"] .barbtn:hover { border-color: #f59e0b; color: #f59e0b; }
+:root[data-theme="dark"] .barbtn.eye .ic-eye { stroke: url(#kpEyeGrad); } /* the open eye wears the brand gradient; the crossed eye stays red */
 
 </style>
 </head>
 <body>
 <div class="wrap">
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="kpEyeGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbbf24"/><stop offset=".55" stop-color="#f97316"/><stop offset="1" stop-color="#ef4444"/></linearGradient></defs></svg>
 
   <div class="menu-wrap" id="menuWrap">
     <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="menuPanel" aria-label="Menu" title="Menu">
@@ -598,7 +602,7 @@ html.hide-secrets .secret .copy, html.hide-secrets .secret .iconbtn, #msGen.cove
 
   <!-- ===================== 01 Phrase ===================== -->
   <section class="console" id="phrase-card" aria-label="Recovery phrase">
-    <div class="console-bar"><span class="n">1</span> Recovery phrase<button type="button" class="tip" data-tip="phrase" aria-label="What does this mean?">?</button><div class="bar-actions"><button type="button" class="barbtn" id="showEntropy" aria-pressed="false">Show entropy details</button><button type="button" class="barbtn eye" id="hideSecrets" aria-pressed="false"><svg class="ic-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.8A9.8 9.8 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3.2 3.9M6.6 6.6C4 8.4 2.5 12 2.5 12s3.5 6.5 9.5 6.5a9.6 9.6 0 0 0 4.1-.9"/></svg><span>Hide private info</span></button></div></div>
+    <div class="console-bar"><span class="n">1</span> Recovery phrase<button type="button" class="tip" data-tip="phrase" aria-label="What does this mean?">?</button><div class="bar-actions"><button type="button" class="barbtn" id="showEntropy" aria-pressed="false">Show entropy details</button><button type="button" class="barbtn eye" aria-pressed="false"><svg class="ic-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.8A9.8 9.8 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3.2 3.9M6.6 6.6C4 8.4 2.5 12 2.5 12s3.5 6.5 9.5 6.5a9.6 9.6 0 0 0 4.1-.9"/></svg><span>Hide</span></button></div></div>
     <div class="console-body">
       <p class="console-intro">Generate a fresh phrase or type an existing one. The last word carries a <span class="gloss" data-tip="checksum">checksum</span>, so a phrase invented by hand will almost never validate.</p>
 
@@ -690,7 +694,7 @@ html.hide-secrets .secret .copy, html.hide-secrets .secret .iconbtn, #msGen.cove
 
   <!-- ===================== 02 Shamir backup ===================== -->
   <section class="console" id="shamir-card" aria-label="Shamir backup">
-    <div class="console-bar"><span class="n">2</span> Shamir backup<button type="button" class="tip" data-tip="shamir" aria-label="What does this mean?">?</button></div>
+    <div class="console-bar"><span class="n">2</span> Shamir backup<button type="button" class="tip" data-tip="shamir" aria-label="What does this mean?">?</button><div class="bar-actions"><button type="button" class="barbtn eye" aria-pressed="false"><svg class="ic-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.8A9.8 9.8 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3.2 3.9M6.6 6.6C4 8.4 2.5 12 2.5 12s3.5 6.5 9.5 6.5a9.6 9.6 0 0 0 4.1-.9"/></svg><span>Hide</span></button></div></div>
     <div class="console-body">
       <p class="console-intro">Split your seed phrase into several backup pieces, called shares, and choose how many of them are needed to get it back. For example, make 3 shares and require 2: store them in different places, and any 2 of the 3 rebuild the exact phrase above, while one share alone reveals nothing. This is the SLIP-39 standard used by Trezor.</p>
       <div style="text-align:center"><div class="mode-toggle" role="group" aria-label="Shamir mode">
@@ -729,7 +733,7 @@ html.hide-secrets .secret .copy, html.hide-secrets .secret .iconbtn, #msGen.cove
 
   <!-- ===================== 03 Seed & root ===================== -->
   <section class="console" id="seed-card" aria-label="Seed and master key">
-    <div class="console-bar"><span class="n">3</span> Seed &amp; master key<button type="button" class="tip" data-tip="seed" aria-label="What does this mean?">?</button></div>
+    <div class="console-bar"><span class="n">3</span> Seed &amp; master key<button type="button" class="tip" data-tip="seed" aria-label="What does this mean?">?</button><div class="bar-actions"><button type="button" class="barbtn eye" aria-pressed="false"><svg class="ic-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.8A9.8 9.8 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3.2 3.9M6.6 6.6C4 8.4 2.5 12 2.5 12s3.5 6.5 9.5 6.5a9.6 9.6 0 0 0 4.1-.9"/></svg><span>Hide</span></button></div></div>
     <div class="console-body">
       <p class="console-intro">Your seed phrase, plus the passphrase if you use one, is turned into a single master key. Every address the wallet will ever use comes from that one key, which is why the phrase alone can restore everything.</p>
       <div class="fp-row">
@@ -768,7 +772,7 @@ html.hide-secrets .secret .copy, html.hide-secrets .secret .iconbtn, #msGen.cove
 
   <!-- ===================== 03 Derivation ===================== -->
   <section class="console" id="derivation-card" aria-label="Derivation path">
-    <div class="console-bar"><span class="n">4</span> Derivation path<button type="button" class="tip" data-tip="derivation" aria-label="What does this mean?">?</button></div>
+    <div class="console-bar"><span class="n">4</span> Derivation path<button type="button" class="tip" data-tip="derivation" aria-label="What does this mean?">?</button><div class="bar-actions"><button type="button" class="barbtn eye" aria-pressed="false"><svg class="ic-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.8A9.8 9.8 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3.2 3.9M6.6 6.6C4 8.4 2.5 12 2.5 12s3.5 6.5 9.5 6.5a9.6 9.6 0 0 0 4.1-.9"/></svg><span>Hide</span></button></div></div>
     <div class="console-body">
       <p class="console-intro">Different wallets make their addresses in different ways, each named after the <span class="gloss" data-tip="bip">standard</span> it follows. Pick the one your wallet uses, and KeyPath shows the same keys and addresses your wallet would.</p>
       <div class="mode-toggle" role="tablist" id="tabs" aria-label="Derivation standard">
@@ -860,7 +864,7 @@ html.hide-secrets .secret .copy, html.hide-secrets .secret .iconbtn, #msGen.cove
 
   <!-- ===================== 04 Addresses ===================== -->
   <section class="console" id="addresses-card" aria-label="Derived addresses">
-    <div class="console-bar"><span class="n">5</span> Derived addresses<button type="button" class="tip" data-tip="addresses" aria-label="What does this mean?">?</button></div>
+    <div class="console-bar"><span class="n">5</span> Derived addresses<button type="button" class="tip" data-tip="addresses" aria-label="What does this mean?">?</button><div class="bar-actions"><button type="button" class="barbtn eye" aria-pressed="false"><svg class="ic-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.8A9.8 9.8 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3.2 3.9M6.6 6.6C4 8.4 2.5 12 2.5 12s3.5 6.5 9.5 6.5a9.6 9.6 0 0 0 4.1-.9"/></svg><span>Hide</span></button></div></div>
     <div class="console-body">
       <p class="console-intro">These are the addresses your wallet would show for the path chosen above, with the key behind each one. Click any address or key to copy it.</p>
       <div class="toolbar">
@@ -893,7 +897,7 @@ html.hide-secrets .secret .copy, html.hide-secrets .secret .iconbtn, #msGen.cove
 
   <!-- ===================== 6 Multisig wallet ===================== -->
   <section class="console" id="multisig-card" aria-label="Multisig wallet">
-    <div class="console-bar"><span class="n">6</span> Multisig wallet<button type="button" class="tip" data-tip="multisig" aria-label="What does this mean?">?</button></div>
+    <div class="console-bar"><span class="n">6</span> Multisig wallet<button type="button" class="tip" data-tip="multisig" aria-label="What does this mean?">?</button><div class="bar-actions"><button type="button" class="barbtn eye" aria-pressed="false"><svg class="ic-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.8A9.8 9.8 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3.2 3.9M6.6 6.6C4 8.4 2.5 12 2.5 12s3.5 6.5 9.5 6.5a9.6 9.6 0 0 0 4.1-.9"/></svg><span>Hide</span></button></div></div>
     <div class="console-body">
       <div style="text-align:center"><div class="mode-toggle" role="group" aria-label="Multisig mode">
         <button class="mode-btn" id="msModeBuild" type="button" aria-pressed="true">Build a wallet</button>
@@ -1044,7 +1048,7 @@ html.hide-secrets .secret .copy, html.hide-secrets .secret .iconbtn, #msGen.cove
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest/download/SHA256SUMS.txt" rel="noopener noreferrer">SHA256SUMS.txt</a>
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest" target="_blank" rel="noopener noreferrer">Release notes</a>
       </div>
-      <p class="dl-note">This page is KeyPath v2.10.3. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
+      <p class="dl-note">This page is KeyPath v2.11.0. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
     </div>
   </section>
 
@@ -1071,7 +1075,7 @@ html.hide-secrets .secret .copy, html.hide-secrets .secret .iconbtn, #msGen.cove
       </div>
     </div>
     <div class="foot-bottom">
-      <span class="credit">KeyPath v2.10.3 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
+      <span class="credit">KeyPath v2.11.0 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
       <span>Provided "as is", without warranty. Verify addresses in a second tool before sending significant funds.</span>
     </div>
   </footer>
@@ -21841,14 +21845,21 @@ $('themeBtn').addEventListener('click', () => {
 });
 if (themeMedia && themeMedia.addEventListener) themeMedia.addEventListener('change', () => { if (themeMode() === 'system') applyTheme('system'); });
 themeLabel();
-function setHidden(on) {
-  $('hideSecrets').setAttribute('aria-pressed', on); document.documentElement.classList.toggle('hide-secrets', on);
-  const label = on ? 'Reveal private info' : 'Hide private info';
-  $('hideSecrets').querySelector('span').textContent = label;
-  $('menuHide').setAttribute('aria-pressed', on); $('menuHide').querySelector('span').textContent = label;
+/* every card that can show a secret hides on its own; the eye in its header toggles just that card, the menu item sets them all */
+const SECRET_CARDS = ['phrase-card', 'shamir-card', 'seed-card', 'derivation-card', 'addresses-card', 'multisig-card'];
+function allHidden() { return SECRET_CARDS.every((id) => $(id).classList.contains('sec-hidden')); }
+function setCardHidden(id, on) {
+  $(id).classList.toggle('sec-hidden', on);
+  const b = $(id).querySelector('.barbtn.eye');
+  b.setAttribute('aria-pressed', on); b.querySelector('span').textContent = on ? 'Reveal' : 'Hide';
+  const all = allHidden();
+  $('menuHide').setAttribute('aria-pressed', all); $('menuHide').querySelector('span').textContent = all ? 'Reveal private info' : 'Hide private info';
 }
-$('hideSecrets').addEventListener('click', () => setHidden($('hideSecrets').getAttribute('aria-pressed') !== 'true'));
-$('menuHide').addEventListener('click', () => setHidden(!document.documentElement.classList.contains('hide-secrets')));
+function setHidden(on) { for (const id of SECRET_CARDS) setCardHidden(id, on); }
+document.querySelectorAll('.barbtn.eye').forEach((b) => b.addEventListener('click', () => {
+  const card = b.closest('.console'); setCardHidden(card.id, !card.classList.contains('sec-hidden'));
+}));
+$('menuHide').addEventListener('click', () => setHidden(!allHidden()));
 function menuOpen(open) { $('menuBtn').setAttribute('aria-expanded', open); $('menuPanel').hidden = !open; }
 $('menuBtn').addEventListener('click', () => menuOpen($('menuPanel').hidden));
 document.addEventListener('click', (e) => { if (!$('menuPanel').hidden && !e.target.closest('#menuWrap')) menuOpen(false); });
@@ -22220,7 +22231,7 @@ function renderRows(append = false) {
 }
 $('addrBody').addEventListener('click', async (e) => {
   const s = e.target.closest('span[data-c]'); if (!s) return;
-  if (document.documentElement.classList.contains('hide-secrets') && s.closest('.secret')) return;
+  if (s.closest('.sec-hidden') && s.closest('.secret')) return;
   const isSecret = !!s.closest('.secret'); if (await copyText(s.dataset.c, isSecret)) toast(isSecret ? 'Copied · clipboard clears in 60 s' : 'Copied');
 });
 function csv() {
@@ -22290,6 +22301,7 @@ function shamirMake() {
   $('shNote').classList.remove('hidden');
 }
 function shamirRecover() {
+  const wasRecovered = !!S.shRecovered;
   S.shRecovered = null; $('shUse').classList.add('hidden');
   const lines = $('shInput').value.split(/\n+/).map((l) => l.trim()).filter(Boolean);
   const clear = (msg, cls = 'bad') => { setBox('shRecHex', '', { empty: 'Paste enough shares above.' }); setBox('shRecPhrase', ''); $('shRecLang').textContent = ''; setMeter('shRecStatus', msg ? count(msg, cls) : ''); };
@@ -22306,6 +22318,7 @@ function shamirRecover() {
   if (![16, 20, 24, 28, 32].includes(ent.length)) return clear(`Recovered a ${ent.length * 8}-bit secret, which is not a BIP39 entropy size.`);
   const phrase = bip39.entropyToMnemonic(ent, wordlists[S.lang].words);
   S.shRecovered = { phrase };
+  if (!wasRecovered && phrase !== DEMO_PHRASE) setHidden(true); // a freshly recovered phrase is private from the first moment
   setMeter('shRecStatus', count('recovered', 'ok') + note(`${ent.length * 8} bits from ${distinct} shares (set ${good[0].identifier}). A wrong share passphrase gives a different, valid-looking phrase, so check it against what you expect.`));
   setBox('shRecHex', hex.encode(ent)); setBox('shRecPhrase', phrase); $('shRecLang').textContent = wordlists[S.lang].name;
   $('shUse').classList.remove('hidden');
@@ -22606,7 +22619,7 @@ addEventListener('pagehide', wipeAll);
 let idleTimer;
 function idleReset() {
   clearTimeout(idleTimer);
-  idleTimer = setTimeout(() => { if (!document.documentElement.classList.contains('hide-secrets')) { setHidden(true); toast('Private info hidden after 5 minutes idle'); } }, 5 * 60 * 1000);
+  idleTimer = setTimeout(() => { if (!allHidden()) { setHidden(true); toast('Private info hidden after 5 minutes idle'); } }, 5 * 60 * 1000);
 }
 for (const ev of ['pointerdown', 'keydown', 'scroll', 'input']) addEventListener(ev, idleReset, { passive: true });
 idleReset();
