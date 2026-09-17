@@ -38,7 +38,7 @@ const S = {
   net: 'mainnet', lang: 'english', prevLang: 'english', words: 12,
   phraseWords: [], phraseValid: false, seed: null,
   root: null, rootFromKey: false, rootPublicOnly: false, computedRootKey: '',
-  tab: 'bip84', account: 0, change: 0, coin: 0, customPath: "m/0'/0", customScript: 'p2wpkh', slip132: false,
+  tab: 'bip84', account: 0, change: 0, coin: 0, customPath: "m/0'/0", customScript: 'p2wpkh', slip132: false, origin: false,
   pathNode: null, pathIndices: null, script: 'p2wpkh',
   hardened: false, start: 0, count: 10, rows: [], renderToken: 0,
 };
@@ -462,6 +462,7 @@ $('customPreset').addEventListener('change', () => { const v = $('customPreset')
 $('customPath').addEventListener('input', debounce(() => { S.customPath = $('customPath').value; $('customPreset').value = 'custom'; derive(); }, 250));
 $('customScript').addEventListener('change', () => { S.customScript = $('customScript').value; derive(); });
 $('slip132').addEventListener('change', () => { S.slip132 = $('slip132').checked; derive(); });
+$('originBox').addEventListener('change', () => { S.origin = $('originBox').checked; derive(); });
 $('msScript').addEventListener('change', () => selectTab('bip48'));
 
 function derive() {
@@ -483,12 +484,14 @@ function derive() {
   const fp = fpHex(S.root);
   let pathNode;
   try {
+    const og = S.origin && acctIdx ? `[${fp}${pathToDesc(acctIdx)}]` : ''; // the key origin, same bracket the descriptors use
+    const withOg = (s) => (s ? og + s : s);
     if (ms) {
       const acct = deriveIdx(S.root, acctIdx);
       $('accountPathLbl').textContent = pathToString(acctIdx);
       const mv = S.slip132 && multisig.MS_VERSIONS[S.net][$('msScript').value]; // no SLIP-132 prefix for Taproot: xpub only
-      setBox('acctXprv', serExt(acct, mv ? mv.prv : n.xprv, true), { empty: 'Not available from a public key.' });
-      setBox('acctXpub', serExt(acct, mv ? mv.pub : n.xpub, false));
+      setBox('acctXprv', withOg(serExt(acct, mv ? mv.prv : n.xprv, true)), { empty: 'Not available from a public key.' });
+      setBox('acctXpub', withOg(serExt(acct, mv ? mv.pub : n.xpub, false)));
       setBox('cosignerLine', `[${fp}${pathToDesc(acctIdx)}]${serExt(acct, n.xpub, false)}`);
       S.pathNode = null; renderRows(); return;
     }
@@ -496,8 +499,8 @@ function derive() {
       const acct = deriveIdx(S.root, acctIdx);
       $('accountPathLbl').textContent = pathToString(acctIdx);
       const slip = S.slip132 && n.slip[S.tab];
-      setBox('acctXprv', serExt(acct, slip ? n[slip[0]] : n.xprv, true), { empty: 'Not available from a public key.' });
-      setBox('acctXpub', serExt(acct, slip ? n[slip[1]] : n.xpub, false));
+      setBox('acctXprv', withOg(serExt(acct, slip ? n[slip[0]] : n.xprv, true)), { empty: 'Not available from a public key.' });
+      setBox('acctXpub', withOg(serExt(acct, slip ? n[slip[1]] : n.xpub, false)));
       const xpub = serExt(acct, n.xpub, false);
       setBox('descRecv', descriptor(script, fp, pathToDesc(acctIdx), xpub, '/0/*'));
       setBox('descChange', descriptor(script, fp, pathToDesc(acctIdx), xpub, '/1/*'));

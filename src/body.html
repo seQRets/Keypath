@@ -268,14 +268,17 @@
 
         <div id="accountBlock">
           <h3 class="sec">Account level<button type="button" class="tip" data-tip="accountlevel" aria-label="What does this mean?">?</button> <span class="p" id="accountPathLbl"></span></h3>
-          <p class="help" style="margin-bottom:0.8rem">The account extended keys can be imported into most wallets that follow this standard. Share only the public one.</p>
+          <p class="help" style="margin-bottom:0.8rem">Paste the account extended public key into Sparrow or another wallet to create a watch-only wallet: it sees your addresses and balance but can never spend. Tick "Show [fingerprint/path] in front" if the wallet also asks where the key comes from. Share only the public one.</p>
           <div class="two">
             <div class="field"><label class="field-label">Account extended private key<button type="button" class="tip" data-tip="xprv" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span></label>
               <div class="term secret" id="acctXprv"><button class="copy" data-copy="acctXprv" type="button">copy</button></div></div>
             <div class="field"><label class="field-label">Account extended public key<button type="button" class="tip" data-tip="xpub" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span></label>
               <div class="term" id="acctXpub"><button class="copy" data-copy="acctXpub" type="button">copy</button></div></div>
           </div>
-          <label class="check hidden" id="slipWrap" style="margin-top:0.2rem"><input type="checkbox" id="slip132"> <span id="slipNames">xpub ↔ zpub</span><button type="button" class="tip" data-tip="slip132" aria-label="What does this mean?">?</button></label>
+          <div class="check-row" style="margin-top:0.4rem">
+            <label class="check hidden" id="slipWrap"><input type="checkbox" id="slip132"> <span id="slipNames">xpub ↔ zpub</span><button type="button" class="tip" data-tip="slip132" aria-label="What does this mean?">?</button></label>
+            <label class="check" id="originWrap"><input type="checkbox" id="originBox"> Show [fingerprint/path] in front<button type="button" class="tip" data-tip="keyorigin" aria-label="What does this mean?">?</button></label>
+          </div>
 
           <div id="descWrap">
           <h3 class="sec">Output descriptors<button type="button" class="tip" data-tip="descriptor" aria-label="What does this mean?">?</button></h3>

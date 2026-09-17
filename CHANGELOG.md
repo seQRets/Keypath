@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.11.3 — 2026-09-17
+
+- A new checkbox under the account keys, "Show [fingerprint/path] in front", turns the account keys into descriptor-style keys with the key origin attached, like [73c5da0a/84h/0h/0h]xpub…, and back. It combines with the xpub ↔ zpub switch, works on the multisig tab too, and its "?" explains what the bracket means. Wallets such as Sparrow and multisig coordinators read this prefix to learn which seed a key came from.
+- The Account level introduction now says what the key is for: paste the account extended public key into Sparrow or another wallet to create a watch-only wallet, which sees addresses and balance but can never spend. The output descriptors remain the equivalent route for Bitcoin Core and other descriptor wallets.
+- The two account-key checkboxes sit in a properly spaced row instead of running together.
+
 ## v2.11.2 — 2026-09-17
 
 - Dark is now the page's built-in default, set in the markup before any script runs. Viewers that do not run JavaScript at all, such as the macOS Quick Look preview, now show the file dark instead of light. The script then switches to light only where that is right: a saved light choice, or the hosted page on a computer set to light. A saved choice still wins everywhere; if a downloaded copy keeps opening light, pick "System theme" from the menu once to clear an old saved choice.

@@ -7,7 +7,7 @@
 <meta name="description" content="KeyPath: generate or inspect a BIP39 recovery phrase, back it up with SLIP-39 Shamir shares, and derive BIP32 keys and Bitcoin addresses, legacy through Taproot. Single file, runs entirely offline in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-P5bOCi+mn1+Z8F/Ma8IbUa+olaILPG5DmfnnzrJgo28=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-HuoBhcf0FCdk24eR/2OYyY7lngjf7I8aej07wmixLik='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-P5bOCi+mn1+Z8F/Ma8IbUa+olaILPG5DmfnnzrJgo28=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-SUZikV2xHD5bsQ+ZlbxLQ9grlR+zfzGuXKHRfiTZeXo='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <script>try{if(localStorage.getItem("keypath-tips")==="off")document.documentElement.classList.add("no-tips");}catch(e){}var t=null;try{t=localStorage.getItem("keypath-theme");}catch(e){}var dk=t==="dark"||(t!=="light"&&(location.protocol==="file:"||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)));document.documentElement.setAttribute("data-theme",dk?"dark":"light");</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fbbf24'/><stop offset='.55' stop-color='%23f97316'/><stop offset='1' stop-color='%23ef4444'/></linearGradient></defs><rect width='512' height='512' rx='116' fill='url(%23g)'/><g fill='none' stroke='%23fff' stroke-width='48' stroke-linecap='round' stroke-linejoin='round'><circle cx='190' cy='256' r='74'/><path d='M264 256h176M382 256v62M440 256v50'/></g></svg>">
 <style>
@@ -820,14 +820,17 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
 
         <div id="accountBlock">
           <h3 class="sec">Account level<button type="button" class="tip" data-tip="accountlevel" aria-label="What does this mean?">?</button> <span class="p" id="accountPathLbl"></span></h3>
-          <p class="help" style="margin-bottom:0.8rem">The account extended keys can be imported into most wallets that follow this standard. Share only the public one.</p>
+          <p class="help" style="margin-bottom:0.8rem">Paste the account extended public key into Sparrow or another wallet to create a watch-only wallet: it sees your addresses and balance but can never spend. Tick "Show [fingerprint/path] in front" if the wallet also asks where the key comes from. Share only the public one.</p>
           <div class="two">
             <div class="field"><label class="field-label">Account extended private key<button type="button" class="tip" data-tip="xprv" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span></label>
               <div class="term secret" id="acctXprv"><button class="copy" data-copy="acctXprv" type="button">copy</button></div></div>
             <div class="field"><label class="field-label">Account extended public key<button type="button" class="tip" data-tip="xpub" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span></label>
               <div class="term" id="acctXpub"><button class="copy" data-copy="acctXpub" type="button">copy</button></div></div>
           </div>
-          <label class="check hidden" id="slipWrap" style="margin-top:0.2rem"><input type="checkbox" id="slip132"> <span id="slipNames">xpub ↔ zpub</span><button type="button" class="tip" data-tip="slip132" aria-label="What does this mean?">?</button></label>
+          <div class="check-row" style="margin-top:0.4rem">
+            <label class="check hidden" id="slipWrap"><input type="checkbox" id="slip132"> <span id="slipNames">xpub ↔ zpub</span><button type="button" class="tip" data-tip="slip132" aria-label="What does this mean?">?</button></label>
+            <label class="check" id="originWrap"><input type="checkbox" id="originBox"> Show [fingerprint/path] in front<button type="button" class="tip" data-tip="keyorigin" aria-label="What does this mean?">?</button></label>
+          </div>
 
           <div id="descWrap">
           <h3 class="sec">Output descriptors<button type="button" class="tip" data-tip="descriptor" aria-label="What does this mean?">?</button></h3>
@@ -1048,7 +1051,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest/download/SHA256SUMS.txt" rel="noopener noreferrer">SHA256SUMS.txt</a>
         <a class="btn" href="https://github.com/seQRets/Keypath/releases/latest" target="_blank" rel="noopener noreferrer">Release notes</a>
       </div>
-      <p class="dl-note">This page is KeyPath v2.11.2. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
+      <p class="dl-note">This page is KeyPath v2.11.3. After downloading, run <code>shasum -a 256 keypath.html</code> (Mac/Linux) or <code>Get-FileHash keypath.html</code> (Windows) and compare the result with the line for keypath.html in SHA256SUMS.txt. Do not use your browser's "Save page as", which rewrites the file and changes its hash.</p>
     </div>
   </section>
 
@@ -1075,7 +1078,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
       </div>
     </div>
     <div class="foot-bottom">
-      <span class="credit">KeyPath v2.11.2 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
+      <span class="credit">KeyPath v2.11.3 · MIT licensed. Crypto by <strong>noble</strong> and <strong>scure</strong>, bundled into this file.</span>
       <span>Provided "as is", without warranty. Verify addresses in a second tool before sending significant funds.</span>
     </div>
   </footer>
@@ -21635,6 +21638,7 @@ window.KEYPATH_GLOSSARY = {
   xprv: { t: 'Extended private key', d: 'A single string starting with xprv that contains a key plus the information to derive every key beneath it. Anyone with it can spend everything under this point in the tree.' },
   xpub: { t: 'Extended public key', d: 'The public twin of the xprv, starting with xpub, ypub or zpub. It lets a wallet or explorer see all the addresses and balances under this point, but not spend. Sharing it costs privacy, not money.' },
   slip132: { t: 'SLIP-132 prefixes', d: 'Some wallets label extended keys ypub or zpub instead of xpub to signal the address style. The key inside is identical; only the first letters change. Check this box if a wallet asks for a zpub.' },
+  keyorigin: { t: 'Fingerprint and path in front', d: 'The bracket in front, like [73c5da0a/84h/0h/0h], is called the key origin: your master fingerprint and the path this key was derived along. Wallets such as Sparrow and multisig coordinators read it to know which seed the key came from, which matters most in multisig. Include it when a wallet accepts it; paste the clean key if one refuses.' },
   descriptor: { t: 'Output descriptor', d: 'A one-line recipe that tells Bitcoin Core, Sparrow and other modern wallets exactly which key, path and address style to watch. It ends with a short checksum so a typo is caught. The public version reveals addresses, not spending power.' },
   pathkeys: { t: 'Keys at the derivation path', d: 'The extended keys at the exact path shown, one level below the account. The addresses in the table are that key\'s children.' },
   addresses: { t: 'Derived addresses', d: '"Derived" means calculated from the key above. These are the actual Bitcoin addresses someone would pay you at, listed in the order a wallet would hand them out. Each one has its own private key, all grown from the single phrase.' },
@@ -21712,7 +21716,7 @@ const S = {
   net: 'mainnet', lang: 'english', prevLang: 'english', words: 12,
   phraseWords: [], phraseValid: false, seed: null,
   root: null, rootFromKey: false, rootPublicOnly: false, computedRootKey: '',
-  tab: 'bip84', account: 0, change: 0, coin: 0, customPath: "m/0'/0", customScript: 'p2wpkh', slip132: false,
+  tab: 'bip84', account: 0, change: 0, coin: 0, customPath: "m/0'/0", customScript: 'p2wpkh', slip132: false, origin: false,
   pathNode: null, pathIndices: null, script: 'p2wpkh',
   hardened: false, start: 0, count: 10, rows: [], renderToken: 0,
 };
@@ -22136,6 +22140,7 @@ $('customPreset').addEventListener('change', () => { const v = $('customPreset')
 $('customPath').addEventListener('input', debounce(() => { S.customPath = $('customPath').value; $('customPreset').value = 'custom'; derive(); }, 250));
 $('customScript').addEventListener('change', () => { S.customScript = $('customScript').value; derive(); });
 $('slip132').addEventListener('change', () => { S.slip132 = $('slip132').checked; derive(); });
+$('originBox').addEventListener('change', () => { S.origin = $('originBox').checked; derive(); });
 $('msScript').addEventListener('change', () => selectTab('bip48'));
 
 function derive() {
@@ -22157,12 +22162,14 @@ function derive() {
   const fp = fpHex(S.root);
   let pathNode;
   try {
+    const og = S.origin && acctIdx ? `[${fp}${pathToDesc(acctIdx)}]` : ''; // the key origin, same bracket the descriptors use
+    const withOg = (s) => (s ? og + s : s);
     if (ms) {
       const acct = deriveIdx(S.root, acctIdx);
       $('accountPathLbl').textContent = pathToString(acctIdx);
       const mv = S.slip132 && multisig.MS_VERSIONS[S.net][$('msScript').value]; // no SLIP-132 prefix for Taproot: xpub only
-      setBox('acctXprv', serExt(acct, mv ? mv.prv : n.xprv, true), { empty: 'Not available from a public key.' });
-      setBox('acctXpub', serExt(acct, mv ? mv.pub : n.xpub, false));
+      setBox('acctXprv', withOg(serExt(acct, mv ? mv.prv : n.xprv, true)), { empty: 'Not available from a public key.' });
+      setBox('acctXpub', withOg(serExt(acct, mv ? mv.pub : n.xpub, false)));
       setBox('cosignerLine', `[${fp}${pathToDesc(acctIdx)}]${serExt(acct, n.xpub, false)}`);
       S.pathNode = null; renderRows(); return;
     }
@@ -22170,8 +22177,8 @@ function derive() {
       const acct = deriveIdx(S.root, acctIdx);
       $('accountPathLbl').textContent = pathToString(acctIdx);
       const slip = S.slip132 && n.slip[S.tab];
-      setBox('acctXprv', serExt(acct, slip ? n[slip[0]] : n.xprv, true), { empty: 'Not available from a public key.' });
-      setBox('acctXpub', serExt(acct, slip ? n[slip[1]] : n.xpub, false));
+      setBox('acctXprv', withOg(serExt(acct, slip ? n[slip[0]] : n.xprv, true)), { empty: 'Not available from a public key.' });
+      setBox('acctXpub', withOg(serExt(acct, slip ? n[slip[1]] : n.xpub, false)));
       const xpub = serExt(acct, n.xpub, false);
       setBox('descRecv', descriptor(script, fp, pathToDesc(acctIdx), xpub, '/0/*'));
       setBox('descChange', descriptor(script, fp, pathToDesc(acctIdx), xpub, '/1/*'));
