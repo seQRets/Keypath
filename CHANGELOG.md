@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.12.1 — 2026-09-18
+
+- The new qr buttons on the key and file boxes were transparent and sat where long values wrap, so the text ran straight through them. Every QR trigger is now the same small icon button with a solid background, and the boxes leave room for it, so the text wraps before the buttons. The seed cards in the multisig card use the same icon.
+
 ## v2.12.0 — 2026-09-18
 
 **QR codes for the public values, and each multisig seed as a SeedQR.**
