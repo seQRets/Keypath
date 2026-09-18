@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.12.2 — 2026-09-18
+
+- Shamir shares hide one by one, like the multisig seeds. Each created share carries its own reveal button and blurs only its word list, and a Hide shares / Reveal shares button beside Create shares sets them all. Shares of a real phrase start covered the moment they are created (before, they could appear in the open); demo shares stay visible. Hiding the Shamir card or any hide-all still covers every share, and revealing stays deliberate, per share or all at once.
+
 ## v2.12.1 — 2026-09-18
 
 - The new qr buttons on the key and file boxes were transparent and sat where long values wrap, so the text ran straight through them. Every QR trigger is now the same small icon button with a solid background, and the boxes leave room for it, so the text wraps before the buttons. The seed cards in the multisig card use the same icon.
