@@ -247,9 +247,10 @@ select { appearance: none; -webkit-appearance: none; padding-right: 2.1rem; back
 .copy.done { color: var(--term-hex); border-color: var(--term-hex); }
 
 /* secrets */
-.secret { transition: filter .15s ease; }
+.secret { transition: filter .15s ease; } /* the reveal animates; hiding must not (see below) */
 /* each card carries its own hidden state; the menu's Hide/Reveal private info sets every card at once */
-.sec-hidden .secret { filter: blur(7px); user-select: none; pointer-events: none; }
+/* transition: none — a secret must blur the instant it is hidden, never fade in behind a fresh value */
+.sec-hidden .secret { filter: blur(7px); transition: none; user-select: none; pointer-events: none; }
 /* Fields stay usable while blurred: you can click into them and type without ever showing the text. */
 .sec-hidden .secret:is(input, textarea, [contenteditable]) { pointer-events: auto; user-select: text; }
 .sec-hidden .secret:is(input, textarea):placeholder-shown { filter: none; } /* an empty box has nothing to hide */
