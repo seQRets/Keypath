@@ -7,7 +7,7 @@
 <meta name="description" content="KeyPath: generate or inspect a BIP39 recovery phrase, back it up with SLIP-39 Shamir shares, and derive BIP32 keys and Bitcoin addresses, legacy through Taproot. Single file, runs entirely offline in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-P5bOCi+mn1+Z8F/Ma8IbUa+olaILPG5DmfnnzrJgo28=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-ESAf3opCVu33e3catCqXiMno3IEy7GTF9ydTSSMyuCg='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-P5bOCi+mn1+Z8F/Ma8IbUa+olaILPG5DmfnnzrJgo28=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-J6Tm5FA3JKN+eHgWIs7bqznIP4uMbsCRe2vLjmPgWB8='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <script>try{if(localStorage.getItem("keypath-tips")==="off")document.documentElement.classList.add("no-tips");}catch(e){}var t=null;try{t=localStorage.getItem("keypath-theme");}catch(e){}var dk=t==="dark"||(t!=="light"&&(location.protocol==="file:"||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)));document.documentElement.setAttribute("data-theme",dk?"dark":"light");</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fbbf24'/><stop offset='.55' stop-color='%23f97316'/><stop offset='1' stop-color='%23ef4444'/></linearGradient></defs><rect width='512' height='512' rx='116' fill='url(%23g)'/><g fill='none' stroke='%23fff' stroke-width='48' stroke-linecap='round' stroke-linejoin='round'><circle cx='190' cy='256' r='74'/><path d='M264 256h176M382 256v62M440 256v50'/></g></svg>">
 <style>
@@ -704,7 +704,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
   <section class="console" id="shamir-card" aria-label="Shamir backup">
     <div class="console-bar"><span class="n">2</span> Shamir backup<button type="button" class="tip" data-tip="shamir" aria-label="What does this mean?">?</button><div class="bar-actions"><button type="button" class="barbtn eye" aria-pressed="false"><svg class="ic-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.8A9.8 9.8 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3.2 3.9M6.6 6.6C4 8.4 2.5 12 2.5 12s3.5 6.5 9.5 6.5a9.6 9.6 0 0 0 4.1-.9"/></svg><span>Hide</span></button></div></div>
     <div class="console-body">
-      <p class="console-intro">Split your seed phrase into several backup pieces, called shares, and choose how many of them are needed to get it back. For example, make 3 shares and require 2: store them in different places, and any 2 of the 3 rebuild the exact phrase above, while one share alone reveals nothing. This is the SLIP-39 standard used by Trezor.</p>
+      <p class="console-intro">Split the seed phrase into backup pieces, called shares, and choose how many of them are needed to get it back: with 3 shares and 2 needed, any 2 rebuild the exact phrase, while one alone reveals nothing. This is the SLIP-39 standard used by Trezor.</p>
       <div style="text-align:center"><div class="mode-toggle" role="group" aria-label="Shamir mode">
         <button class="mode-btn" id="shSplit" type="button" aria-pressed="true">Split into shares</button>
         <button class="mode-btn" id="shRecover" type="button" aria-pressed="false">Recover from shares</button>
@@ -743,9 +743,9 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
   <section class="console" id="seed-card" aria-label="Seed and master key">
     <div class="console-bar"><span class="n">3</span> Seed &amp; master key<button type="button" class="tip" data-tip="seed" aria-label="What does this mean?">?</button><div class="bar-actions"><button type="button" class="barbtn eye" aria-pressed="false"><svg class="ic-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.8A9.8 9.8 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3.2 3.9M6.6 6.6C4 8.4 2.5 12 2.5 12s3.5 6.5 9.5 6.5a9.6 9.6 0 0 0 4.1-.9"/></svg><span>Hide</span></button></div></div>
     <div class="console-body">
-      <p class="console-intro">Your seed phrase, plus the passphrase if you use one, is turned into a single master key. Every address the wallet will ever use comes from that one key, which is why the phrase alone can restore everything.</p>
+      <p class="console-intro">The seed phrase, plus the passphrase if one is used, becomes a single master key from which every address grows — which is why the phrase alone can restore everything.</p>
       <div class="fp-row">
-        <div class="fp-box" id="fpBox"><span class="fp-label">Master fingerprint<button type="button" class="tip" data-tip="fingerprint" aria-label="What does this mean?">?</button></span><span class="fp-value" id="fpValue">—</span><span class="fp-note">The first four bytes of the master key's hash. Wallets show it so you can confirm a phrase and passphrase are the ones you expect, without revealing anything.</span></div>
+        <div class="fp-box" id="fpBox"><span class="fp-label">Master fingerprint<button type="button" class="tip" data-tip="fingerprint" aria-label="What does this mean?">?</button></span><span class="fp-value" id="fpValue">—</span></div>
       </div>
       <div class="field">
         <label class="field-label">BIP39 seed<button type="button" class="tip" data-tip="seed" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span><span class="hint">64 bytes, <span data-tip="hex" class="gloss">hexadecimal</span></span></label>
@@ -756,7 +756,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
         <select id="network"><option value="mainnet">Bitcoin mainnet</option><option value="testnet">Bitcoin testnet / signet</option></select>
       </div>
       <div class="field">
-        <label class="field-label">BIP32 root key<button type="button" class="tip" data-tip="rootkey" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span><span class="hint">editable: paste an xprv or xpub to start from a key instead of a phrase</span></label>
+        <label class="field-label">BIP32 root key<button type="button" class="tip" data-tip="rootkey" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span><span class="hint">Editable: paste an xprv or xpub to start from a key instead of a phrase.</span></label>
         <div class="term secret" id="rootOut" contenteditable="true" spellcheck="false"></div>
         <div class="meter" id="rootStatus"></div>
       </div>
@@ -765,7 +765,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
       <details class="adv" id="bip85Details">
         <summary>BIP85: derive a new phrase from this master key<button type="button" class="tip" data-tip="bip85" aria-label="What does this mean?">?</button></summary>
         <div class="adv-body">
-          <p class="help">BIP85 turns one master phrase into any number of independent child phrases, one per index. Back up only the master; every child can be recreated from it. The result is not used anywhere else on this page. To use a derived phrase, paste it into the phrase field above.</p>
+          <p class="help">BIP85 turns one master phrase into any number of independent child phrases, one per index; back up only the master, and every child can be recreated from it. To use a derived phrase, paste it into the phrase field above.</p>
           <div class="row">
             <label class="mid"><span class="small-label">Language<button type="button" class="tip" data-tip="language" aria-label="What does this mean?">?</button></span><select id="bip85Lang"></select></label>
             <label class="narrow"><span class="small-label">Words<button type="button" class="tip" data-tip="wordcount" aria-label="What does this mean?">?</button></span><select id="bip85Words"><option>12</option><option>15</option><option>18</option><option>21</option><option>24</option></select></label>
@@ -782,7 +782,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
   <section class="console" id="derivation-card" aria-label="Derivation path">
     <div class="console-bar"><span class="n">4</span> Derivation path<button type="button" class="tip" data-tip="derivation" aria-label="What does this mean?">?</button><div class="bar-actions"><button type="button" class="barbtn eye" aria-pressed="false"><svg class="ic-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.8A9.8 9.8 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3.2 3.9M6.6 6.6C4 8.4 2.5 12 2.5 12s3.5 6.5 9.5 6.5a9.6 9.6 0 0 0 4.1-.9"/></svg><span>Hide</span></button></div></div>
     <div class="console-body">
-      <p class="console-intro">Different wallets make their addresses in different ways, each named after the <span class="gloss" data-tip="bip">standard</span> it follows. Pick the one your wallet uses, and KeyPath shows the same keys and addresses your wallet would.</p>
+      <p class="console-intro">Each tab is a <span class="gloss" data-tip="bip">standard</span> for making addresses; pick the one your wallet uses, and KeyPath shows the same keys and addresses it would.</p>
       <div class="mode-toggle" role="tablist" id="tabs" aria-label="Derivation standard">
         <button class="mode-btn" role="tab" data-tab="bip44" aria-selected="false" aria-pressed="false">BIP44<span class="tsub">1…</span></button>
         <button class="mode-btn" role="tab" data-tab="bip49" aria-selected="false" aria-pressed="false">BIP49<span class="tsub">3…</span></button>
@@ -828,7 +828,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
 
         <div id="accountBlock">
           <h3 class="sec">Account level<button type="button" class="tip" data-tip="accountlevel" aria-label="What does this mean?">?</button> <span class="p" id="accountPathLbl"></span></h3>
-          <p class="help" style="margin-bottom:0.8rem">Paste the account extended public key into Sparrow or another wallet to create a watch-only wallet: it sees your addresses and balance but can never spend. Tick "Show [fingerprint/path] in front" if the wallet also asks where the key comes from. Share only the public one.</p>
+          <p class="help" style="margin-bottom:0.8rem">Paste the account extended public key into Sparrow or another wallet for a watch-only wallet, which sees the addresses and balance but can never spend. Share only the public key.</p>
           <div class="two">
             <div class="field"><label class="field-label">Account extended private key<button type="button" class="tip" data-tip="xprv" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span></label>
               <div class="term secret" id="acctXprv"><button class="copy" data-copy="acctXprv" type="button">copy</button></div></div>
@@ -842,7 +842,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
 
           <div id="descWrap">
           <h3 class="sec">Output descriptors<button type="button" class="tip" data-tip="descriptor" aria-label="What does this mean?">?</button></h3>
-          <p class="help" style="margin-bottom:0.8rem">Paste into Bitcoin Core (<code>importdescriptors</code>), Sparrow or any descriptor wallet to watch this account. Public keys only, checksum included.</p>
+          <p class="help" style="margin-bottom:0.8rem">Bitcoin Core (<code>importdescriptors</code>), Sparrow and other descriptor wallets watch this account with these lines; they hold public keys only.</p>
           <div class="field"><label class="field-label">Receive <span class="badge pub-badge" data-tip="public">public</span></label>
             <div class="term" id="descRecv"><button class="copy" data-copy="descRecv" type="button">copy</button></div></div>
           <div class="field"><label class="field-label">Change <span class="badge pub-badge" data-tip="public">public</span></label>
@@ -850,9 +850,9 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
           </div>
           <div id="cosignerWrap" class="hidden">
             <h3 class="sec">Your multisig xpub<button type="button" class="tip" data-tip="cosigner" aria-label="What does this mean?">?</button></h3>
-            <p class="help" style="margin-bottom:0.8rem">This is what you hand to the person setting up the multisig wallet: your master fingerprint, the path, and the public account key. It cannot spend anything. Share it; never share the private one.</p>
-            <p class="help hidden" id="msTrNote48" style="margin-bottom:0.8rem">Taproot multisig (script type 3') is the newest type, with cheaper and more private spends. Sparrow, Bitcoin Core 24 and later, and recent hardware wallets support it; older wallets cannot import it, and there is no special prefix for its key: it is a plain xpub.</p>
-            <div class="field"><label class="field-label">Key with origin <span class="badge pub-badge" data-tip="public">public</span><span class="hint">the format Sparrow, Bitcoin Core and hardware wallets accept</span></label>
+            <p class="help" style="margin-bottom:0.8rem">This line — fingerprint, path and public account key — is what the person setting up the multisig wallet needs; it cannot spend. Never share the private key.</p>
+            <p class="help hidden" id="msTrNote48" style="margin-bottom:0.8rem">Taproot multisig spends are cheaper and more private, but only Sparrow, Bitcoin Core 24 and later, and recent hardware wallets support it. Its key has no special prefix: it is a plain xpub.</p>
+            <div class="field"><label class="field-label">Key with origin <span class="badge pub-badge" data-tip="public">public</span><span class="hint">Sparrow, Bitcoin Core and hardware wallets accept this format.</span></label>
               <div class="term" id="cosignerLine"><button class="copy" data-copy="cosignerLine" type="button">copy</button></div></div>
             <button type="button" class="btn" id="cosignerToMs">Use this key in the multisig wallet below</button>
           </div>
@@ -21626,7 +21626,7 @@ window.KEYPATH_GLOSSARY = {
   hex: { t: 'Hexadecimal', d: 'A compact way to write binary data using the digits 0 to 9 and the letters a to f. Two characters per byte. There is nothing to interpret; it is just how computers show raw data.' },
   network: { t: 'Network', d: 'Mainnet is real Bitcoin with real value. Testnet and signet are practice networks whose coins are worthless, used to try things out safely. The same phrase gives different-looking addresses on each.' },
   rootkey: { t: 'BIP32 root key', d: 'The master key at the top of the key tree, written as one long string starting with "xprv". Every address on this page grows from it. A version starting with "xpub" can only watch, not spend. You can paste one here to start from a key instead of a phrase.' },
-  fingerprint: { t: 'Master fingerprint', d: 'Eight characters that identify your master key without revealing it, like the last four digits of a card number. Wallets show it so you can check that a phrase and passphrase are the ones you meant, and it appears inside descriptors to say which key they refer to.' },
+  fingerprint: { t: 'Master fingerprint', d: 'Eight characters — the first four bytes of the master key\'s hash — that identify your master key without revealing it, like the last four digits of a card number. Wallets show it so you can check that a phrase and passphrase are the ones you meant, and it appears inside descriptors to say which key they refer to.' },
   bip85: { t: 'BIP85 child phrases', d: 'A way to grow brand-new, unrelated recovery phrases out of one master phrase. Back up the one master, and every phrase derived from it can be recreated later from the same index. Handy for giving each wallet or purpose its own phrase without more paper to protect.' },
   bip85index: { t: 'Index', d: 'A counter starting at 0. Each index gives a different, independent phrase, so index 0 might be your savings wallet and index 1 your spending wallet. Write down which index you used for what.' },
   derivation: { t: 'Derivation path', d: 'The route from the master key down to a particular address, written like m/84\'/0\'/0\'/0/5. Think of it as a file path through a tree of keys. Wallets follow standard routes so they can find each other\'s coins; picking the wrong route makes a wallet look empty even though the coins are safe.' },
@@ -21709,12 +21709,12 @@ for (const [netName, n] of Object.entries(NETS)) for (const [prv, pub] of [['xpr
 for (const [netName, m] of Object.entries(multisig.MS_VERSIONS)) for (const v of Object.values(m)) VERSION_TABLE.push({ net: netName, private: v.prv, public: v.pub });
 
 const TABS = {
-  bip44: { purpose: 44, script: 'p2pkh', help: 'Legacy pay-to-pubkey-hash. Addresses start with 1 (m or n on testnet). Understood by every wallet ever written, but transactions cost the most in fees.' },
-  bip49: { purpose: 49, script: 'p2sh-p2wpkh', help: 'SegWit wrapped inside a P2SH script so that older wallets can pay to it. Addresses start with 3 (2 on testnet).' },
-  bip84: { purpose: 84, script: 'p2wpkh', help: 'Native SegWit (P2WPKH). Addresses start with bc1q (tb1q on testnet). The default in most wallets today, with lower fees than legacy.' },
-  bip86: { purpose: 86, script: 'p2tr', help: 'Single-key Taproot (P2TR). Addresses start with bc1p (tb1p on testnet), spend with Schnorr signatures and are the cheapest, most private single-signature type. Supported by Bitcoin Core 22+, Sparrow, Ledger, Trezor and BlueWallet among others.' },
-  bip48: { purpose: 48, script: 'multisig', help: 'Your seed\'s xpub for a multisig wallet. Purpose 48\' keeps multisig keys on their own branch; the last step names the script type. Hand the xpub line below to whoever sets up the wallet, then build or verify the wallet in the Multisig card.' },
-  custom: { purpose: null, script: null, help: 'Any BIP32 path with the script type of your choice. This covers what the original tool split across its BIP32 and BIP141 tabs.' },
+  bip44: { purpose: 44, script: 'p2pkh', help: 'Legacy (P2PKH) addresses start with 1 (m or n on testnet); every wallet ever written understands them, but they pay the highest fees.' },
+  bip49: { purpose: 49, script: 'p2sh-p2wpkh', help: 'SegWit wrapped in P2SH so that older wallets can pay to it; addresses start with 3 (2 on testnet).' },
+  bip84: { purpose: 84, script: 'p2wpkh', help: 'Native SegWit (P2WPKH) addresses start with bc1q (tb1q on testnet); most wallets default to it, with lower fees than legacy.' },
+  bip86: { purpose: 86, script: 'p2tr', help: 'Single-key Taproot (P2TR) addresses start with bc1p (tb1p on testnet) and are the cheapest, most private single-signature type. Bitcoin Core 22 and later, Sparrow, Ledger and Trezor support it.' },
+  bip48: { purpose: 48, script: 'multisig', help: 'The seed\'s xpub for a multisig wallet: hand the line below to whoever sets up the wallet, or build it in the Multisig card.' },
+  custom: { purpose: null, script: null, help: 'Any BIP32 path with any script type, covering the original tool\'s BIP32 and BIP141 tabs.' },
 };
 const SCRIPT_NAMES = { p2pkh: 'P2PKH (legacy)', 'p2sh-p2wpkh': 'P2WPKH in P2SH', p2wpkh: 'P2WPKH (native SegWit)', p2tr: 'P2TR (Taproot)', multisig: 'multisig cosigner key' };
 const BIP85_LANG = { english: 0, japanese: 1, korean: 2, spanish: 3, simplifiedChinese: 4, traditionalChinese: 5, french: 6, italian: 7, czech: 8, portuguese: 9 };

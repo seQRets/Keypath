@@ -23,12 +23,12 @@ for (const [netName, n] of Object.entries(NETS)) for (const [prv, pub] of [['xpr
 for (const [netName, m] of Object.entries(multisig.MS_VERSIONS)) for (const v of Object.values(m)) VERSION_TABLE.push({ net: netName, private: v.prv, public: v.pub });
 
 const TABS = {
-  bip44: { purpose: 44, script: 'p2pkh', help: 'Legacy pay-to-pubkey-hash. Addresses start with 1 (m or n on testnet). Understood by every wallet ever written, but transactions cost the most in fees.' },
-  bip49: { purpose: 49, script: 'p2sh-p2wpkh', help: 'SegWit wrapped inside a P2SH script so that older wallets can pay to it. Addresses start with 3 (2 on testnet).' },
-  bip84: { purpose: 84, script: 'p2wpkh', help: 'Native SegWit (P2WPKH). Addresses start with bc1q (tb1q on testnet). The default in most wallets today, with lower fees than legacy.' },
-  bip86: { purpose: 86, script: 'p2tr', help: 'Single-key Taproot (P2TR). Addresses start with bc1p (tb1p on testnet), spend with Schnorr signatures and are the cheapest, most private single-signature type. Supported by Bitcoin Core 22+, Sparrow, Ledger, Trezor and BlueWallet among others.' },
-  bip48: { purpose: 48, script: 'multisig', help: 'Your seed\'s xpub for a multisig wallet. Purpose 48\' keeps multisig keys on their own branch; the last step names the script type. Hand the xpub line below to whoever sets up the wallet, then build or verify the wallet in the Multisig card.' },
-  custom: { purpose: null, script: null, help: 'Any BIP32 path with the script type of your choice. This covers what the original tool split across its BIP32 and BIP141 tabs.' },
+  bip44: { purpose: 44, script: 'p2pkh', help: 'Legacy (P2PKH) addresses start with 1 (m or n on testnet); every wallet ever written understands them, but they pay the highest fees.' },
+  bip49: { purpose: 49, script: 'p2sh-p2wpkh', help: 'SegWit wrapped in P2SH so that older wallets can pay to it; addresses start with 3 (2 on testnet).' },
+  bip84: { purpose: 84, script: 'p2wpkh', help: 'Native SegWit (P2WPKH) addresses start with bc1q (tb1q on testnet); most wallets default to it, with lower fees than legacy.' },
+  bip86: { purpose: 86, script: 'p2tr', help: 'Single-key Taproot (P2TR) addresses start with bc1p (tb1p on testnet) and are the cheapest, most private single-signature type. Bitcoin Core 22 and later, Sparrow, Ledger and Trezor support it.' },
+  bip48: { purpose: 48, script: 'multisig', help: 'The seed\'s xpub for a multisig wallet: hand the line below to whoever sets up the wallet, or build it in the Multisig card.' },
+  custom: { purpose: null, script: null, help: 'Any BIP32 path with any script type, covering the original tool\'s BIP32 and BIP141 tabs.' },
 };
 const SCRIPT_NAMES = { p2pkh: 'P2PKH (legacy)', 'p2sh-p2wpkh': 'P2WPKH in P2SH', p2wpkh: 'P2WPKH (native SegWit)', p2tr: 'P2TR (Taproot)', multisig: 'multisig cosigner key' };
 const BIP85_LANG = { english: 0, japanese: 1, korean: 2, spanish: 3, simplifiedChinese: 4, traditionalChinese: 5, french: 6, italian: 7, czech: 8, portuguese: 9 };
