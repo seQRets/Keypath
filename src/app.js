@@ -177,12 +177,12 @@ const SECRET_CARDS = ['phrase-card', 'shamir-card', 'seed-card', 'derivation-car
 function allHidden() { return SECRET_CARDS.every((id) => $(id).classList.contains('sec-hidden')); }
 function setCardHidden(id, on) {
   $(id).classList.toggle('sec-hidden', on);
-  const b = $(id).querySelector('.barbtn.eye');
-  b.setAttribute('aria-pressed', on); b.querySelector('span').textContent = on ? 'Reveal' : 'Hide';
+  const b = $(id).querySelector('.barbtn.eye'); // the multisig card has no header eye: its seeds carry their own reveal buttons
+  if (b) { b.setAttribute('aria-pressed', on); b.querySelector('span').textContent = on ? 'Reveal' : 'Hide'; }
   const all = allHidden();
   $('menuHide').setAttribute('aria-pressed', all); $('menuHide').querySelector('span').textContent = all ? 'Reveal private info' : 'Hide private info';
 }
-function setHidden(on) { for (const id of SECRET_CARDS) setCardHidden(id, on); }
+function setHidden(on) { for (const id of SECRET_CARDS) setCardHidden(id, on); if (on) msGenCover(true); } // hiding everything also covers seeds created in the multisig card; revealing them stays deliberate
 document.querySelectorAll('.barbtn.eye').forEach((b) => b.addEventListener('click', () => {
   const card = b.closest('.console'); setCardHidden(card.id, !card.classList.contains('sec-hidden'));
 }));
@@ -774,13 +774,22 @@ function msInit() {
   $('msGenEye').addEventListener('click', () => msGenCover(!$('msGen').classList.contains('covered')));
   $('msGenCount').addEventListener('change', () => { if (+$('msThreshold').value > +$('msGenCount').value) $('msThreshold').value = $('msGenCount').value; msUpdate(); });
   document.addEventListener('click', async (e) => { const b = e.target.closest('#msGen .copy'); if (!b) return; if (await copyText(b.dataset.text, true)) { b.classList.add('done'); b.textContent = 'copied'; setTimeout(() => { b.classList.remove('done'); b.textContent = 'copy'; }, 1100); } });
+  document.addEventListener('click', (e) => { const b = e.target.closest('#msGen .reveal'); if (!b) return; const s = b.closest('.share'); msShareCover(s, !s.classList.contains('covered')); msGenEyeSync(); });
   msMode('build');
 }
 // The generated phrases have their own cover, independent of the page-wide Hide private info, so revealing
 // the page (for example with the demo phrase) never exposes them by accident.
-function msGenCover(on) {
-  $('msGen').classList.toggle('covered', on);
-  const b = $('msGenEye'); b.setAttribute('aria-pressed', on); b.lastChild.textContent = on ? 'Reveal seeds' : 'Hide seeds';
+function msGenCover(on) { for (const s of $('msGen').querySelectorAll('.share')) msShareCover(s, on); msGenEyeSync(); }
+function msShareCover(share, on) {
+  share.classList.toggle('covered', on);
+  const b = share.querySelector('.reveal'); b.setAttribute('aria-pressed', on); b.textContent = on ? 'reveal' : 'hide';
+}
+// "covered" on #msGen means every seed is covered; the strip button reveals all when it holds, hides all when it does not
+function msGenEyeSync() {
+  const shares = $('msGen').querySelectorAll('.share');
+  const all = shares.length > 0 && [...shares].every((s) => s.classList.contains('covered'));
+  $('msGen').classList.toggle('covered', all);
+  const b = $('msGenEye'); b.setAttribute('aria-pressed', all); b.lastChild.textContent = all ? 'Reveal seeds' : 'Hide seeds';
 }
 // A complete wallet: one fresh phrase per cosigner, keys filled in, threshold kept sensible.
 // demo: the well-known all-"abandon" test phrases (entropy 0, 1, 2 … so each ends in a different checksum word), shown unblurred.
@@ -798,7 +807,7 @@ function msGenerate(demo) {
   $('msThreshold').value = String(t);
   $('msName').value = `KeyPath ${demo ? 'demo ' : ''}${t}-of-${n}`;
   $('msKeys').value = cosigners.map((c) => c.line).join('\n'); msDemoKeys = demo ? $('msKeys').value : null;
-  $('msGen').innerHTML = `<div class="share-list">${cosigners.map((c, i) => `<div class="share"><button class="copy" type="button" data-text="${esc(c.phrase)}">copy</button><h4>Seed ${i + 1} of ${n}<small>fingerprint ${esc(c.fp)}</small></h4><ol>${c.phrase.split(' ').map((w, j) => `<li><i>${j + 1}</i><b>${esc(w)}</b></li>`).join('')}</ol></div>`).join('')}</div>`;
+  $('msGen').innerHTML = `<div class="share-list">${cosigners.map((c, i) => `<div class="share"><button class="copy" type="button" data-text="${esc(c.phrase)}">copy</button><button class="reveal" type="button" aria-pressed="true">reveal</button><h4>Seed ${i + 1} of ${n}<small>fingerprint ${esc(c.fp)}</small></h4><ol>${c.phrase.split(' ').map((w, j) => `<li><i>${j + 1}</i><b>${esc(w)}</b></li>`).join('')}</ol></div>`).join('')}</div>`;
   msGenCover(!demo); $('msGenEye').classList.remove('hidden');
   msUpdate(); setHidden(!demo); // demo phrases are public: reveal the page, like the phrase card's demo does
   toast(demo ? 'Demo wallet loaded: explore freely, never fund it' : `${n} seeds created and hidden`);

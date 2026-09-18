@@ -348,7 +348,7 @@
 
   <!-- ===================== 6 Multisig wallet ===================== -->
   <section class="console" id="multisig-card" aria-label="Multisig wallet">
-    <div class="console-bar"><span class="n">6</span> Multisig wallet<button type="button" class="tip" data-tip="multisig" aria-label="What does this mean?">?</button><div class="bar-actions"><button type="button" class="barbtn eye" aria-pressed="false"><svg class="ic-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.8A9.8 9.8 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3.2 3.9M6.6 6.6C4 8.4 2.5 12 2.5 12s3.5 6.5 9.5 6.5a9.6 9.6 0 0 0 4.1-.9"/></svg><span>Hide</span></button></div></div>
+    <div class="console-bar"><span class="n">6</span> Multisig wallet<button type="button" class="tip" data-tip="multisig" aria-label="What does this mean?">?</button></div>
     <div class="console-body">
       <div style="text-align:center"><div class="mode-toggle" role="group" aria-label="Multisig mode">
         <button class="mode-btn" id="msModeBuild" type="button" aria-pressed="true">Build a wallet</button>
@@ -389,7 +389,7 @@
           <button type="button" class="barbtn" id="msDemoBtn" style="margin-left:auto;align-self:center">Try the demo wallet</button>
         </div>
         <p class="help" style="margin:0.6rem 0 0">Creates one seed per line of the policy above and fills in their xpubs below. Write each seed down and store them apart.</p>
-        <div id="msGen" class="secret"></div>
+        <div id="msGen"></div>
       </div>
 
       <div class="field ms-restore" style="margin-top:1.1rem">
