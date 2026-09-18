@@ -156,10 +156,11 @@
           <label class="narrow"><span class="small-label">Of shares<button type="button" class="tip" data-tip="sharecount" aria-label="What does this mean?">?</button></span><select id="shCount"></select></label>
           <label class="grow"><span class="small-label">Share passphrase<button type="button" class="tip" data-tip="sharepass" aria-label="What does this mean?">?</button> <span class="hint">optional</span></span><input type="text" id="shPass" class="secret" autocomplete="off" spellcheck="false" placeholder="Optional"></label>
           <button type="button" class="btn primary" id="shMake">Create shares</button>
+          <button type="button" class="btn hidden" id="shSharesEye" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg>Reveal shares</button>
         </div>
         <div class="check-row"><label class="check"><input type="checkbox" id="shExt" checked> Extendable backup<button type="button" class="tip" data-tip="extendable" aria-label="What does this mean?">?</button></label></div>
         <div class="meter" id="shStatus"></div>
-        <div id="shShares" class="secret"></div>
+        <div id="shShares"></div>
         <div class="inputwarn hidden" id="shNote"><p><strong>Write every share down now.</strong> Each click of Create shares makes a brand-new set with its own identifier, and shares from different sets cannot be combined. To confirm the backup works, switch to Recover and paste in a threshold of them.</p><p>Loading these shares straight into a Trezor as a Shamir wallet would create a <strong>different</strong> wallet, because Trezor turns the recovered secret into keys its own way. Always recover through this tool (or any SLIP-39 tool) to get the BIP39 phrase back, then use the phrase.</p></div>
       </div>
 

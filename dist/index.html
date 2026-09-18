@@ -7,7 +7,7 @@
 <meta name="description" content="KeyPath: generate or inspect a BIP39 recovery phrase, back it up with SLIP-39 Shamir shares, and derive BIP32 keys and Bitcoin addresses, legacy through Taproot. Single file, runs entirely offline in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-P5bOCi+mn1+Z8F/Ma8IbUa+olaILPG5DmfnnzrJgo28=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-tMh0c+N+gQn4W+0kFDQHSDUyYBhXPiVorp9IgLRKaLE='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-P5bOCi+mn1+Z8F/Ma8IbUa+olaILPG5DmfnnzrJgo28=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-UjK/n2zpPzIi9wTf0K6FCet7RFgpZmDX9cYNgtED/Ng='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <script>try{if(localStorage.getItem("keypath-tips")==="off")document.documentElement.classList.add("no-tips");}catch(e){}var t=null;try{t=localStorage.getItem("keypath-theme");}catch(e){}var dk=t==="dark"||(t!=="light"&&(location.protocol==="file:"||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)));document.documentElement.setAttribute("data-theme",dk?"dark":"light");</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fbbf24'/><stop offset='.55' stop-color='%23f97316'/><stop offset='1' stop-color='%23ef4444'/></linearGradient></defs><rect width='512' height='512' rx='116' fill='url(%23g)'/><g fill='none' stroke='%23fff' stroke-width='48' stroke-linecap='round' stroke-linejoin='round'><circle cx='190' cy='256' r='74'/><path d='M264 256h176M382 256v62M440 256v50'/></g></svg>">
 <style>
@@ -481,13 +481,14 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
 /* ---------- generated multisig wallet ---------- */
 .gen-strip { background: var(--panel-sunk); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem 1.1rem; margin-top: 1.1rem; }
 .gen-strip select, .gen-strip input { background: var(--panel); }
-/* one blur, per seed: only the word list blurs, so the header, fingerprint and buttons stay usable */
-#msGen .share.covered ol { filter: blur(7px); user-select: none; pointer-events: none; }
-#msGen .share .reveal, #msGen .share .qr { position: absolute; top: 0.5rem; font-family: var(--mono); font-size: 0.7rem; padding: 0.28rem 0.6rem; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); color: var(--ink-faint); cursor: pointer; transition: color .15s ease, border-color .15s ease; }
-#msGen .share .reveal { right: 4.5rem; }
+/* one blur, per share: only the word list blurs, so the header, fingerprint and buttons stay usable */
+.share.covered ol { filter: blur(7px); user-select: none; pointer-events: none; }
+.share .reveal, .share .qr { position: absolute; top: 0.5rem; font-family: var(--mono); font-size: 0.7rem; padding: 0.28rem 0.6rem; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); color: var(--ink-faint); cursor: pointer; transition: color .15s ease, border-color .15s ease; }
+.share .reveal { right: 4.5rem; }
 #msGen .share .qr { right: 9rem; width: 1.9rem; height: 1.6rem; display: grid; place-items: center; padding: 0; }
-#msGen .share .reveal:hover, #msGen .share .qr:hover { color: var(--ink); border-color: var(--ink-faint); }
+.share .reveal:hover, .share .qr:hover { color: var(--ink); border-color: var(--ink-faint); }
 #msGen .share h4 { padding-right: 11.5rem; }
+#shShares .share h4 { padding-right: 8.5rem; }
 .row .of { align-self: flex-end; height: 44px; line-height: 44px; margin: 0 -0.3rem; font-weight: 600; color: var(--ink-soft); }
 #msGen .share-list { margin-top: 0.9rem; }
 #msGen .share { background: var(--panel); }
@@ -722,10 +723,11 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
           <label class="narrow"><span class="small-label">Of shares<button type="button" class="tip" data-tip="sharecount" aria-label="What does this mean?">?</button></span><select id="shCount"></select></label>
           <label class="grow"><span class="small-label">Share passphrase<button type="button" class="tip" data-tip="sharepass" aria-label="What does this mean?">?</button> <span class="hint">optional</span></span><input type="text" id="shPass" class="secret" autocomplete="off" spellcheck="false" placeholder="Optional"></label>
           <button type="button" class="btn primary" id="shMake">Create shares</button>
+          <button type="button" class="btn hidden" id="shSharesEye" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg>Reveal shares</button>
         </div>
         <div class="check-row"><label class="check"><input type="checkbox" id="shExt" checked> Extendable backup<button type="button" class="tip" data-tip="extendable" aria-label="What does this mean?">?</button></label></div>
         <div class="meter" id="shStatus"></div>
-        <div id="shShares" class="secret"></div>
+        <div id="shShares"></div>
         <div class="inputwarn hidden" id="shNote"><p><strong>Write every share down now.</strong> Each click of Create shares makes a brand-new set with its own identifier, and shares from different sets cannot be combined. To confirm the backup works, switch to Recover and paste in a threshold of them.</p><p>Loading these shares straight into a Trezor as a Shamir wallet would create a <strong>different</strong> wallet, because Trezor turns the recovered secret into keys its own way. Always recover through this tool (or any SLIP-39 tool) to get the BIP39 phrase back, then use the phrase.</p></div>
       </div>
 
@@ -21876,10 +21878,13 @@ function setCardHidden(id, on) {
   $(id).classList.toggle('sec-hidden', on);
   const b = $(id).querySelector('.barbtn.eye'); // the multisig card has no header eye: its seeds carry their own reveal buttons
   if (b) { b.setAttribute('aria-pressed', on); b.querySelector('span').textContent = on ? 'Reveal' : 'Hide'; }
+  // hiding a card also covers the shares or seeds created in it; revealing them stays deliberate and per share
+  if (on && id === 'shamir-card') shSharesCover(true);
+  if (on && id === 'multisig-card') msGenCover(true);
   const all = allHidden();
   $('menuHide').setAttribute('aria-pressed', all); $('menuHide').querySelector('span').textContent = all ? 'Reveal private info' : 'Hide private info';
 }
-function setHidden(on) { for (const id of SECRET_CARDS) setCardHidden(id, on); if (on) msGenCover(true); } // hiding everything also covers seeds created in the multisig card; revealing them stays deliberate
+function setHidden(on) { for (const id of SECRET_CARDS) setCardHidden(id, on); }
 document.querySelectorAll('.barbtn.eye').forEach((b) => b.addEventListener('click', () => {
   const card = b.closest('.console'); setCardHidden(card.id, !card.classList.contains('sec-hidden'));
 }));
@@ -22298,6 +22303,7 @@ function shamirInit() {
   $('shCount').addEventListener('change', () => { if (+$('shThreshold').value > +$('shCount').value) $('shThreshold').value = $('shCount').value; shamirClear(); });
   $('shPass').addEventListener('input', shamirClear); $('shExt').addEventListener('change', shamirClear);
   $('shMake').addEventListener('click', shamirMake);
+  $('shSharesEye').addEventListener('click', () => shSharesCover(!$('shShares').classList.contains('covered')));
   $('shInput').addEventListener('input', debounce(shamirRecover, 250));
   $('shPassR').addEventListener('input', debounce(shamirRecover, 250));
   $('shUse').addEventListener('click', () => { if (!S.shRecovered) return; $('phrase').value = S.shRecovered.phrase; onPhraseInput(false); setHidden(true); $('phrase-card').scrollIntoView({ behavior: 'smooth' }); toast('Phrase loaded'); });
@@ -22310,7 +22316,7 @@ function shamirMode(m) {
 }
 function shamirClear() { $('shShares').innerHTML = ''; $('shNote').classList.add('hidden'); shamirPhraseChanged(); }
 function shamirPhraseChanged() {
-  $('shShares').innerHTML = ''; $('shNote').classList.add('hidden');
+  $('shShares').innerHTML = ''; $('shNote').classList.add('hidden'); $('shSharesEye').classList.add('hidden');
   const ok = S.phraseValid; $('shMake').disabled = !ok;
   setMeter('shStatus', ok ? note(`Ready to split the ${S.phraseWords.length * 32 / 3}-bit entropy behind the current phrase into ${$('shThreshold').value}-of-${$('shCount').value} shares.`) : count('enter or generate a valid phrase first', 'warn'));
 }
@@ -22323,8 +22329,9 @@ function shamirMake() {
   catch (e) { return setMeter('shStatus', count(e.message, 'bad')); }
   const info = slip39.describeShare(shares[0]);
   setMeter('shStatus', count(`${t} of ${n} shares`, 'ok') + note(`${shares[0].split(' ').length} words each · `) + `<span class="meter-note gloss" data-tip="setid">set identifier ${info.identifier}</span>` + (pass ? note(' · passphrase protected') : ''));
-  $('shShares').innerHTML = `<div class="share-list">${shares.map((m, i) => `<div class="share"><button class="copy" type="button" data-text="${esc(m)}">copy</button><h4>Share ${i + 1} of ${n}<small>any ${t} recover</small></h4><ol>${m.split(' ').map((w, j) => `<li><i>${j + 1}</i><b>${esc(w)}</b></li>`).join('')}</ol></div>`).join('')}</div>
+  $('shShares').innerHTML = `<div class="share-list">${shares.map((m, i) => `<div class="share"><button class="copy" type="button" data-text="${esc(m)}">copy</button><button class="reveal" type="button" aria-pressed="true">reveal</button><h4>Share ${i + 1} of ${n}<small>any ${t} recover</small></h4><ol>${m.split(' ').map((w, j) => `<li><i>${j + 1}</i><b>${esc(w)}</b></li>`).join('')}</ol></div>`).join('')}</div>
     <div class="share-actions"><button type="button" class="btn small" id="shCopyAll">Copy all shares</button><button type="button" class="btn small" id="shTest">Test recovery with these shares</button></div>`;
+  shSharesCover(S.phraseWords.join(' ') !== DEMO_PHRASE); $('shSharesEye').classList.remove('hidden'); // shares of a real phrase start covered; demo shares stay open
   $('shCopyAll').addEventListener('click', async () => { if (await copyText(shares.map((m, i) => `Share ${i + 1} of ${n} (${t} needed): ${m}`).join('\n'), true)) toast('All shares copied · clipboard clears in 60 s'); });
   $('shTest').addEventListener('click', () => { $('shInput').value = shares.slice(0, t).join('\n'); $('shPassR').value = pass; shamirMode('recover'); shamirRecover(); });
   $('shNote').classList.remove('hidden');
@@ -22501,23 +22508,28 @@ function msInit() {
   $('msGenEye').addEventListener('click', () => msGenCover(!$('msGen').classList.contains('covered')));
   $('msGenCount').addEventListener('change', () => { if (+$('msThreshold').value > +$('msGenCount').value) $('msThreshold').value = $('msGenCount').value; msUpdate(); });
   document.addEventListener('click', async (e) => { const b = e.target.closest('#msGen .copy'); if (!b) return; if (await copyText(b.dataset.text, true)) { b.classList.add('done'); b.textContent = 'copied'; setTimeout(() => { b.classList.remove('done'); b.textContent = 'copy'; }, 1100); } });
-  document.addEventListener('click', (e) => { const b = e.target.closest('#msGen .reveal'); if (!b) return; const s = b.closest('.share'); msShareCover(s, !s.classList.contains('covered')); msGenEyeSync(); });
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('#msGen .reveal, #shShares .reveal'); if (!b) return;
+    const s = b.closest('.share'); shareCover(s, !s.classList.contains('covered'));
+    if (b.closest('#msGen')) shareEyeSync('msGen', 'msGenEye', 'seeds'); else shareEyeSync('shShares', 'shSharesEye', 'shares');
+  });
   msMode('build');
 }
 // The generated phrases have their own cover, independent of the page-wide Hide private info, so revealing
 // the page (for example with the demo phrase) never exposes them by accident.
-function msGenCover(on) { for (const s of $('msGen').querySelectorAll('.share')) msShareCover(s, on); msGenEyeSync(); }
-function msShareCover(share, on) {
+function shareCover(share, on) {
   share.classList.toggle('covered', on);
   const b = share.querySelector('.reveal'); b.setAttribute('aria-pressed', on); b.textContent = on ? 'reveal' : 'hide';
 }
-// "covered" on #msGen means every seed is covered; the strip button reveals all when it holds, hides all when it does not
-function msGenEyeSync() {
-  const shares = $('msGen').querySelectorAll('.share');
+// "covered" on the container means every share in it is covered; its eye button reveals all when that holds, hides all when it does not
+function shareEyeSync(boxId, eyeId, noun) {
+  const shares = $(boxId).querySelectorAll('.share');
   const all = shares.length > 0 && [...shares].every((s) => s.classList.contains('covered'));
-  $('msGen').classList.toggle('covered', all);
-  const b = $('msGenEye'); b.setAttribute('aria-pressed', all); b.lastChild.textContent = all ? 'Reveal seeds' : 'Hide seeds';
+  $(boxId).classList.toggle('covered', all);
+  const b = $(eyeId); b.setAttribute('aria-pressed', all); b.lastChild.textContent = all ? `Reveal ${noun}` : `Hide ${noun}`;
 }
+function msGenCover(on) { for (const s of $('msGen').querySelectorAll('.share')) shareCover(s, on); shareEyeSync('msGen', 'msGenEye', 'seeds'); }
+function shSharesCover(on) { for (const s of $('shShares').querySelectorAll('.share')) shareCover(s, on); shareEyeSync('shShares', 'shSharesEye', 'shares'); }
 // A complete wallet: one fresh phrase per cosigner, keys filled in, threshold kept sensible.
 // demo: the well-known all-"abandon" test phrases (entropy 0, 1, 2 … so each ends in a different checksum word), shown unblurred.
 function msGenerate(demo) {
