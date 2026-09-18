@@ -405,16 +405,16 @@
 
       <div id="msOut" class="hidden">
         <h3 class="sec">Your wallet definition<button type="button" class="tip" data-tip="descriptor" aria-label="What does this mean?">?</button></h3>
-        <p class="help" style="margin-bottom:0.8rem">This is your wallet's definition: its policy, its script type and the xpub of every seed. It is public information; it cannot spend and it contains no seed. KeyPath gives it in two formats, one for software wallets and one for hardware wallets. <strong>Back it up with every seed.</strong> Without it, even enough seeds to sign cannot find the coins.</p>
-        <div class="field"><label class="field-label">Descriptor <span class="hint">This format is for software wallets such as Sparrow, Bitcoin Core, Nunchuk and BlueWallet. It creates a watch-only wallet that sees the coins and prepares transactions for the devices to sign.</span></label>
+        <p class="help" style="margin-bottom:0.8rem">It is public and cannot spend, but <strong>back it up with every seed</strong>: without it, even enough seeds to sign cannot find the coins.</p>
+        <div class="field"><label class="field-label">Descriptor <span class="hint">Software wallets such as Sparrow and Bitcoin Core import this line.</span></label>
           <div class="term" id="msDesc"><button class="copy" data-copy="msDesc" type="button">copy</button></div></div>
         <details class="adv"><summary>Separate receive and change descriptors</summary><div class="adv-body" style="padding-top:0.8rem">
           <p class="help" style="margin-bottom:0.8rem">Some software wants receive and change addresses as two separate lines. The single line above covers both.</p>
           <div class="field"><label class="field-label">Receive</label><div class="term" id="msDescRecv"><button class="copy" data-copy="msDescRecv" type="button">copy</button></div></div>
           <div class="field"><label class="field-label">Change</label><div class="term" id="msDescChange"><button class="copy" data-copy="msDescChange" type="button">copy</button></div></div>
         </div></details>
-        <div class="row" style="margin-top:1rem"><label class="mid"><span class="small-label">Wallet name <span class="hint">The name is saved in the setup file below.</span></span><input type="text" id="msName" value="KeyPath multisig" maxlength="20" spellcheck="false"></label><button type="button" class="btn small" id="msDownload"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 19h16"/></svg>Download setup file</button></div>
-        <div class="field"><label class="field-label">Setup file <span class="hint">This format is for hardware wallets; Coldcard, Passport, Keystone, Sparrow and BlueWallet import it. Load it onto the device that holds each seed, so the device recognises the wallet and can sign. Save it as <code>multisig.txt</code>.</span><button type="button" class="tip" data-tip="coldcardfile" aria-label="What does this mean?">?</button></label>
+        <div class="row" style="margin-top:1rem"><label class="mid"><span class="small-label">Wallet name</span><input type="text" id="msName" value="KeyPath multisig" maxlength="20" spellcheck="false"></label><button type="button" class="btn small" id="msDownload"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 19h16"/></svg>Download setup file</button></div>
+        <div class="field"><label class="field-label">Setup file <span class="hint">Hardware wallets import this file; save it as <code>multisig.txt</code>.</span><button type="button" class="tip" data-tip="coldcardfile" aria-label="What does this mean?">?</button></label>
           <div class="term" id="msConfig"><button class="copy" data-copy="msConfig" type="button">copy</button></div></div>
         <h3 class="sec">Wallet addresses<button type="button" class="tip" data-tip="msaddresses" aria-label="What does this mean?">?</button></h3>
         <p class="help" style="margin-bottom:0.8rem">Every device holding a seed should show this first address. If one disagrees, an xpub, the threshold or the script type is wrong.</p>

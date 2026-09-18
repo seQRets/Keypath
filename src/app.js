@@ -850,7 +850,7 @@ function msUpdate() {
   $('msAddrBody').innerHTML = Array.from({ length: rows }, (_, i) => { const a = multisig.multisigAddress(threshold, cos, script, chain, i, n); return `<tr><td class="idx">${chain}/${i}</td><td><span data-c="${esc(a)}">${esc(a)}</span></td></tr>`; }).join('');
   const nS = fromSeeds.cosigners.length, nX = cos.length - nS;
   const what = msModeV === 'restore' ? `rebuilt from ${nS ? nS + ' seed' + (nS === 1 ? '' : 's') : ''}${nS && nX ? ' and ' : ''}${nX ? nX + ' xpub' + (nX === 1 ? '' : 's') : ''}` : demo || $('msGen').children.length ? `built from the ${cos.length} seeds created here` : `built from the ${cos.length} pasted xpubs`;
-  setMeter('msStatus', count(`${threshold} of ${cos.length} · ${multisig.MS_FORMAT[script]} · ${S.net === 'mainnet' ? 'mainnet' : 'testnet'}${demo ? ' · demo' : ''}`, demo ? 'warn' : 'ok') + note(demo ? `Demo wallet ${what}, from the public test seeds: explore it, never fund it. The Multisig lab below shows what is needed to recover such a wallet.` : `Wallet ${what}.`));
+  setMeter('msStatus', count(`${threshold} of ${cos.length} · ${multisig.MS_FORMAT[script]} · ${S.net === 'mainnet' ? 'mainnet' : 'testnet'}${demo ? ' · demo' : ''}`, demo ? 'warn' : 'ok') + note(demo ? `Demo wallet ${what}, from the public test seeds: explore it, never fund it.` : `Wallet ${what}.`));
   $('msOut').classList.remove('hidden');
 }
 
