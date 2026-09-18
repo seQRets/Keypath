@@ -192,6 +192,7 @@ select { appearance: none; -webkit-appearance: none; padding-right: 2.1rem; back
 .check { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--ink-soft); cursor: pointer; user-select: none; }
 .check input { width: 16px; height: 16px; accent-color: var(--accent-ink); cursor: pointer; margin: 0; }
 .check-row { display: flex; flex-wrap: wrap; gap: 0.6rem 1.5rem; margin-top: 0.9rem; }
+.check-row.centered { justify-content: center; }
 .mode-toggle { display: inline-flex; flex-wrap: wrap; gap: 0.25rem; padding: 0.25rem; background: var(--panel-sunk); border: 1px solid var(--line); border-radius: var(--pill); }
 .mode-btn { font-family: var(--sans); font-size: 0.8rem; font-weight: 500; padding: 0.35rem 0.9rem; border: none; border-radius: var(--pill); background: transparent; color: var(--ink-soft); cursor: pointer; transition: background .15s ease, color .15s ease; white-space: nowrap; }
 .mode-btn:hover { color: var(--ink); }
