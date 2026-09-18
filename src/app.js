@@ -750,7 +750,8 @@ function msInit() {
   for (let i = 1; i <= 15; i++) $('msThreshold').insertAdjacentHTML('beforeend', `<option>${i}</option>`);
   $('msThreshold').value = '2';
   $('msKeys').addEventListener('input', debounce(msUpdate, 250));
-  for (const id of ['msThreshold', 'msScript2', 'msName', 'msChain']) $(id).addEventListener('change', msUpdate);
+  for (const id of ['msThreshold', 'msScript2', 'msChain']) $(id).addEventListener('change', msUpdate);
+  $('msName').addEventListener('input', debounce(msUpdate, 250)); // the setup file follows the name as it is typed
   $('msRows').addEventListener('input', debounce(msUpdate, 250));
   $('cosignerToMs').addEventListener('click', () => {
     const line = $('cosignerLine').dataset.value; if (!line) return toast('Enter a phrase first');
