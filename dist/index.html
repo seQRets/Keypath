@@ -7,7 +7,7 @@
 <meta name="description" content="KeyPath: generate or inspect a BIP39 recovery phrase, back it up with SLIP-39 Shamir shares, and derive BIP32 keys and Bitcoin addresses, legacy through Taproot. Single file, runs entirely offline in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-P5bOCi+mn1+Z8F/Ma8IbUa+olaILPG5DmfnnzrJgo28=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-J6Tm5FA3JKN+eHgWIs7bqznIP4uMbsCRe2vLjmPgWB8='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-P5bOCi+mn1+Z8F/Ma8IbUa+olaILPG5DmfnnzrJgo28=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-0KlJyooZzLEpt9YXevBMVdjLbo8GCLVvt17374Mp7+A='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <script>try{if(localStorage.getItem("keypath-tips")==="off")document.documentElement.classList.add("no-tips");}catch(e){}var t=null;try{t=localStorage.getItem("keypath-theme");}catch(e){}var dk=t==="dark"||(t!=="light"&&(location.protocol==="file:"||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)));document.documentElement.setAttribute("data-theme",dk?"dark":"light");</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fbbf24'/><stop offset='.55' stop-color='%23f97316'/><stop offset='1' stop-color='%23ef4444'/></linearGradient></defs><rect width='512' height='512' rx='116' fill='url(%23g)'/><g fill='none' stroke='%23fff' stroke-width='48' stroke-linecap='round' stroke-linejoin='round'><circle cx='190' cy='256' r='74'/><path d='M264 256h176M382 256v62M440 256v50'/></g></svg>">
 <style>
@@ -246,6 +246,8 @@ select { appearance: none; -webkit-appearance: none; padding-right: 2.1rem; back
 .copy { position: absolute; top: 0.5rem; right: 0.5rem; font-family: var(--mono); font-size: 0.7rem; padding: 0.28rem 0.6rem; border: 1px solid var(--term-line); border-radius: 4px; background: rgba(255,255,255,.03); color: var(--term-dim); cursor: pointer; transition: color .15s ease, border-color .15s ease; }
 .copy:hover { color: var(--term-text); border-color: var(--term-dim); }
 .copy.done { color: var(--term-hex); border-color: var(--term-hex); }
+.term .qr2 { position: absolute; top: 0.5rem; right: 4.5rem; font-family: var(--mono); font-size: 0.7rem; padding: 0.28rem 0.6rem; border: 1px solid var(--term-line); border-radius: 4px; background: rgba(255,255,255,.03); color: var(--term-dim); cursor: pointer; transition: color .15s ease, border-color .15s ease; }
+.term .qr2:hover { color: var(--term-text); border-color: var(--term-dim); }
 
 /* secrets */
 .secret { transition: filter .15s ease; } /* the reveal animates; hiding must not (see below) */
@@ -479,9 +481,11 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
 .gen-strip select, .gen-strip input { background: var(--panel); }
 /* one blur, per seed: only the word list blurs, so the header, fingerprint and buttons stay usable */
 #msGen .share.covered ol { filter: blur(7px); user-select: none; pointer-events: none; }
-#msGen .share .reveal { position: absolute; top: 0.5rem; right: 4.5rem; font-family: var(--mono); font-size: 0.7rem; padding: 0.28rem 0.6rem; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); color: var(--ink-faint); cursor: pointer; transition: color .15s ease, border-color .15s ease; }
-#msGen .share .reveal:hover { color: var(--ink); border-color: var(--ink-faint); }
-#msGen .share h4 { padding-right: 8.5rem; }
+#msGen .share .reveal, #msGen .share .qr { position: absolute; top: 0.5rem; font-family: var(--mono); font-size: 0.7rem; padding: 0.28rem 0.6rem; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); color: var(--ink-faint); cursor: pointer; transition: color .15s ease, border-color .15s ease; }
+#msGen .share .reveal { right: 4.5rem; }
+#msGen .share .qr { right: 9rem; }
+#msGen .share .reveal:hover, #msGen .share .qr:hover { color: var(--ink); border-color: var(--ink-faint); }
+#msGen .share h4 { padding-right: 11.5rem; }
 .row .of { align-self: flex-end; height: 44px; line-height: 44px; margin: 0 -0.3rem; font-weight: 600; color: var(--ink-soft); }
 #msGen .share-list { margin-top: 0.9rem; }
 #msGen .share { background: var(--panel); }
@@ -833,7 +837,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
             <div class="field"><label class="field-label">Account extended private key<button type="button" class="tip" data-tip="xprv" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span></label>
               <div class="term secret" id="acctXprv"><button class="copy" data-copy="acctXprv" type="button">copy</button></div></div>
             <div class="field"><label class="field-label">Account extended public key<button type="button" class="tip" data-tip="xpub" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span></label>
-              <div class="term" id="acctXpub"><button class="copy" data-copy="acctXpub" type="button">copy</button></div></div>
+              <div class="term" id="acctXpub"><button class="qr2" type="button" data-qr="acctXpub" data-qrtitle="Account public key">qr</button><button class="copy" data-copy="acctXpub" type="button">copy</button></div></div>
           </div>
           <div class="check-row centered" style="margin-top:0.4rem">
             <label class="check hidden" id="slipWrap"><input type="checkbox" id="slip132"> <span id="slipNames">xpub ↔ zpub</span><button type="button" class="tip" data-tip="slip132" aria-label="What does this mean?">?</button></label>
@@ -853,7 +857,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
             <p class="help" style="margin-bottom:0.8rem">This line — fingerprint, path and public account key — is what the person setting up the multisig wallet needs; it cannot spend. Never share the private key.</p>
             <p class="help hidden" id="msTrNote48" style="margin-bottom:0.8rem">Taproot multisig spends are cheaper and more private, but only Sparrow, Bitcoin Core 24 and later, and recent hardware wallets support it. Its key has no special prefix: it is a plain xpub.</p>
             <div class="field"><label class="field-label">Key with origin <span class="badge pub-badge" data-tip="public">public</span><span class="hint">Sparrow, Bitcoin Core and hardware wallets accept this format.</span></label>
-              <div class="term" id="cosignerLine"><button class="copy" data-copy="cosignerLine" type="button">copy</button></div></div>
+              <div class="term" id="cosignerLine"><button class="qr2" type="button" data-qr="cosignerLine" data-qrtitle="Key with origin">qr</button><button class="copy" data-copy="cosignerLine" type="button">copy</button></div></div>
             <button type="button" class="btn" id="cosignerToMs">Use this key in the multisig wallet below</button>
           </div>
         </div>
@@ -958,7 +962,12 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
       </div>
       <div class="field" style="margin-top:1.1rem" id="msKeysField">
         <div class="field-head"><label class="field-label" for="msKeys">Xpubs<button type="button" class="tip" data-tip="xpub" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span><span class="hint ms-build">Each device's xpub goes on its own line; Create the seeds here fills this in. Never paste seeds here.</span><span class="hint ms-restore">Paste one xpub per line, or a whole setup file; leave this empty if every seed is entered above.</span></label></div>
-        <textarea id="msKeys" class="mono" rows="5" spellcheck="false" autocomplete="off" placeholder="[73c5da0a/48h/0h/0h/2h]xpub6E64WfdQwBGz…&#10;[a1b2c3d4/48h/0h/0h/2h]xpub6Dk3…"></textarea>
+        <div class="ta-wrap">
+          <textarea id="msKeys" class="mono" rows="5" spellcheck="false" autocomplete="off" placeholder="[73c5da0a/48h/0h/0h/2h]xpub6E64WfdQwBGz…&#10;[a1b2c3d4/48h/0h/0h/2h]xpub6Dk3…"></textarea>
+          <div class="ta-actions">
+            <button type="button" class="iconbtn" data-qr="msKeys" data-qrtitle="Multisig xpubs" aria-label="Show the xpubs as a QR code"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v2M17 20h4M14 20h1"/></svg></button>
+          </div>
+        </div>
       </div>
       <div class="meter" id="msStatus"></div>
       <div id="msWarnings"></div>
@@ -967,7 +976,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
         <h3 class="sec">Your wallet definition<button type="button" class="tip" data-tip="descriptor" aria-label="What does this mean?">?</button></h3>
         <p class="help" style="margin-bottom:0.8rem">It is public and cannot spend, but <strong>back it up with every seed</strong>: without it, even enough seeds to sign cannot find the coins.</p>
         <div class="field"><label class="field-label">Descriptor <span class="hint">Software wallets such as Sparrow and Bitcoin Core import this line.</span></label>
-          <div class="term" id="msDesc"><button class="copy" data-copy="msDesc" type="button">copy</button></div></div>
+          <div class="term" id="msDesc"><button class="qr2" type="button" data-qr="msDesc" data-qrtitle="Descriptor">qr</button><button class="copy" data-copy="msDesc" type="button">copy</button></div></div>
         <details class="adv"><summary>Separate receive and change descriptors</summary><div class="adv-body" style="padding-top:0.8rem">
           <p class="help" style="margin-bottom:0.8rem">Some software wants receive and change addresses as two separate lines. The single line above covers both.</p>
           <div class="field"><label class="field-label">Receive</label><div class="term" id="msDescRecv"><button class="copy" data-copy="msDescRecv" type="button">copy</button></div></div>
@@ -975,7 +984,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
         </div></details>
         <div class="row" style="margin-top:1rem"><label class="mid"><span class="small-label">Wallet name</span><input type="text" id="msName" value="KeyPath multisig" maxlength="20" spellcheck="false"></label><button type="button" class="btn small" id="msDownload"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 19h16"/></svg>Download setup file</button></div>
         <div class="field"><label class="field-label">Setup file <span class="hint">Hardware wallets import this file; save it as <code>multisig.txt</code>.</span><button type="button" class="tip" data-tip="coldcardfile" aria-label="What does this mean?">?</button></label>
-          <div class="term" id="msConfig"><button class="copy" data-copy="msConfig" type="button">copy</button></div></div>
+          <div class="term" id="msConfig"><button class="qr2" type="button" data-qr="msConfig" data-qrtitle="Setup file">qr</button><button class="copy" data-copy="msConfig" type="button">copy</button></div></div>
         <h3 class="sec">Wallet addresses<button type="button" class="tip" data-tip="msaddresses" aria-label="What does this mean?">?</button></h3>
         <p class="help" style="margin-bottom:0.8rem">Every device holding a seed should show this first address; if one disagrees, an xpub, the threshold or the script type is wrong.</p>
         <div class="toolbar">
@@ -22344,16 +22353,21 @@ function shamirRecover() {
 
 /* ---------------- Seed QR ---------------- */
 let qrFormat = 'standard';
-let qrMode = 'seed'; // 'seed' (SeedQR of the phrase) or 'entropy' (the typed entropy as plain text)
+let qrMode = 'seed'; // 'seed' (SeedQR of the phrase), 'entropy' (typed entropy as text), 'msseed' (SeedQR of a generated multisig seed), 'text' (a public value as text)
+let qrTextData = null; // for 'text': { text }
+let qrSeedData = null; // for 'msseed': { words, wl, fp }
 const QR_NOTES = {
   seed: 'Scan with SeedSigner, Krux, Sparrow, Passport or any wallet that reads SeedQR. <strong>This code is your entire phrase.</strong> Anyone who photographs it owns your coins.',
   entropy: 'The entropy exactly as typed, as a plain text QR code, for moving it to another device. <strong>This code is the seed of your phrase.</strong> Anyone who photographs it owns your coins.',
+  msseed: 'Scan with SeedSigner, Krux, Sparrow, Passport or any wallet that reads SeedQR. <strong>This code is this seed in full.</strong> Anyone who photographs it holds one of the wallet\'s seeds.',
+  text: 'This is public information: it can watch, never spend. Scan it where the other wallet asks for it.',
 };
-function qrOpen(mode) {
+function qrOpen(mode, opts = {}) {
   qrMode = mode;
-  $('qrTitle').textContent = mode === 'seed' ? 'Seed QR' : 'Entropy QR'; $('qrNote').innerHTML = QR_NOTES[mode]; $('qrFormats').classList.toggle('hidden', mode !== 'seed');
-  if (mode === 'seed') seedQrRender(); else entropyQrRender();
-  document.querySelector('.qr-stage').classList.add('covered'); $('qrModal').hidden = false; $('qrModal').querySelector('[data-close]:not(.modal-backdrop)').focus();
+  $('qrTitle').textContent = opts.title || (mode === 'seed' ? 'Seed QR' : 'Entropy QR'); $('qrNote').innerHTML = QR_NOTES[mode]; $('qrFormats').classList.toggle('hidden', mode !== 'seed' && mode !== 'msseed');
+  if (mode === 'seed') seedQrRender(); else if (mode === 'msseed') msSeedQrRender(); else if (mode === 'text') textQrRender(); else entropyQrRender();
+  document.querySelector('.qr-stage').classList.toggle('covered', opts.secret !== false); // public codes open in the clear
+  $('qrModal').hidden = false; $('qrModal').querySelector('[data-close]:not(.modal-backdrop)').focus();
 }
 function seedQrOpen() { if (S.phraseValid) qrOpen('seed'); }
 // SVG for the modal: paulmillr/qr, error correction L, 2-module quiet zone. Returns the module count too.
@@ -22370,16 +22384,40 @@ function entropyQrRender() {
   $('qrFoot').textContent = `${text.length} characters as text · ${q.modules}×${q.modules}`;
   $('qrFp').innerHTML = '';
 }
-function seedQrRender() {
-  const wl = wordlists[S.lang].words; const idx = S.phraseWords.map((w) => wl.indexOf(w));
+function renderSeedQr(words, wl, fpLine) {
+  const idx = words.map((w) => wl.indexOf(w));
   const q = qrFormat === 'standard'
     ? qrSvg(idx.map((i) => String(i).padStart(4, '0')).join(''), { encoding: 'numeric' })
-    : qrSvg(latin1(bip39.mnemonicToEntropy(S.phraseWords.join(' '), wl)), { encoding: 'byte', textEncoder: latin1Encoder });
+    : qrSvg(latin1(bip39.mnemonicToEntropy(words.join(' '), wl)), { encoding: 'byte', textEncoder: latin1Encoder });
   $('qrWrap').innerHTML = q.svg;
-  $('qrFoot').textContent = qrFormat === 'standard' ? `${S.phraseWords.length} words as ${S.phraseWords.length * 4} digits · ${q.modules}×${q.modules}` : `${S.phraseWords.length * 32 / 3 / 8} raw entropy bytes · ${q.modules}×${q.modules}`;
-  $('qrFp').innerHTML = S.root ? `Master fingerprint${$('passphrase').value ? ' (with your passphrase)' : ''}<b>${esc(fpHex(S.root))}</b>` : '';
+  $('qrFoot').textContent = qrFormat === 'standard' ? `${words.length} words as ${words.length * 4} digits · ${q.modules}×${q.modules}` : `${words.length * 32 / 3 / 8} raw entropy bytes · ${q.modules}×${q.modules}`;
+  $('qrFp').innerHTML = fpLine;
   $('qrStd').setAttribute('aria-pressed', qrFormat === 'standard'); $('qrCompact').setAttribute('aria-pressed', qrFormat !== 'standard');
 }
+function seedQrRender() { renderSeedQr(S.phraseWords, wordlists[S.lang].words, S.root ? `Master fingerprint${$('passphrase').value ? ' (with your passphrase)' : ''}<b>${esc(fpHex(S.root))}</b>` : ''); }
+function msSeedQrRender() { renderSeedQr(qrSeedData.words, qrSeedData.wl, `Fingerprint<b>${esc(qrSeedData.fp)}</b>`); }
+function textQrRender() {
+  const q = qrSvg(qrTextData.text, {});
+  $('qrWrap').innerHTML = q.svg;
+  $('qrFoot').textContent = `${qrTextData.text.length} characters as text · ${q.modules}×${q.modules}`;
+  $('qrFp').innerHTML = '';
+}
+// any element with data-qr shows the named box's public value as a QR code
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-qr]'); if (!b) return;
+  const el = $(b.dataset.qr); const v = (el.dataset.value || el.value || '').trim();
+  if (!v) return toast('Nothing to show yet');
+  qrTextData = { text: v };
+  qrOpen('text', { title: b.dataset.qrtitle, secret: false });
+});
+// each generated multisig seed has its own SeedQR
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('#msGen .qr'); if (!b) return;
+  const share = b.closest('.share');
+  const words = splitWords(share.querySelector('.copy').dataset.text);
+  qrSeedData = { words, wl: wordlists[detectLang(words) || 'english'].words, fp: b.dataset.fp };
+  qrOpen('msseed', { title: `${share.querySelector('h4').firstChild.textContent} · SeedQR` });
+});
 $('seedQrBtn').addEventListener('click', seedQrOpen);
 $('entropyQrBtn').addEventListener('click', () => { if ($('entropy').value.trim()) qrOpen('entropy'); });
 $('entropyCopy').addEventListener('click', async () => {
@@ -22393,8 +22431,8 @@ $('phraseCopy').addEventListener('click', async () => {
 });
 $('qrReveal').addEventListener('click', () => document.querySelector('.qr-stage').classList.remove('covered'));
 $('qrHide').addEventListener('click', () => document.querySelector('.qr-stage').classList.add('covered'));
-$('qrStd').addEventListener('click', () => { qrFormat = 'standard'; seedQrRender(); });
-$('qrCompact').addEventListener('click', () => { qrFormat = 'compact'; seedQrRender(); });
+$('qrStd').addEventListener('click', () => { qrFormat = 'standard'; qrMode === 'msseed' ? msSeedQrRender() : seedQrRender(); });
+$('qrCompact').addEventListener('click', () => { qrFormat = 'compact'; qrMode === 'msseed' ? msSeedQrRender() : seedQrRender(); });
 $('qrModal').addEventListener('click', (e) => { if (e.target.closest('[data-close]')) { $('qrModal').hidden = true; $('qrWrap').innerHTML = ''; } });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('qrModal').hidden) { $('qrModal').hidden = true; $('qrWrap').innerHTML = ''; } });
 
@@ -22494,7 +22532,7 @@ function msGenerate(demo) {
   $('msThreshold').value = String(t);
   $('msName').value = `KeyPath ${demo ? 'demo ' : ''}${t}-of-${n}`;
   $('msKeys').value = cosigners.map((c) => c.line).join('\n'); msDemoKeys = demo ? $('msKeys').value : null;
-  $('msGen').innerHTML = `<div class="share-list">${cosigners.map((c, i) => `<div class="share"><button class="copy" type="button" data-text="${esc(c.phrase)}">copy</button><button class="reveal" type="button" aria-pressed="true">reveal</button><h4>Seed ${i + 1} of ${n}<small>fingerprint ${esc(c.fp)}</small></h4><ol>${c.phrase.split(' ').map((w, j) => `<li><i>${j + 1}</i><b>${esc(w)}</b></li>`).join('')}</ol></div>`).join('')}</div>`;
+  $('msGen').innerHTML = `<div class="share-list">${cosigners.map((c, i) => `<div class="share"><button class="copy" type="button" data-text="${esc(c.phrase)}">copy</button><button class="reveal" type="button" aria-pressed="true">reveal</button><button class="qr" type="button" data-fp="${esc(c.fp)}">qr</button><h4>Seed ${i + 1} of ${n}<small>fingerprint ${esc(c.fp)}</small></h4><ol>${c.phrase.split(' ').map((w, j) => `<li><i>${j + 1}</i><b>${esc(w)}</b></li>`).join('')}</ol></div>`).join('')}</div>`;
   msGenCover(!demo); $('msGenEye').classList.remove('hidden');
   msUpdate(); setHidden(!demo); // demo phrases are public: reveal the page, like the phrase card's demo does
   toast(demo ? 'Demo wallet loaded: explore freely, never fund it' : `${n} seeds created and hidden`);

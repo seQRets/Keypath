@@ -658,16 +658,21 @@ function shamirRecover() {
 
 /* ---------------- Seed QR ---------------- */
 let qrFormat = 'standard';
-let qrMode = 'seed'; // 'seed' (SeedQR of the phrase) or 'entropy' (the typed entropy as plain text)
+let qrMode = 'seed'; // 'seed' (SeedQR of the phrase), 'entropy' (typed entropy as text), 'msseed' (SeedQR of a generated multisig seed), 'text' (a public value as text)
+let qrTextData = null; // for 'text': { text }
+let qrSeedData = null; // for 'msseed': { words, wl, fp }
 const QR_NOTES = {
   seed: 'Scan with SeedSigner, Krux, Sparrow, Passport or any wallet that reads SeedQR. <strong>This code is your entire phrase.</strong> Anyone who photographs it owns your coins.',
   entropy: 'The entropy exactly as typed, as a plain text QR code, for moving it to another device. <strong>This code is the seed of your phrase.</strong> Anyone who photographs it owns your coins.',
+  msseed: 'Scan with SeedSigner, Krux, Sparrow, Passport or any wallet that reads SeedQR. <strong>This code is this seed in full.</strong> Anyone who photographs it holds one of the wallet\'s seeds.',
+  text: 'This is public information: it can watch, never spend. Scan it where the other wallet asks for it.',
 };
-function qrOpen(mode) {
+function qrOpen(mode, opts = {}) {
   qrMode = mode;
-  $('qrTitle').textContent = mode === 'seed' ? 'Seed QR' : 'Entropy QR'; $('qrNote').innerHTML = QR_NOTES[mode]; $('qrFormats').classList.toggle('hidden', mode !== 'seed');
-  if (mode === 'seed') seedQrRender(); else entropyQrRender();
-  document.querySelector('.qr-stage').classList.add('covered'); $('qrModal').hidden = false; $('qrModal').querySelector('[data-close]:not(.modal-backdrop)').focus();
+  $('qrTitle').textContent = opts.title || (mode === 'seed' ? 'Seed QR' : 'Entropy QR'); $('qrNote').innerHTML = QR_NOTES[mode]; $('qrFormats').classList.toggle('hidden', mode !== 'seed' && mode !== 'msseed');
+  if (mode === 'seed') seedQrRender(); else if (mode === 'msseed') msSeedQrRender(); else if (mode === 'text') textQrRender(); else entropyQrRender();
+  document.querySelector('.qr-stage').classList.toggle('covered', opts.secret !== false); // public codes open in the clear
+  $('qrModal').hidden = false; $('qrModal').querySelector('[data-close]:not(.modal-backdrop)').focus();
 }
 function seedQrOpen() { if (S.phraseValid) qrOpen('seed'); }
 // SVG for the modal: paulmillr/qr, error correction L, 2-module quiet zone. Returns the module count too.
@@ -684,16 +689,40 @@ function entropyQrRender() {
   $('qrFoot').textContent = `${text.length} characters as text · ${q.modules}×${q.modules}`;
   $('qrFp').innerHTML = '';
 }
-function seedQrRender() {
-  const wl = wordlists[S.lang].words; const idx = S.phraseWords.map((w) => wl.indexOf(w));
+function renderSeedQr(words, wl, fpLine) {
+  const idx = words.map((w) => wl.indexOf(w));
   const q = qrFormat === 'standard'
     ? qrSvg(idx.map((i) => String(i).padStart(4, '0')).join(''), { encoding: 'numeric' })
-    : qrSvg(latin1(bip39.mnemonicToEntropy(S.phraseWords.join(' '), wl)), { encoding: 'byte', textEncoder: latin1Encoder });
+    : qrSvg(latin1(bip39.mnemonicToEntropy(words.join(' '), wl)), { encoding: 'byte', textEncoder: latin1Encoder });
   $('qrWrap').innerHTML = q.svg;
-  $('qrFoot').textContent = qrFormat === 'standard' ? `${S.phraseWords.length} words as ${S.phraseWords.length * 4} digits · ${q.modules}×${q.modules}` : `${S.phraseWords.length * 32 / 3 / 8} raw entropy bytes · ${q.modules}×${q.modules}`;
-  $('qrFp').innerHTML = S.root ? `Master fingerprint${$('passphrase').value ? ' (with your passphrase)' : ''}<b>${esc(fpHex(S.root))}</b>` : '';
+  $('qrFoot').textContent = qrFormat === 'standard' ? `${words.length} words as ${words.length * 4} digits · ${q.modules}×${q.modules}` : `${words.length * 32 / 3 / 8} raw entropy bytes · ${q.modules}×${q.modules}`;
+  $('qrFp').innerHTML = fpLine;
   $('qrStd').setAttribute('aria-pressed', qrFormat === 'standard'); $('qrCompact').setAttribute('aria-pressed', qrFormat !== 'standard');
 }
+function seedQrRender() { renderSeedQr(S.phraseWords, wordlists[S.lang].words, S.root ? `Master fingerprint${$('passphrase').value ? ' (with your passphrase)' : ''}<b>${esc(fpHex(S.root))}</b>` : ''); }
+function msSeedQrRender() { renderSeedQr(qrSeedData.words, qrSeedData.wl, `Fingerprint<b>${esc(qrSeedData.fp)}</b>`); }
+function textQrRender() {
+  const q = qrSvg(qrTextData.text, {});
+  $('qrWrap').innerHTML = q.svg;
+  $('qrFoot').textContent = `${qrTextData.text.length} characters as text · ${q.modules}×${q.modules}`;
+  $('qrFp').innerHTML = '';
+}
+// any element with data-qr shows the named box's public value as a QR code
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-qr]'); if (!b) return;
+  const el = $(b.dataset.qr); const v = (el.dataset.value || el.value || '').trim();
+  if (!v) return toast('Nothing to show yet');
+  qrTextData = { text: v };
+  qrOpen('text', { title: b.dataset.qrtitle, secret: false });
+});
+// each generated multisig seed has its own SeedQR
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('#msGen .qr'); if (!b) return;
+  const share = b.closest('.share');
+  const words = splitWords(share.querySelector('.copy').dataset.text);
+  qrSeedData = { words, wl: wordlists[detectLang(words) || 'english'].words, fp: b.dataset.fp };
+  qrOpen('msseed', { title: `${share.querySelector('h4').firstChild.textContent} · SeedQR` });
+});
 $('seedQrBtn').addEventListener('click', seedQrOpen);
 $('entropyQrBtn').addEventListener('click', () => { if ($('entropy').value.trim()) qrOpen('entropy'); });
 $('entropyCopy').addEventListener('click', async () => {
@@ -707,8 +736,8 @@ $('phraseCopy').addEventListener('click', async () => {
 });
 $('qrReveal').addEventListener('click', () => document.querySelector('.qr-stage').classList.remove('covered'));
 $('qrHide').addEventListener('click', () => document.querySelector('.qr-stage').classList.add('covered'));
-$('qrStd').addEventListener('click', () => { qrFormat = 'standard'; seedQrRender(); });
-$('qrCompact').addEventListener('click', () => { qrFormat = 'compact'; seedQrRender(); });
+$('qrStd').addEventListener('click', () => { qrFormat = 'standard'; qrMode === 'msseed' ? msSeedQrRender() : seedQrRender(); });
+$('qrCompact').addEventListener('click', () => { qrFormat = 'compact'; qrMode === 'msseed' ? msSeedQrRender() : seedQrRender(); });
 $('qrModal').addEventListener('click', (e) => { if (e.target.closest('[data-close]')) { $('qrModal').hidden = true; $('qrWrap').innerHTML = ''; } });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('qrModal').hidden) { $('qrModal').hidden = true; $('qrWrap').innerHTML = ''; } });
 
@@ -808,7 +837,7 @@ function msGenerate(demo) {
   $('msThreshold').value = String(t);
   $('msName').value = `KeyPath ${demo ? 'demo ' : ''}${t}-of-${n}`;
   $('msKeys').value = cosigners.map((c) => c.line).join('\n'); msDemoKeys = demo ? $('msKeys').value : null;
-  $('msGen').innerHTML = `<div class="share-list">${cosigners.map((c, i) => `<div class="share"><button class="copy" type="button" data-text="${esc(c.phrase)}">copy</button><button class="reveal" type="button" aria-pressed="true">reveal</button><h4>Seed ${i + 1} of ${n}<small>fingerprint ${esc(c.fp)}</small></h4><ol>${c.phrase.split(' ').map((w, j) => `<li><i>${j + 1}</i><b>${esc(w)}</b></li>`).join('')}</ol></div>`).join('')}</div>`;
+  $('msGen').innerHTML = `<div class="share-list">${cosigners.map((c, i) => `<div class="share"><button class="copy" type="button" data-text="${esc(c.phrase)}">copy</button><button class="reveal" type="button" aria-pressed="true">reveal</button><button class="qr" type="button" data-fp="${esc(c.fp)}">qr</button><h4>Seed ${i + 1} of ${n}<small>fingerprint ${esc(c.fp)}</small></h4><ol>${c.phrase.split(' ').map((w, j) => `<li><i>${j + 1}</i><b>${esc(w)}</b></li>`).join('')}</ol></div>`).join('')}</div>`;
   msGenCover(!demo); $('msGenEye').classList.remove('hidden');
   msUpdate(); setHidden(!demo); // demo phrases are public: reveal the page, like the phrase card's demo does
   toast(demo ? 'Demo wallet loaded: explore freely, never fund it' : `${n} seeds created and hidden`);
