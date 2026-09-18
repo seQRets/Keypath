@@ -1,5 +1,17 @@
 # Changelog
 
+## v2.12.0 — 2026-09-18
+
+**QR codes for the public values, and each multisig seed as a SeedQR.**
+
+- The account public key, the BIP48 key with origin, the multisig xpubs, the descriptor and the setup file each have a qr button beside copy. These codes open in the clear: they are public information that can watch but never spend. The account key's code encodes exactly what is displayed, so the xpub ↔ zpub and key-origin choices carry through.
+- Every seed created in the multisig card has its own SeedQR, with the Standard / Compact toggle and the seed's fingerprint, covered until deliberately revealed.
+- The seeds created in the multisig card blur one level deep instead of two, and each seed carries its own reveal button beside copy and qr. The card header's eye is gone; the Hide seeds / Reveal seeds button above the seeds sets them all, every hide-all path (menu, a new phrase, a Shamir recovery, five idle minutes) still covers them, and revealing stays deliberate and per seed.
+- Hiding is instant. The blur used to fade in, leaving a freshly generated phrase readable for a split second; revealing still fades.
+- The derivation path pill copies on click, like the two master-fingerprint values.
+- The wallet name field sits above the setup file it names, updates the file as it is typed, and caps at the 20 characters the file format keeps. The two account-key checkboxes are centred, and the BIP48 tab wears a MULTISIG badge like BIP86's TAPROOT.
+- Far less text on the page. The wallet definition, multisig card, Multisig lab, derivation card, Shamir card and seed card keep one sentence per thing, with the teaching behind the "?" tips; the master fingerprint's paragraph moved into its tip.
+
 ## v2.11.3 — 2026-09-17
 
 - A new checkbox under the account keys, "Show [fingerprint/path] in front", turns the account keys into descriptor-style keys with the key origin attached, like [73c5da0a/84h/0h/0h]xpub…, and back. It combines with the xpub ↔ zpub switch, works on the multisig tab too, and its "?" explains what the bracket means. Wallets such as Sparrow and multisig coordinators read this prefix to learn which seed a key came from.
