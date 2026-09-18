@@ -279,6 +279,8 @@ details.adv input, details.adv select, details.adv textarea { background: var(--
 .tabpanel p.help { font-size: 0.9rem; color: var(--ink-soft); max-width: 66ch; margin-bottom: 1rem; }
 .pathline { font-family: var(--mono); font-size: 0.86rem; color: var(--ink); background: var(--panel-sunk); border: 1px solid var(--line); border-radius: var(--pill); padding: 0.35rem 0.9rem; display: inline-flex; gap: 0.6rem; align-items: center; margin: 1rem 0; }
 .pathline .lbl { font-family: var(--sans); font-size: 0.74rem; color: var(--ink-faint); font-weight: 600; }
+.pathline #pathOut { cursor: copy; }
+.pathline #pathOut:hover { color: var(--accent-ink); }
 .two { display: grid; grid-template-columns: 1fr; gap: 0 1.1rem; }
 @media (min-width: 720px) { .two { grid-template-columns: 1fr 1fr; } }
 h3.sec { font-size: 0.74rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint); margin: 1.4rem 0 0.8rem; display: flex; align-items: center; gap: 0.6rem; }

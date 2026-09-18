@@ -7,7 +7,7 @@
 <meta name="description" content="KeyPath: generate or inspect a BIP39 recovery phrase, back it up with SLIP-39 Shamir shares, and derive BIP32 keys and Bitcoin addresses, legacy through Taproot. Single file, runs entirely offline in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-P5bOCi+mn1+Z8F/Ma8IbUa+olaILPG5DmfnnzrJgo28=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-SUZikV2xHD5bsQ+ZlbxLQ9grlR+zfzGuXKHRfiTZeXo='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-P5bOCi+mn1+Z8F/Ma8IbUa+olaILPG5DmfnnzrJgo28=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-MccKQrt9mWpZ/M0UshtjW7nwYbKg5luQq494nKai6VI='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <script>try{if(localStorage.getItem("keypath-tips")==="off")document.documentElement.classList.add("no-tips");}catch(e){}var t=null;try{t=localStorage.getItem("keypath-theme");}catch(e){}var dk=t==="dark"||(t!=="light"&&(location.protocol==="file:"||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)));document.documentElement.setAttribute("data-theme",dk?"dark":"light");</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fbbf24'/><stop offset='.55' stop-color='%23f97316'/><stop offset='1' stop-color='%23ef4444'/></linearGradient></defs><rect width='512' height='512' rx='116' fill='url(%23g)'/><g fill='none' stroke='%23fff' stroke-width='48' stroke-linecap='round' stroke-linejoin='round'><circle cx='190' cy='256' r='74'/><path d='M264 256h176M382 256v62M440 256v50'/></g></svg>">
 <style>
@@ -292,6 +292,8 @@ details.adv input, details.adv select, details.adv textarea { background: var(--
 .tabpanel p.help { font-size: 0.9rem; color: var(--ink-soft); max-width: 66ch; margin-bottom: 1rem; }
 .pathline { font-family: var(--mono); font-size: 0.86rem; color: var(--ink); background: var(--panel-sunk); border: 1px solid var(--line); border-radius: var(--pill); padding: 0.35rem 0.9rem; display: inline-flex; gap: 0.6rem; align-items: center; margin: 1rem 0; }
 .pathline .lbl { font-family: var(--sans); font-size: 0.74rem; color: var(--ink-faint); font-weight: 600; }
+.pathline #pathOut { cursor: copy; }
+.pathline #pathOut:hover { color: var(--accent-ink); }
 .two { display: grid; grid-template-columns: 1fr; gap: 0 1.1rem; }
 @media (min-width: 720px) { .two { grid-template-columns: 1fr 1fr; } }
 h3.sec { font-size: 0.74rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint); margin: 1.4rem 0 0.8rem; display: flex; align-items: center; gap: 0.6rem; }
@@ -21873,6 +21875,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('menu
 $('menuPanel').querySelectorAll('a').forEach((a) => a.addEventListener('click', () => menuOpen(false)));
 $('fpValue').addEventListener('click', async () => { if (S.root && (await copyText(fpHex(S.root)))) toast('Fingerprint copied'); });
 $('phraseFpVal').addEventListener('click', async () => { if (S.root && (await copyText(fpHex(S.root)))) toast('Fingerprint copied'); });
+$('pathOut').addEventListener('click', async () => { const p = $('pathOut').textContent; if (p.startsWith('m') && (await copyText(p))) toast('Path copied'); });
 $('clearBtn').addEventListener('click', () => {
   for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR', 'msKeys', 'msSeeds']) $(id).value = ''; $('msGen').innerHTML = ''; msUpdate();
   $('entropyLen').value = 'raw'; $('entropyType').value = 'auto'; entropyLenTouched = false; $('startIdx').value = '0';

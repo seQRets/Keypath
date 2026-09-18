@@ -194,6 +194,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('menu
 $('menuPanel').querySelectorAll('a').forEach((a) => a.addEventListener('click', () => menuOpen(false)));
 $('fpValue').addEventListener('click', async () => { if (S.root && (await copyText(fpHex(S.root)))) toast('Fingerprint copied'); });
 $('phraseFpVal').addEventListener('click', async () => { if (S.root && (await copyText(fpHex(S.root)))) toast('Fingerprint copied'); });
+$('pathOut').addEventListener('click', async () => { const p = $('pathOut').textContent; if (p.startsWith('m') && (await copyText(p))) toast('Path copied'); });
 $('clearBtn').addEventListener('click', () => {
   for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR', 'msKeys', 'msSeeds']) $(id).value = ''; $('msGen').innerHTML = ''; msUpdate();
   $('entropyLen').value = 'raw'; $('entropyType').value = 'auto'; entropyLenTouched = false; $('startIdx').value = '0';
