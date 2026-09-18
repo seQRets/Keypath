@@ -273,7 +273,7 @@
             <div class="field"><label class="field-label">Account extended private key<button type="button" class="tip" data-tip="xprv" aria-label="What does this mean?">?</button> <span class="badge secret-badge" data-tip="secret">secret</span></label>
               <div class="term secret" id="acctXprv"><button class="copy" data-copy="acctXprv" type="button">copy</button></div></div>
             <div class="field"><label class="field-label">Account extended public key<button type="button" class="tip" data-tip="xpub" aria-label="What does this mean?">?</button> <span class="badge pub-badge" data-tip="public">public</span></label>
-              <div class="term" id="acctXpub"><button class="qr2" type="button" data-qr="acctXpub" data-qrtitle="Account public key">qr</button><button class="copy" data-copy="acctXpub" type="button">copy</button></div></div>
+              <div class="term has-qr" id="acctXpub"><button class="qr2" type="button" data-qr="acctXpub" data-qrtitle="Account public key" aria-label="Show as a QR code"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v2M17 20h4M14 20h1"/></svg></button><button class="copy" data-copy="acctXpub" type="button">copy</button></div></div>
           </div>
           <div class="check-row centered" style="margin-top:0.4rem">
             <label class="check hidden" id="slipWrap"><input type="checkbox" id="slip132"> <span id="slipNames">xpub ↔ zpub</span><button type="button" class="tip" data-tip="slip132" aria-label="What does this mean?">?</button></label>
@@ -293,7 +293,7 @@
             <p class="help" style="margin-bottom:0.8rem">This line — fingerprint, path and public account key — is what the person setting up the multisig wallet needs; it cannot spend. Never share the private key.</p>
             <p class="help hidden" id="msTrNote48" style="margin-bottom:0.8rem">Taproot multisig spends are cheaper and more private, but only Sparrow, Bitcoin Core 24 and later, and recent hardware wallets support it. Its key has no special prefix: it is a plain xpub.</p>
             <div class="field"><label class="field-label">Key with origin <span class="badge pub-badge" data-tip="public">public</span><span class="hint">Sparrow, Bitcoin Core and hardware wallets accept this format.</span></label>
-              <div class="term" id="cosignerLine"><button class="qr2" type="button" data-qr="cosignerLine" data-qrtitle="Key with origin">qr</button><button class="copy" data-copy="cosignerLine" type="button">copy</button></div></div>
+              <div class="term has-qr" id="cosignerLine"><button class="qr2" type="button" data-qr="cosignerLine" data-qrtitle="Key with origin" aria-label="Show as a QR code"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v2M17 20h4M14 20h1"/></svg></button><button class="copy" data-copy="cosignerLine" type="button">copy</button></div></div>
             <button type="button" class="btn" id="cosignerToMs">Use this key in the multisig wallet below</button>
           </div>
         </div>
@@ -412,7 +412,7 @@
         <h3 class="sec">Your wallet definition<button type="button" class="tip" data-tip="descriptor" aria-label="What does this mean?">?</button></h3>
         <p class="help" style="margin-bottom:0.8rem">It is public and cannot spend, but <strong>back it up with every seed</strong>: without it, even enough seeds to sign cannot find the coins.</p>
         <div class="field"><label class="field-label">Descriptor <span class="hint">Software wallets such as Sparrow and Bitcoin Core import this line.</span></label>
-          <div class="term" id="msDesc"><button class="qr2" type="button" data-qr="msDesc" data-qrtitle="Descriptor">qr</button><button class="copy" data-copy="msDesc" type="button">copy</button></div></div>
+          <div class="term has-qr" id="msDesc"><button class="qr2" type="button" data-qr="msDesc" data-qrtitle="Descriptor" aria-label="Show as a QR code"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v2M17 20h4M14 20h1"/></svg></button><button class="copy" data-copy="msDesc" type="button">copy</button></div></div>
         <details class="adv"><summary>Separate receive and change descriptors</summary><div class="adv-body" style="padding-top:0.8rem">
           <p class="help" style="margin-bottom:0.8rem">Some software wants receive and change addresses as two separate lines. The single line above covers both.</p>
           <div class="field"><label class="field-label">Receive</label><div class="term" id="msDescRecv"><button class="copy" data-copy="msDescRecv" type="button">copy</button></div></div>
@@ -420,7 +420,7 @@
         </div></details>
         <div class="row" style="margin-top:1rem"><label class="mid"><span class="small-label">Wallet name</span><input type="text" id="msName" value="KeyPath multisig" maxlength="20" spellcheck="false"></label><button type="button" class="btn small" id="msDownload"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 19h16"/></svg>Download setup file</button></div>
         <div class="field"><label class="field-label">Setup file <span class="hint">Hardware wallets import this file; save it as <code>multisig.txt</code>.</span><button type="button" class="tip" data-tip="coldcardfile" aria-label="What does this mean?">?</button></label>
-          <div class="term" id="msConfig"><button class="qr2" type="button" data-qr="msConfig" data-qrtitle="Setup file">qr</button><button class="copy" data-copy="msConfig" type="button">copy</button></div></div>
+          <div class="term has-qr" id="msConfig"><button class="qr2" type="button" data-qr="msConfig" data-qrtitle="Setup file" aria-label="Show as a QR code"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v2M17 20h4M14 20h1"/></svg></button><button class="copy" data-copy="msConfig" type="button">copy</button></div></div>
         <h3 class="sec">Wallet addresses<button type="button" class="tip" data-tip="msaddresses" aria-label="What does this mean?">?</button></h3>
         <p class="help" style="margin-bottom:0.8rem">Every device holding a seed should show this first address; if one disagrees, an xpub, the threshold or the script type is wrong.</p>
         <div class="toolbar">

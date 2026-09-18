@@ -233,8 +233,10 @@ select { appearance: none; -webkit-appearance: none; padding-right: 2.1rem; back
 .copy { position: absolute; top: 0.5rem; right: 0.5rem; font-family: var(--mono); font-size: 0.7rem; padding: 0.28rem 0.6rem; border: 1px solid var(--term-line); border-radius: 4px; background: rgba(255,255,255,.03); color: var(--term-dim); cursor: pointer; transition: color .15s ease, border-color .15s ease; }
 .copy:hover { color: var(--term-text); border-color: var(--term-dim); }
 .copy.done { color: var(--term-hex); border-color: var(--term-hex); }
-.term .qr2 { position: absolute; top: 0.5rem; right: 4.5rem; font-family: var(--mono); font-size: 0.7rem; padding: 0.28rem 0.6rem; border: 1px solid var(--term-line); border-radius: 4px; background: rgba(255,255,255,.03); color: var(--term-dim); cursor: pointer; transition: color .15s ease, border-color .15s ease; }
+.term.has-qr { padding-right: 6.8rem; } /* room for the qr button next to copy, so text never runs under it */
+.term .qr2 { position: absolute; top: 0.5rem; right: 4.5rem; width: 1.9rem; height: 1.6rem; display: grid; place-items: center; padding: 0; border: 1px solid var(--term-line); border-radius: 4px; background: var(--term-bg); color: var(--term-dim); cursor: pointer; transition: color .15s ease, border-color .15s ease; }
 .term .qr2:hover { color: var(--term-text); border-color: var(--term-dim); }
+.term .qr2 svg, #msGen .share .qr svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
 /* secrets */
 .secret { transition: filter .15s ease; } /* the reveal animates; hiding must not (see below) */
@@ -470,7 +472,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
 #msGen .share.covered ol { filter: blur(7px); user-select: none; pointer-events: none; }
 #msGen .share .reveal, #msGen .share .qr { position: absolute; top: 0.5rem; font-family: var(--mono); font-size: 0.7rem; padding: 0.28rem 0.6rem; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); color: var(--ink-faint); cursor: pointer; transition: color .15s ease, border-color .15s ease; }
 #msGen .share .reveal { right: 4.5rem; }
-#msGen .share .qr { right: 9rem; }
+#msGen .share .qr { right: 9rem; width: 1.9rem; height: 1.6rem; display: grid; place-items: center; padding: 0; }
 #msGen .share .reveal:hover, #msGen .share .qr:hover { color: var(--ink); border-color: var(--ink-faint); }
 #msGen .share h4 { padding-right: 11.5rem; }
 .row .of { align-self: flex-end; height: 44px; line-height: 44px; margin: 0 -0.3rem; font-weight: 600; color: var(--ink-soft); }
