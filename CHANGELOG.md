@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.13.0 — 2026-09-20
+
+**A passphrase for any seed created in the multisig card.**
+
+- Each seed created by "Create the seeds here" has an optional passphrase box. Typing one re-derives that seed's fingerprint and BIP48 xpub, swaps its line in the xpubs box and rebuilds the wallet; the card shows the new fingerprint marked "with passphrase", and clearing the box puts the original key back. The passphrase hides and reveals with its seed and stays typeable while hidden. The seed's copy and SeedQR carry the words only, and the QR says so when a passphrase is in use. The key matches what the Recovery phrase card's passphrase box and the BIP48 tab produce for the same seed.
+- The Restore side's seeds hint says where a seed that uses a passphrase goes: into the Recovery phrase card with its passphrase, after which the BIP48 tab's button adds its xpub.
+- The paragraph under each card title is gone: the card's "?" already said the same thing. The one fact each paragraph held that its tooltip lacked now lives in the tooltip (the checksum in the last word, SLIP-39 and Trezor, the phrase alone restoring everything, the tabs being the standard routes, click to copy). The multisig Build paragraph keeps only its instruction.
+
 ## v2.12.2 — 2026-09-18
 
 - Shamir shares hide one by one, like the multisig seeds. Each created share carries its own reveal button and blurs only its word list, and a Hide shares / Reveal shares button beside Create shares sets them all. Shares of a real phrase start covered the moment they are created (before, they could appear in the open); demo shares stay visible. Hiding the Shamir card or any hide-all still covers every share, and revealing stays deliberate, per share or all at once.
