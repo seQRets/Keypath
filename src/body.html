@@ -52,7 +52,6 @@
   <section class="console" id="phrase-card" aria-label="Recovery phrase">
     <div class="console-bar"><span class="n">1</span> Recovery phrase<button type="button" class="tip" data-tip="phrase" aria-label="What does this mean?">?</button><div class="bar-actions"><button type="button" class="barbtn" id="showEntropy" aria-pressed="false">Show entropy details</button><button type="button" class="barbtn eye" aria-pressed="false"><svg class="ic-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.8A9.8 9.8 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3.2 3.9M6.6 6.6C4 8.4 2.5 12 2.5 12s3.5 6.5 9.5 6.5a9.6 9.6 0 0 0 4.1-.9"/></svg><span>Hide</span></button></div></div>
     <div class="console-body">
-      <p class="console-intro">Generate a fresh phrase or type an existing one. The last word carries a <span class="gloss" data-tip="checksum">checksum</span>, so a phrase invented by hand will almost never validate.</p>
 
       <div class="row">
         <div>
@@ -144,7 +143,6 @@
   <section class="console" id="shamir-card" aria-label="Shamir backup">
     <div class="console-bar"><span class="n">2</span> Shamir backup<button type="button" class="tip" data-tip="shamir" aria-label="What does this mean?">?</button><div class="bar-actions"><button type="button" class="barbtn eye" aria-pressed="false"><svg class="ic-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.8A9.8 9.8 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3.2 3.9M6.6 6.6C4 8.4 2.5 12 2.5 12s3.5 6.5 9.5 6.5a9.6 9.6 0 0 0 4.1-.9"/></svg><span>Hide</span></button></div></div>
     <div class="console-body">
-      <p class="console-intro">Split the seed phrase into backup pieces, called shares, and choose how many of them are needed to get it back: with 3 shares and 2 needed, any 2 rebuild the exact phrase, while one alone reveals nothing. This is the SLIP-39 standard used by Trezor.</p>
       <div style="text-align:center"><div class="mode-toggle" role="group" aria-label="Shamir mode">
         <button class="mode-btn" id="shSplit" type="button" aria-pressed="true">Split into shares</button>
         <button class="mode-btn" id="shRecover" type="button" aria-pressed="false">Recover from shares</button>
@@ -184,7 +182,6 @@
   <section class="console" id="seed-card" aria-label="Seed and master key">
     <div class="console-bar"><span class="n">3</span> Seed &amp; master key<button type="button" class="tip" data-tip="seed" aria-label="What does this mean?">?</button><div class="bar-actions"><button type="button" class="barbtn eye" aria-pressed="false"><svg class="ic-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.8A9.8 9.8 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3.2 3.9M6.6 6.6C4 8.4 2.5 12 2.5 12s3.5 6.5 9.5 6.5a9.6 9.6 0 0 0 4.1-.9"/></svg><span>Hide</span></button></div></div>
     <div class="console-body">
-      <p class="console-intro">The seed phrase, plus the passphrase if one is used, becomes a single master key from which every address grows — which is why the phrase alone can restore everything.</p>
       <div class="fp-row">
         <div class="fp-box" id="fpBox"><span class="fp-label">Master fingerprint<button type="button" class="tip" data-tip="fingerprint" aria-label="What does this mean?">?</button></span><span class="fp-value" id="fpValue">—</span></div>
       </div>
@@ -223,7 +220,6 @@
   <section class="console" id="derivation-card" aria-label="Derivation path">
     <div class="console-bar"><span class="n">4</span> Derivation path<button type="button" class="tip" data-tip="derivation" aria-label="What does this mean?">?</button><div class="bar-actions"><button type="button" class="barbtn eye" aria-pressed="false"><svg class="ic-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.8A9.8 9.8 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3.2 3.9M6.6 6.6C4 8.4 2.5 12 2.5 12s3.5 6.5 9.5 6.5a9.6 9.6 0 0 0 4.1-.9"/></svg><span>Hide</span></button></div></div>
     <div class="console-body">
-      <p class="console-intro">Each tab is a <span class="gloss" data-tip="bip">standard</span> for making addresses; pick the one your wallet uses, and KeyPath shows the same keys and addresses it would.</p>
       <div class="mode-toggle" role="tablist" id="tabs" aria-label="Derivation standard">
         <button class="mode-btn" role="tab" data-tab="bip44" aria-selected="false" aria-pressed="false">BIP44<span class="tsub">1…</span></button>
         <button class="mode-btn" role="tab" data-tab="bip49" aria-selected="false" aria-pressed="false">BIP49<span class="tsub">3…</span></button>
@@ -318,7 +314,6 @@
   <section class="console" id="addresses-card" aria-label="Derived addresses">
     <div class="console-bar"><span class="n">5</span> Derived addresses<button type="button" class="tip" data-tip="addresses" aria-label="What does this mean?">?</button><div class="bar-actions"><button type="button" class="barbtn eye" aria-pressed="false"><svg class="ic-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.8A9.8 9.8 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3.2 3.9M6.6 6.6C4 8.4 2.5 12 2.5 12s3.5 6.5 9.5 6.5a9.6 9.6 0 0 0 4.1-.9"/></svg><span>Hide</span></button></div></div>
     <div class="console-body">
-      <p class="console-intro">These are the addresses your wallet would show for the path chosen above, with the key behind each one. Click any address or key to copy it.</p>
       <div class="toolbar">
         <div class="cols" role="group" aria-label="Columns">
           <button type="button" class="chip" data-col="path" aria-pressed="true">Path</button>
@@ -355,7 +350,7 @@
         <button class="mode-btn" id="msModeBuild" type="button" aria-pressed="true">Build a wallet</button>
         <button class="mode-btn" id="msModeRestore" type="button" aria-pressed="false">Restore a wallet</button>
       </div></div>
-      <p class="console-intro ms-build" style="margin-top:1rem">A multisig wallet is shared between several seeds, and a set number of them must sign together to spend, for example 2 of 3. Paste each device's xpub into the box below, or let KeyPath create all the seeds; <strong>creating each seed on its own device is safer</strong>, because seeds created here all pass through this computer.</p>
+      <p class="console-intro ms-build" style="margin-top:1rem">Paste each device's xpub into the box below, or let KeyPath create all the seeds; <strong>creating each seed on its own device is safer</strong>, because seeds created here all pass through this computer.</p>
       <p class="console-intro ms-restore" style="margin-top:1rem">Enter whatever remains of the wallet — seeds, xpubs, a setup file, or a mix — and KeyPath rebuilds its addresses and its definition.</p>
       <details class="adv ms-build" id="msHowto">
         <summary>How a multisig wallet is set up</summary>
@@ -438,7 +433,6 @@
   <section class="console" id="lab-card" aria-label="Multisig lab">
     <div class="console-bar"><span class="n">7</span> Multisig lab<button type="button" class="tip" data-tip="lab" aria-label="What does this mean?">?</button></div>
     <div class="console-body">
-      <p class="console-intro">What does it take to recover a multisig wallet? Check the boxes for what remains of this 2-of-3, built from the public test seeds, and see whether the coins can be found and spent.</p>
       <div class="row" style="margin-bottom:0.9rem">
         <span class="small-label" style="margin:0 0.3rem 0 0;align-self:center">Try:</span>
         <button type="button" class="barbtn" data-lab="1,1,1|0,0,0|0">All 3 seeds</button>
