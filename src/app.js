@@ -705,7 +705,7 @@ function renderSeedQr(words, wl, fpLine) {
   $('qrStd').setAttribute('aria-pressed', qrFormat === 'standard'); $('qrCompact').setAttribute('aria-pressed', qrFormat !== 'standard');
 }
 function seedQrRender() { renderSeedQr(S.phraseWords, wordlists[S.lang].words, S.root ? `Master fingerprint${$('passphrase').value ? ' (with your passphrase)' : ''}<b>${esc(fpHex(S.root))}</b>` : ''); }
-function msSeedQrRender() { renderSeedQr(qrSeedData.words, qrSeedData.wl, `Fingerprint<b>${esc(qrSeedData.fp)}</b>`); }
+function msSeedQrRender() { renderSeedQr(qrSeedData.words, qrSeedData.wl, `Fingerprint${qrSeedData.pass ? ' (with its passphrase; the code holds the words only)' : ''}<b>${esc(qrSeedData.fp)}</b>`); }
 function textQrRender() {
   const q = qrSvg(qrTextData.text, {});
   $('qrWrap').innerHTML = q.svg;
@@ -725,7 +725,7 @@ document.addEventListener('click', (e) => {
   const b = e.target.closest('#msGen .qr'); if (!b) return;
   const share = b.closest('.share');
   const words = splitWords(share.querySelector('.copy').dataset.text);
-  qrSeedData = { words, wl: wordlists[detectLang(words) || 'english'].words, fp: b.dataset.fp };
+  qrSeedData = { words, wl: wordlists[detectLang(words) || 'english'].words, fp: b.dataset.fp, pass: b.dataset.pass === '1' };
   qrOpen('msseed', { title: `${share.querySelector('h4').firstChild.textContent} · SeedQR` });
 });
 $('seedQrBtn').addEventListener('click', seedQrOpen);
@@ -748,6 +748,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('qrMo
 
 /* ---------------- multisig wallet (BIP48 / BIP67 / descriptors) ---------------- */
 let msLast = null, msKeysSeen = '', msDemoKeys = null, msModeV = 'build';
+let msGenState = null; // seeds created here: { script, netc, seeds: [{ phrase, pass, fp, line }] }, so a passphrase can re-derive one seed's key
 // Restore: seeds typed in directly, each derived at m/48'/coin'/account'/script'. Returns { cosigners, errors }.
 function msSeedCosigners(text, script, account) {
   const cosigners = [], errors = [], netc = net();
@@ -768,7 +769,7 @@ function msSeedCosigners(text, script, account) {
 function msReset() {
   $('msKeys').value = ''; $('msSeeds').value = ''; $('msAccount').value = '0'; msGenCover(false); $('msGen').innerHTML = ''; $('msGenEye').classList.add('hidden');
   $('msName').value = 'KeyPath multisig'; $('msThreshold').value = '2'; $('msGenCount').value = '3'; $('msGenWords').value = '12'; $('msScript2').value = 'p2wsh';
-  msDemoKeys = null; msKeysSeen = '';
+  msDemoKeys = null; msKeysSeen = ''; msGenState = null;
 }
 function msMode(m) {
   if (m !== msModeV) msReset(); // a fresh slate for each panel
@@ -814,6 +815,8 @@ function msInit() {
     const s = b.closest('.share'); shareCover(s, !s.classList.contains('covered'));
     if (b.closest('#msGen')) shareEyeSync('msGen', 'msGenEye', 'seeds'); else shareEyeSync('shShares', 'shSharesEye', 'shares');
   });
+  const passApply = debounce(msPassApply, 250);
+  document.addEventListener('input', (e) => { const inp = e.target.closest('#msGen .share-pass input'); if (inp) passApply(inp); });
   msMode('build');
 }
 // The generated phrases have their own cover, independent of the page-wide Hide private info, so revealing
@@ -835,22 +838,41 @@ function shSharesCover(on) { for (const s of $('shShares').querySelectorAll('.sh
 // demo: the well-known all-"abandon" test phrases (entropy 0, 1, 2 … so each ends in a different checksum word), shown unblurred.
 function msGenerate(demo) {
   const n = +$('msGenCount').value, words = +$('msGenWords').value, script = $('msScript2').value, netc = net();
-  const H = 0x80000000, wl = demo ? wordlists.english.words : wordlists[S.lang].words, cosigners = [];
+  const wl = demo ? wordlists.english.words : wordlists[S.lang].words, cosigners = [];
   for (let i = 0; i < n; i++) {
     const ent = new Uint8Array(words * 4 / 3); if (demo) ent[ent.length - 1] = i; else crypto.getRandomValues(ent);
     const phrase = bip39.entropyToMnemonic(ent, wl);
-    const root = HDKey.fromMasterSeed(bip39.mnemonicToSeedSync(phrase, ''), { private: netc.xprv, public: netc.xpub });
-    const c = multisig.cosignerFromNode(root, [48 + H, netc.coin + H, 0 + H, multisig.SCRIPT_INDEX[script] + H]);
-    cosigners.push({ phrase, fp: c.fp, node: c.node, line: `[${c.fp}${c.path}]${serExt(c.node, netc.xpub, false)}` });
+    cosigners.push({ phrase, pass: '', ...msSeedKey(phrase, '', script, netc) });
   }
+  msGenState = { script, netc, seeds: cosigners };
   const t = Math.min(Math.max(1, +$('msThreshold').value || 2), n); // the policy chosen above, clamped to the number of seeds
   $('msThreshold').value = String(t);
   $('msName').value = `KeyPath ${demo ? 'demo ' : ''}${t}-of-${n}`;
   $('msKeys').value = cosigners.map((c) => c.line).join('\n'); msDemoKeys = demo ? $('msKeys').value : null;
-  $('msGen').innerHTML = `<div class="share-list">${cosigners.map((c, i) => `<div class="share"><button class="copy" type="button" data-text="${esc(c.phrase)}">copy</button><button class="reveal" type="button" aria-pressed="true">reveal</button><button class="qr" type="button" data-fp="${esc(c.fp)}" aria-label="Show this seed as a QR code"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v2M17 20h4M14 20h1"/></svg></button><h4>Seed ${i + 1} of ${n}<small>fingerprint ${esc(c.fp)}</small></h4><ol>${c.phrase.split(' ').map((w, j) => `<li><i>${j + 1}</i><b>${esc(w)}</b></li>`).join('')}</ol></div>`).join('')}</div>`;
+  $('msGen').innerHTML = `<div class="share-list">${cosigners.map((c, i) => `<div class="share"><button class="copy" type="button" data-text="${esc(c.phrase)}">copy</button><button class="reveal" type="button" aria-pressed="true">reveal</button><button class="qr" type="button" data-fp="${esc(c.fp)}" aria-label="Show this seed as a QR code"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v2M17 20h4M14 20h1"/></svg></button><h4>Seed ${i + 1} of ${n}<small>fingerprint ${esc(c.fp)}</small></h4><ol>${c.phrase.split(' ').map((w, j) => `<li><i>${j + 1}</i><b>${esc(w)}</b></li>`).join('')}</ol><label class="share-pass"><input type="text" class="secret" data-seed="${i}" placeholder="Optional passphrase" autocomplete="off" autocapitalize="off" spellcheck="false"></label></div>`).join('')}</div>`;
   msGenCover(!demo); $('msGenEye').classList.remove('hidden');
   msUpdate(); setHidden(!demo); // demo phrases are public: reveal the page, like the phrase card's demo does
   toast(demo ? 'Demo wallet loaded: explore freely, never fund it' : `${n} seeds created and hidden`);
+}
+// A seed's multisig key at the BIP48 path for the chosen script type; the passphrase, if any, changes fingerprint and xpub alike.
+function msSeedKey(phrase, pass, script, netc) {
+  const H = 0x80000000;
+  const root = HDKey.fromMasterSeed(bip39.mnemonicToSeedSync(phrase, pass), { private: netc.xprv, public: netc.xpub });
+  const c = multisig.cosignerFromNode(root, [48 + H, netc.coin + H, 0 + H, multisig.SCRIPT_INDEX[script] + H]);
+  return { fp: c.fp, line: `[${c.fp}${c.path}]${serExt(c.node, netc.xpub, false)}` };
+}
+// A passphrase typed on a created seed re-derives that seed's key and swaps its line in the xpubs box, so the wallet follows.
+function msPassApply(inp) {
+  if (!msGenState) return;
+  const s = msGenState.seeds[+inp.dataset.seed], pass = inp.value;
+  if (!s || pass === s.pass) return;
+  const k = msSeedKey(s.phrase, pass, msGenState.script, msGenState.netc), box = $('msKeys');
+  box.value = box.value.includes(s.line) ? box.value.replace(s.line, k.line) : (box.value.trim() ? box.value.replace(/\s*$/, '\n') + k.line : k.line);
+  Object.assign(s, { pass, fp: k.fp, line: k.line });
+  const share = inp.closest('.share');
+  share.querySelector('h4 small').textContent = `fingerprint ${k.fp}${pass ? ' · with passphrase' : ''}`;
+  const q = share.querySelector('.qr'); q.dataset.fp = k.fp; q.dataset.pass = pass ? '1' : '';
+  msUpdate();
 }
 function msUpdate() {
   msLast = null; $('msOut').classList.add('hidden'); $('msWarnings').innerHTML = '';
