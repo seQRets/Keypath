@@ -1,5 +1,14 @@
 # Changelog
 
+## v2.14.0 — 2026-09-29
+
+**Restoring a multisig wallet works like building one: a card for every seed.**
+
+- The Restore side's seeds box was a single field that blurred as soon as a seed was typed, with no way to reveal it. Restore now has the same layout as Build: Add a seed, Clear, and a Reveal seeds / Hide seeds button, with one card per seed. Each card has a box for the seed's words, its own reveal button, a SeedQR, copy, an optional passphrase, and Remove. Cards start hidden, and their words stay typeable while hidden. A card's fingerprint line follows what it holds and says "with passphrase" when one is set. Hiding everything, from the menu or after five idle minutes, covers these cards too.
+- A seed made with a passphrase can now be restored directly: enter the passphrase on its card. Restoring the three public demo seeds this way gives exactly the same descriptor as the Build side's demo wallet.
+- Several seeds pasted at once, one per line, split into separate cards. A single seed pasted one word per line stays one seed, and typing is never rearranged.
+- The Clear button beside Generate now reads "Clear all", because it empties the whole page, not just the recovery phrase.
+
 ## v2.13.1 — 2026-09-29
 
 - A phrase typed by hand is hidden from its first letter. Before, it stayed readable until the last word made it valid, and a pasted phrase showed for a fifth of a second. The first character typed or pasted into an empty phrase box now hides all private information at once; the box stays typeable, with a red ring marking it. Pressing Reveal to check the spelling holds while typing continues, and the phrase hides again once it is complete and valid. The demo phrase stays visible.
