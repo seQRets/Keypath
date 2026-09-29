@@ -202,7 +202,7 @@ $('clearBtn').addEventListener('click', () => {
   for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR', 'msKeys']) $(id).value = ''; $('msGen').innerHTML = ''; msRsClear(); msUpdate();
   $('entropyLen').value = 'raw'; $('entropyType').value = 'auto'; entropyLenTouched = false; $('startIdx').value = '0';
   S.rootFromKey = false; $('rootOut').textContent = '';
-  onPhraseInput(false); shamirClear(); shamirRecover(); setHidden(false); toast('Cleared'); // nothing private is left, so the blur comes off too
+  onPhraseInput(false); shamirClear(); shamirRecover(); setHidden(false); toast('Everything on the page cleared'); // nothing private is left, so the blur comes off too
 });
 $('warnMore').addEventListener('click', () => { const open = $('warnDetail').hidden; $('warnDetail').hidden = !open; $('warnMore').setAttribute('aria-expanded', open); $('warnMore').textContent = open ? 'Show less' : 'Read more'; });
 $('network').addEventListener('change', () => { S.net = $('network').value; S.coin = net().coin; $('coin').value = S.coin; rebuildRoot(); });
