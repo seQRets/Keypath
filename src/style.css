@@ -236,7 +236,7 @@ select { appearance: none; -webkit-appearance: none; padding-right: 2.1rem; back
 .term.has-qr { padding-right: 6.8rem; } /* room for the qr button next to copy, so text never runs under it */
 .term .qr2 { position: absolute; top: 0.5rem; right: 4.5rem; width: 1.9rem; height: 1.6rem; display: grid; place-items: center; padding: 0; border: 1px solid var(--term-line); border-radius: 4px; background: var(--term-bg); color: var(--term-dim); cursor: pointer; transition: color .15s ease, border-color .15s ease; }
 .term .qr2:hover { color: var(--term-text); border-color: var(--term-dim); }
-.term .qr2 svg, #msGen .share .qr svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.term .qr2 svg, #msGen .share .qr svg, #msRs .share .qr svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
 /* secrets */
 .secret { transition: filter .15s ease; } /* the reveal animates; hiding must not (see below) */
@@ -475,14 +475,20 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
 .share.covered .share-pass input:not(:placeholder-shown) { filter: blur(7px); } /* a typed passphrase hides and reveals with its seed alone, and stays typeable */
 .share .reveal, .share .qr { position: absolute; top: 0.5rem; font-family: var(--mono); font-size: 0.7rem; padding: 0.28rem 0.6rem; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); color: var(--ink-faint); cursor: pointer; transition: color .15s ease, border-color .15s ease; }
 .share .reveal { right: 4.5rem; }
-#msGen .share .qr { right: 9rem; width: 1.9rem; height: 1.6rem; display: grid; place-items: center; padding: 0; }
+#msGen .share .qr, #msRs .share .qr { right: 9rem; width: 1.9rem; height: 1.6rem; display: grid; place-items: center; padding: 0; }
+#msRs .share h4 { padding-right: 11.5rem; }
+#msRs .rs-words { width: 100%; font-size: 0.8rem; min-height: 5rem; resize: vertical; }
+.rs-foot { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.6rem; }
+.rs-foot .share-pass { flex: 1; margin-top: 0; }
+.share.covered .rs-words:not(:placeholder-shown) { filter: blur(7px); } /* typed words hide with their card and stay typeable */
+.share.covered :is(.rs-words, .share-pass input):focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 30%, transparent); border-color: var(--danger); }
 .share .reveal:hover, .share .qr:hover { color: var(--ink); border-color: var(--ink-faint); }
 #msGen .share h4 { padding-right: 11.5rem; }
 #shShares .share h4 { padding-right: 8.5rem; }
 .row .of { align-self: flex-end; height: 44px; line-height: 44px; margin: 0 -0.3rem; font-weight: 600; color: var(--ink-soft); }
 #msGen .share-list { margin-top: 0.9rem; }
 #msGen .share { background: var(--panel); }
-#msGen .share h4 small { display: block; margin: 0.15rem 0 0; font-family: var(--mono); letter-spacing: 0.04em; }
+#msGen .share h4 small, #msRs .share h4 small { display: block; margin: 0.15rem 0 0; font-family: var(--mono); letter-spacing: 0.04em; }
 
 /* multisig lab */
 table.lab th, table.lab td { text-align: left; }

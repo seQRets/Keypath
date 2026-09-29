@@ -181,7 +181,7 @@ function setCardHidden(id, on) {
   if (b) { b.setAttribute('aria-pressed', on); b.querySelector('span').textContent = on ? 'Reveal' : 'Hide'; }
   // hiding a card also covers the shares or seeds created in it; revealing them stays deliberate and per share
   if (on && id === 'shamir-card') shSharesCover(true);
-  if (on && id === 'multisig-card') msGenCover(true);
+  if (on && id === 'multisig-card') { msGenCover(true); msRsCover(true); }
   const all = allHidden();
   $('menuHide').setAttribute('aria-pressed', all); $('menuHide').querySelector('span').textContent = all ? 'Reveal private info' : 'Hide private info';
 }
@@ -199,7 +199,7 @@ $('fpValue').addEventListener('click', async () => { if (S.root && (await copyTe
 $('phraseFpVal').addEventListener('click', async () => { if (S.root && (await copyText(fpHex(S.root)))) toast('Fingerprint copied'); });
 $('pathOut').addEventListener('click', async () => { const p = $('pathOut').textContent; if (p.startsWith('m') && (await copyText(p))) toast('Path copied'); });
 $('clearBtn').addEventListener('click', () => {
-  for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR', 'msKeys', 'msSeeds']) $(id).value = ''; $('msGen').innerHTML = ''; msUpdate();
+  for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR', 'msKeys']) $(id).value = ''; $('msGen').innerHTML = ''; msRsClear(); msUpdate();
   $('entropyLen').value = 'raw'; $('entropyType').value = 'auto'; entropyLenTouched = false; $('startIdx').value = '0';
   S.rootFromKey = false; $('rootOut').textContent = '';
   onPhraseInput(false); shamirClear(); shamirRecover(); setHidden(false); toast('Cleared'); // nothing private is left, so the blur comes off too
@@ -727,8 +727,9 @@ document.addEventListener('click', (e) => {
 });
 // each generated multisig seed has its own SeedQR
 document.addEventListener('click', (e) => {
-  const b = e.target.closest('#msGen .qr'); if (!b) return;
+  const b = e.target.closest('#msGen .qr, #msRs .qr'); if (!b) return;
   const share = b.closest('.share');
+  if (!share.querySelector('.copy').dataset.text) return toast('Enter a valid seed first');
   const words = splitWords(share.querySelector('.copy').dataset.text);
   qrSeedData = { words, wl: wordlists[detectLang(words) || 'english'].words, fp: b.dataset.fp, pass: b.dataset.pass === '1' };
   qrOpen('msseed', { title: `${share.querySelector('h4').firstChild.textContent} · SeedQR` });
@@ -754,30 +755,50 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('qrMo
 /* ---------------- multisig wallet (BIP48 / BIP67 / descriptors) ---------------- */
 let msLast = null, msKeysSeen = '', msDemoKeys = null, msModeV = 'build';
 let msGenState = null; // seeds created here: { script, netc, seeds: [{ phrase, pass, fp, line }] }, so a passphrase can re-derive one seed's key
-// Restore: seeds typed in directly, each derived at m/48'/coin'/account'/script'. Returns { cosigners, errors }.
-function msSeedCosigners(text, script, account) {
+// Restore: each seed card's words and passphrase, derived at m/48'/coin'/account'/script'. Returns { cosigners, errors },
+// and keeps each card's fingerprint line, copy text and SeedQR in step with what it holds.
+function msSeedCosigners(script, account) {
   const cosigners = [], errors = [], netc = net();
-  text.split(/\r?\n/).forEach((raw, i) => {
-    const line = raw.trim().toLowerCase(); if (!line) return;
-    const words = line.split(/\s+/);
-    if (![12, 15, 18, 21, 24].includes(words.length)) { errors.push(`seed line ${i + 1}: a seed has 12, 15, 18, 21 or 24 words (this line has ${words.length})`); return; }
+  $('msRs').querySelectorAll('.share').forEach((card, i) => {
+    const raw = card.querySelector('.rs-words').value.trim().toLowerCase(), pass = card.querySelector('.share-pass input').value;
+    const small = card.querySelector('h4 small'), copy = card.querySelector('.copy'), qr = card.querySelector('.qr');
+    copy.dataset.text = ''; qr.dataset.fp = ''; qr.dataset.pass = ''; small.textContent = '';
+    if (!raw) return;
+    const words = raw.split(/\s+/);
+    if (![12, 15, 18, 21, 24].includes(words.length)) { small.textContent = `${words.length} word${words.length === 1 ? '' : 's'}`; errors.push(`seed ${i + 1}: a seed has 12, 15, 18, 21 or 24 words (it has ${words.length})`); return; }
     const lang = detectLang(words);
-    if (!lang || !bip39.validateMnemonic(words.join(' '), wordlists[lang].words)) { errors.push(`seed line ${i + 1}: not a valid seed (check every word and the last one, which carries the checksum)`); return; }
-    const root = HDKey.fromMasterSeed(bip39.mnemonicToSeedSync(words.join(wordlists[lang].sep || ' '), ''), { private: netc.xprv, public: netc.xpub });
+    if (!lang || !bip39.validateMnemonic(words.join(' '), wordlists[lang].words)) { small.textContent = 'not a valid seed'; errors.push(`seed ${i + 1}: not a valid seed (check every word and the last one, which carries the checksum)`); return; }
+    const phrase = words.join(wordlists[lang].sep || ' ');
+    const root = HDKey.fromMasterSeed(bip39.mnemonicToSeedSync(phrase, pass), { private: netc.xprv, public: netc.xpub });
     const c = multisig.cosignerFromNode(root, [48 + H, netc.coin + H, account + H, multisig.SCRIPT_INDEX[script] + H]);
-    cosigners.push({ ...c, net: S.net, source: `seed line ${i + 1}` });
+    cosigners.push({ ...c, net: S.net, source: `seed ${i + 1}` });
+    small.textContent = `fingerprint ${c.fp}${pass ? ' · with passphrase' : ''}`;
+    copy.dataset.text = phrase; qr.dataset.fp = c.fp; qr.dataset.pass = pass ? '1' : '';
   });
   return { cosigners, errors };
 }
+const QR_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v2M17 20h4M14 20h1"/></svg>';
+// A Restore seed card, laid out like the cards of seeds created here; it starts covered, so words typed into it hide from the first letter.
+function msRsAdd(words = '', focus = true) {
+  const d = document.createElement('div'); d.className = 'share';
+  d.innerHTML = `<button class="copy" type="button" data-text="">copy</button><button class="reveal" type="button" aria-pressed="true">reveal</button><button class="qr" type="button" data-fp="" aria-label="Show this seed as a QR code">${QR_ICON}</button><h4>Seed<small></small></h4><textarea class="rs-words mono" rows="3" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="Type or paste this seed's words"></textarea><div class="rs-foot"><label class="share-pass"><input type="text" placeholder="Optional passphrase" autocomplete="off" autocapitalize="off" spellcheck="false"></label><button type="button" class="barbtn rs-remove">Remove</button></div>`;
+  d.querySelector('.rs-words').value = words;
+  $('msRs').appendChild(d); shareCover(d, true); msRsRenumber(); shareEyeSync('msRs', 'msRsEye', 'seeds');
+  if (focus) d.querySelector('.rs-words').focus();
+  return d;
+}
+function msRsRenumber() { $('msRs').querySelectorAll('.share h4').forEach((h, i) => { h.firstChild.textContent = `Seed ${i + 1}`; }); }
+function msRsCover(on) { for (const s of $('msRs').querySelectorAll('.share')) shareCover(s, on); shareEyeSync('msRs', 'msRsEye', 'seeds'); }
+function msRsClear() { $('msRs').innerHTML = ''; if (msModeV === 'restore') msRsAdd('', false); }
 // Two exclusive panels: build (paste xpubs, new or existing wallet) and gen (generate every seed here).
 // Everything in the card back to its empty state: keys, seeds, name, address check, policy.
 function msReset() {
-  $('msKeys').value = ''; $('msSeeds').value = ''; $('msAccount').value = '0'; msGenCover(false); $('msGen').innerHTML = ''; $('msGenEye').classList.add('hidden');
+  $('msKeys').value = ''; $('msAccount').value = '0'; msGenCover(false); $('msGen').innerHTML = ''; $('msGenEye').classList.add('hidden'); msRsClear();
   $('msName').value = 'KeyPath multisig'; $('msThreshold').value = '2'; $('msGenCount').value = '3'; $('msGenWords').value = '12'; $('msScript2').value = 'p2wsh';
   msDemoKeys = null; msKeysSeen = ''; msGenState = null;
 }
 function msMode(m) {
-  if (m !== msModeV) msReset(); // a fresh slate for each panel
+  if (m !== msModeV) { msModeV = m; msReset(); } // a fresh slate for each panel; Restore opens with one empty seed card
   msModeV = m;
   for (const [id, v] of [['msModeBuild', 'build'], ['msModeRestore', 'restore']]) $(id).setAttribute('aria-pressed', m === v);
   const card = $('multisig-card');
@@ -786,7 +807,23 @@ function msMode(m) {
 }
 function msInit() {
   for (const [id, v] of [['msModeBuild', 'build'], ['msModeRestore', 'restore']]) $(id).addEventListener('click', () => msMode(v));
-  $('msSeeds').addEventListener('input', debounce(msUpdate, 250)); $('msAccount').addEventListener('input', debounce(msUpdate, 250));
+  $('msAccount').addEventListener('input', debounce(msUpdate, 250));
+  const rsUpdate = debounce(msUpdate, 250);
+  $('msRs').addEventListener('input', (e) => {
+    const ta = e.target.closest('.rs-words');
+    if (ta) { // several seeds pasted at once, one per line: the first stays, each other line gets its own card
+      const lines = ta.value.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+      if (lines.length > 1) { ta.value = lines[0]; let after = ta.closest('.share'); for (const l of lines.slice(1)) { const c = msRsAdd(l, false); after.after(c); after = c; } msRsRenumber(); }
+    }
+    rsUpdate();
+  });
+  $('msRs').addEventListener('click', (e) => {
+    const rm = e.target.closest('.rs-remove'); if (!rm) return;
+    rm.closest('.share').remove(); if (!$('msRs').children.length) msRsAdd('', false);
+    msRsRenumber(); shareEyeSync('msRs', 'msRsEye', 'seeds'); msUpdate();
+  });
+  $('msRsAdd').addEventListener('click', () => msRsAdd());
+  $('msRsEye').addEventListener('click', () => msRsCover(!$('msRs').classList.contains('covered')));
   for (let i = 1; i <= 15; i++) $('msThreshold').insertAdjacentHTML('beforeend', `<option>${i}</option>`);
   $('msThreshold').value = '2';
   $('msKeys').addEventListener('input', debounce(msUpdate, 250));
@@ -814,11 +851,11 @@ function msInit() {
   for (const id of ['msClearBtn', 'msClearBtn2']) $(id).addEventListener('click', () => { msReset(); msUpdate(); toast('Multisig wallet cleared'); });
   $('msGenEye').addEventListener('click', () => msGenCover(!$('msGen').classList.contains('covered')));
   $('msGenCount').addEventListener('change', () => { if (+$('msThreshold').value > +$('msGenCount').value) $('msThreshold').value = $('msGenCount').value; msUpdate(); });
-  document.addEventListener('click', async (e) => { const b = e.target.closest('#msGen .copy'); if (!b) return; if (await copyText(b.dataset.text, true)) { b.classList.add('done'); b.textContent = 'copied'; setTimeout(() => { b.classList.remove('done'); b.textContent = 'copy'; }, 1100); } });
+  document.addEventListener('click', async (e) => { const b = e.target.closest('#msGen .copy, #msRs .copy'); if (!b) return; if (!b.dataset.text) return toast('Enter a valid seed first'); if (await copyText(b.dataset.text, true)) { b.classList.add('done'); b.textContent = 'copied'; setTimeout(() => { b.classList.remove('done'); b.textContent = 'copy'; }, 1100); } });
   document.addEventListener('click', (e) => {
-    const b = e.target.closest('#msGen .reveal, #shShares .reveal'); if (!b) return;
+    const b = e.target.closest('#msGen .reveal, #msRs .reveal, #shShares .reveal'); if (!b) return;
     const s = b.closest('.share'); shareCover(s, !s.classList.contains('covered'));
-    if (b.closest('#msGen')) shareEyeSync('msGen', 'msGenEye', 'seeds'); else shareEyeSync('shShares', 'shSharesEye', 'shares');
+    if (b.closest('#msGen')) shareEyeSync('msGen', 'msGenEye', 'seeds'); else if (b.closest('#msRs')) shareEyeSync('msRs', 'msRsEye', 'seeds'); else shareEyeSync('shShares', 'shSharesEye', 'shares');
   });
   const passApply = debounce(msPassApply, 250);
   document.addEventListener('input', (e) => { const inp = e.target.closest('#msGen .share-pass input'); if (inp) passApply(inp); });
@@ -882,15 +919,17 @@ function msPassApply(inp) {
 function msUpdate() {
   msLast = null; $('msOut').classList.add('hidden'); $('msWarnings').innerHTML = '';
   $('msTrNote').classList.toggle('hidden', $('msScript2').value !== 'p2tr');
-  const text = $('msKeys').value, seedText = msModeV === 'restore' ? $('msSeeds').value : '';
+  const text = $('msKeys').value;
   const account = Math.max(0, parseInt($('msAccount').value, 10) || 0);
   $('msPathLbl').textContent = `m/48'/${net().coin}'/${account}'/${multisig.SCRIPT_INDEX[$('msScript2').value]}'`;
-  if (!text.trim() && !seedText.trim()) {
+  // runs before the empty check so every seed card's fingerprint line stays current, even as the last one is emptied
+  const fromSeeds = msModeV === 'restore' ? msSeedCosigners($('msScript2').value, account) : { cosigners: [], errors: [] };
+  const hasSeeds = msModeV === 'restore' && [...$('msRs').querySelectorAll('.rs-words')].some((t) => t.value.trim());
+  if (!text.trim() && !hasSeeds) {
     const msg = msModeV === 'restore' ? 'Waiting for the wallet\'s seeds, xpubs or setup file.' : 'Waiting for the xpubs: paste them from each device, or press Create the seeds here.';
     setMeter('msStatus', note(msg)); return;
   }
   const parsed = multisig.parseCosigners(text, VERSION_TABLE);
-  const fromSeeds = msSeedCosigners(seedText, $('msScript2').value, account);
   // a seed and its own xpub both entered count once
   const seedKeys = new Set(fromSeeds.cosigners.map((c) => multisig.serExt(c.node, 0, false)));
   const dup = parsed.cosigners.filter((c) => seedKeys.has(multisig.serExt(c.node, 0, false))).length;
@@ -1016,7 +1055,7 @@ function initTips() {
 
 /* ---------------- session hygiene ---------------- */
 function wipeAll() {
-  for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR', 'msKeys', 'msSeeds']) $(id).value = ''; $('msGen').innerHTML = ''; msUpdate();
+  for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR', 'msKeys']) $(id).value = ''; $('msGen').innerHTML = ''; msRsClear(); msUpdate();
   $('rootOut').textContent = ''; S.rootFromKey = false; S.seed = null; S.root = null; S.shRecovered = null;
   onPhraseInput(false); shamirClear(); shamirRecover();
   $('qrModal').hidden = true; $('qrWrap').innerHTML = '';
