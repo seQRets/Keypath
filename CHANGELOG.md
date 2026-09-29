@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.13.1 — 2026-09-29
+
+- A phrase typed by hand is hidden from its first letter. Before, it stayed readable until the last word made it valid, and a pasted phrase showed for a fifth of a second. The first character typed or pasted into an empty phrase box now hides all private information at once; the box stays typeable, with a red ring marking it. Pressing Reveal to check the spelling holds while typing continues, and the phrase hides again once it is complete and valid. The demo phrase stays visible.
+- The status line under the phrase no longer spells out the word being typed. Its list of unrecognised words, which always held the half-typed word, now blurs with the card; the count of unrecognised words and the checksum result stay readable.
+
 ## v2.13.0 — 2026-09-20
 
 **A passphrase for any seed created in the multisig card.**
