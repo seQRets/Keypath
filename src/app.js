@@ -354,6 +354,11 @@ $('phrase').addEventListener('input', debounce(() => {
   // the moment a typed or pasted phrase becomes valid it is real money: hide everything private (the demo phrase stays visible)
   if (S.phraseValid && !wasValid && splitWords($('phrase').value).join(' ') !== DEMO_PHRASE) setHidden(true);
 }, 220));
+// A phrase typed by hand is private from its first letter, and a pasted one from the instant it lands, not 220 ms later.
+// Only an empty box triggers this, so a deliberate Reveal while typing is not undone at the next keystroke.
+$('phrase').addEventListener('input', () => {
+  if (!S.phraseWords.length && $('phrase').value.trim() && splitWords($('phrase').value).join(' ') !== DEMO_PHRASE) setHidden(true);
+});
 // Demo: the well-known BIP39 test phrase, so people can explore every feature without creating a real seed.
 const DEMO_PHRASE = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
 $('demoBtn').addEventListener('click', () => {
@@ -380,7 +385,7 @@ function onPhraseInput(fromEntropy) {
   $('phraseOl').innerHTML = words.map((w, i) => `<li${set.has(w) ? '' : ' class="bad"'}><i>${i + 1}</i><b title="${esc(w)}">${esc(w)}</b></li>`).join('');
   $('phraseListSummary').textContent = `Show as a numbered list (${words.length} words)`;
   let msg;
-  if (badWords.length) msg = count(`${badWords.length} word${badWords.length > 1 ? 's' : ''} not in the ${wordlists[S.lang].name} list`, 'bad') + note(`Not recognised: ${badWords.slice(0, 6).join(', ')}${badWords.length > 6 ? '…' : ''} (${words.length} words entered)`);
+  if (badWords.length) msg = count(`${badWords.length} word${badWords.length > 1 ? 's' : ''} not in the ${wordlists[S.lang].name} list`, 'bad') + `<span class="meter-note">Not recognised: <span class="secret">${esc(badWords.slice(0, 6).join(', '))}${badWords.length > 6 ? '…' : ''}</span> (${words.length} words entered)</span>`; // the unrecognised words are the phrase being typed, so they blur with it
   else if (![12, 15, 18, 21, 24].includes(words.length)) msg = count(`${words.length} words`, 'bad') + note('A phrase needs 12, 15, 18, 21 or 24 words.');
   else if (!bip39.validateMnemonic(words.join(' '), wordlists[S.lang].words)) msg = count('checksum failed', 'bad') + note('The last word does not match the rest of the phrase.');
   else {

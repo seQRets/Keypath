@@ -7,7 +7,7 @@
 <meta name="description" content="KeyPath: generate or inspect a BIP39 recovery phrase, back it up with SLIP-39 Shamir shares, and derive BIP32 keys and Bitcoin addresses, legacy through Taproot. Single file, runs entirely offline in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-P5bOCi+mn1+Z8F/Ma8IbUa+olaILPG5DmfnnzrJgo28=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-pYKZteZUS5f4FTbPeeC/3XBiCH2rGV02Hlw9Z76KD7Q='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-P5bOCi+mn1+Z8F/Ma8IbUa+olaILPG5DmfnnzrJgo28=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-f9IYo0BzUxrBJ54Zf9YY93vbdPeyF+lBlS82twLh5+g='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <script>try{if(localStorage.getItem("keypath-tips")==="off")document.documentElement.classList.add("no-tips");}catch(e){}var t=null;try{t=localStorage.getItem("keypath-theme");}catch(e){}var dk=t==="dark"||(t!=="light"&&(location.protocol==="file:"||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)));document.documentElement.setAttribute("data-theme",dk?"dark":"light");</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fbbf24'/><stop offset='.55' stop-color='%23f97316'/><stop offset='1' stop-color='%23ef4444'/></linearGradient></defs><rect width='512' height='512' rx='116' fill='url(%23g)'/><g fill='none' stroke='%23fff' stroke-width='48' stroke-linecap='round' stroke-linejoin='round'><circle cx='190' cy='256' r='74'/><path d='M264 256h176M382 256v62M440 256v50'/></g></svg>">
 <style>
@@ -22050,6 +22050,11 @@ $('phrase').addEventListener('input', debounce(() => {
   // the moment a typed or pasted phrase becomes valid it is real money: hide everything private (the demo phrase stays visible)
   if (S.phraseValid && !wasValid && splitWords($('phrase').value).join(' ') !== DEMO_PHRASE) setHidden(true);
 }, 220));
+// A phrase typed by hand is private from its first letter, and a pasted one from the instant it lands, not 220 ms later.
+// Only an empty box triggers this, so a deliberate Reveal while typing is not undone at the next keystroke.
+$('phrase').addEventListener('input', () => {
+  if (!S.phraseWords.length && $('phrase').value.trim() && splitWords($('phrase').value).join(' ') !== DEMO_PHRASE) setHidden(true);
+});
 // Demo: the well-known BIP39 test phrase, so people can explore every feature without creating a real seed.
 const DEMO_PHRASE = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
 $('demoBtn').addEventListener('click', () => {
@@ -22076,7 +22081,7 @@ function onPhraseInput(fromEntropy) {
   $('phraseOl').innerHTML = words.map((w, i) => `<li${set.has(w) ? '' : ' class="bad"'}><i>${i + 1}</i><b title="${esc(w)}">${esc(w)}</b></li>`).join('');
   $('phraseListSummary').textContent = `Show as a numbered list (${words.length} words)`;
   let msg;
-  if (badWords.length) msg = count(`${badWords.length} word${badWords.length > 1 ? 's' : ''} not in the ${wordlists[S.lang].name} list`, 'bad') + note(`Not recognised: ${badWords.slice(0, 6).join(', ')}${badWords.length > 6 ? '…' : ''} (${words.length} words entered)`);
+  if (badWords.length) msg = count(`${badWords.length} word${badWords.length > 1 ? 's' : ''} not in the ${wordlists[S.lang].name} list`, 'bad') + `<span class="meter-note">Not recognised: <span class="secret">${esc(badWords.slice(0, 6).join(', '))}${badWords.length > 6 ? '…' : ''}</span> (${words.length} words entered)</span>`; // the unrecognised words are the phrase being typed, so they blur with it
   else if (![12, 15, 18, 21, 24].includes(words.length)) msg = count(`${words.length} words`, 'bad') + note('A phrase needs 12, 15, 18, 21 or 24 words.');
   else if (!bip39.validateMnemonic(words.join(' '), wordlists[S.lang].words)) msg = count('checksum failed', 'bad') + note('The last word does not match the rest of the phrase.');
   else {
