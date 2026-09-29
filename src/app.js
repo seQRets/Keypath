@@ -799,7 +799,6 @@ function msReset() {
 }
 function msMode(m) {
   if (m !== msModeV) { msModeV = m; msReset(); } // a fresh slate for each panel; Restore opens with one empty seed card
-  msModeV = m;
   for (const [id, v] of [['msModeBuild', 'build'], ['msModeRestore', 'restore']]) $(id).setAttribute('aria-pressed', m === v);
   const card = $('multisig-card');
   for (const v of ['build', 'restore']) card.querySelectorAll('.ms-' + v).forEach((el) => el.classList.toggle('hidden', !el.classList.contains('ms-' + m)));
@@ -811,9 +810,12 @@ function msInit() {
   const rsUpdate = debounce(msUpdate, 250);
   $('msRs').addEventListener('input', (e) => {
     const ta = e.target.closest('.rs-words');
-    if (ta) { // several seeds pasted at once, one per line: the first stays, each other line gets its own card
+    // Several seeds pasted at once, one per line: the first stays, each other line gets its own card. Only a paste or drop
+    // splits, so typing is never moved under the caret, and only when every line is a whole seed, so one seed written
+    // a word per line stays one seed.
+    if (ta && /^insertFrom(Paste|Drop)$/.test(e.inputType || '')) {
       const lines = ta.value.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-      if (lines.length > 1) { ta.value = lines[0]; let after = ta.closest('.share'); for (const l of lines.slice(1)) { const c = msRsAdd(l, false); after.after(c); after = c; } msRsRenumber(); }
+      if (lines.length > 1 && lines.every((l) => l.split(/\s+/).length >= 12)) { ta.value = lines[0]; let after = ta.closest('.share'); for (const l of lines.slice(1)) { const c = msRsAdd(l, false); after.after(c); after = c; } msRsRenumber(); }
     }
     rsUpdate();
   });
