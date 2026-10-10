@@ -7,7 +7,7 @@
 <meta name="description" content="KeyPath: generate or inspect a BIP39 recovery phrase, back it up with SLIP-39 Shamir shares, and derive BIP32 keys and Bitcoin addresses, legacy through Taproot. Single file, runs entirely offline in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-P5bOCi+mn1+Z8F/Ma8IbUa+olaILPG5DmfnnzrJgo28=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-2wVDXiPNymw8FhXyHvw9FiGFlViiK7Mpqh062953GgE='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-P5bOCi+mn1+Z8F/Ma8IbUa+olaILPG5DmfnnzrJgo28=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-1Obp71zXKT2BnVir3dKz0/Z5UTIv2vYEerImrFPbeL0='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <script>try{if(localStorage.getItem("keypath-tips")==="off")document.documentElement.classList.add("no-tips");}catch(e){}var t=null;try{t=localStorage.getItem("keypath-theme");}catch(e){}var dk=t==="dark"||(t!=="light"&&(location.protocol==="file:"||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)));document.documentElement.setAttribute("data-theme",dk?"dark":"light");</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fbbf24'/><stop offset='.55' stop-color='%23f97316'/><stop offset='1' stop-color='%23ef4444'/></linearGradient></defs><rect width='512' height='512' rx='116' fill='url(%23g)'/><g fill='none' stroke='%23fff' stroke-width='48' stroke-linecap='round' stroke-linejoin='round'><circle cx='190' cy='256' r='74'/><path d='M264 256h176M382 256v62M440 256v50'/></g></svg>">
 <style>
@@ -472,26 +472,41 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
 .qr-stage.covered + .qr-actions { visibility: hidden; }
 .qr-export { display: flex; justify-content: center; gap: 0.5rem; margin-top: 0.5rem; }
 
-/* print card for the main SeedQR: built only while printing, black on white, on whatever landscape paper is chosen */
+/* print cards for the main SeedQR: built only while printing, black on white */
 #printSheet { display: none; }
 @media print {
   body.printing-card > :not(#printSheet) { display: none !important; }
   body.printing-card { background: #fff !important; }
   body.printing-card #printSheet { display: block; position: fixed; inset: 0; color: #111; font-family: var(--sans); }
-  .pc-fold { position: absolute; border: 0 dashed #9a9a9a; }
-  .pc-fold-v { left: 50%; top: 0; bottom: 0; border-left-width: 1px; }
-  .pc-fold-h { top: 50%; left: 0; right: 0; border-top-width: 1px; }
-  .pc-quarter { position: absolute; left: 0; top: 0; width: 50%; height: 50%; display: flex; align-items: center; justify-content: center; container-type: size; }
-  .pc-card { display: flex; align-items: center; gap: 0.2in; }
-  .pc-qr { width: 1.9in; height: 1.9in; width: min(42cqw, 62cqh); height: min(42cqw, 62cqh); padding: 0.06in; border: 1px solid #222; border-radius: 0.12in; } /* scales with its quarter: about 2.3 in on US Letter, 1.7 in on A5 */
   .pc-qr svg { display: block; width: 100%; height: 100%; shape-rendering: crispEdges; }
-  .pc-info { width: 1.3in; width: 32cqw; font-size: 8pt; line-height: 1.4; }
-  .pc-brand { font-size: 13pt; font-weight: 700; letter-spacing: -0.01em; }
+  .pc-brand { font-weight: 700; letter-spacing: -0.01em; }
   .pc-brand span { color: #e8590c; }
-  .pc-title { font-size: 9.5pt; font-weight: 600; margin: 0.04in 0 0.08in; }
-  .pc-meta { font-family: var(--mono); font-size: 7.5pt; color: #444; }
-  .pc-warn { margin-top: 0.1in; font-weight: 600; color: #b42318; }
-  .pc-how { position: absolute; left: 50%; top: 50%; width: 50%; height: 50%; display: flex; align-items: center; justify-content: center; padding: 0 0.6in; text-align: center; font-size: 8pt; color: #666; }
+  .pc-mono { font-family: var(--mono); }
+
+  /* US Letter, landscape, folded: the code centred in the top-left quarter, fold lines through the middle of the page */
+  .pc-letter .pc-fold { position: absolute; border: 0 dashed #9a9a9a; }
+  .pc-letter .pc-fold-v { left: 50%; top: 0; bottom: 0; border-left-width: 1px; }
+  .pc-letter .pc-fold-h { top: 50%; left: 0; right: 0; border-top-width: 1px; }
+  .pc-letter .pc-quarter { position: absolute; left: 0; top: 0; width: 50%; height: 50%; display: flex; align-items: center; justify-content: center; container-type: size; }
+  .pc-letter .pc-card { display: flex; align-items: center; gap: 0.2in; }
+  .pc-letter .pc-qr { width: 2.3in; height: 2.3in; width: min(42cqw, 62cqh); height: min(42cqw, 62cqh); padding: 0.07in; border: 1px solid #222; border-radius: 0.12in; } /* scales with its quarter */
+  .pc-letter .pc-info { width: 1.7in; width: 32cqw; font-size: 9pt; line-height: 1.4; }
+  .pc-letter .pc-brand { font-size: 15pt; }
+  .pc-letter .pc-title { font-size: 10.5pt; font-weight: 600; margin: 0.04in 0 0.08in; }
+  .pc-letter .pc-meta { font-family: var(--mono); font-size: 8.5pt; color: #444; }
+  .pc-letter .pc-warn { margin-top: 0.1in; font-weight: 600; color: #b42318; }
+  .pc-letter .pc-how { position: absolute; left: 50%; top: 50%; width: 50%; height: 50%; display: flex; align-items: center; justify-content: center; padding: 0 0.6in; text-align: center; font-size: 8pt; color: #666; }
+
+  /* A5, portrait, flat: one centred column with the code large, like a backup card */
+  body.printing-card #printSheet.pc-a5 { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 12mm; }
+  .pc-a5 .pc-brand { font-size: 12pt; }
+  .pc-a5 .pc-head { font-size: 22pt; font-weight: 700; letter-spacing: -0.01em; margin: 1mm 0 8mm; }
+  .pc-a5 .pc-qr { width: 100mm; height: 100mm; padding: 4mm; border: 0.3mm solid #cfc9bd; }
+  .pc-a5 .pc-title { font-size: 15pt; font-weight: 700; margin: 7mm 0 2.5mm; }
+  .pc-a5 .pc-meta { font-size: 10.5pt; color: #333; line-height: 1.6; }
+  .pc-a5 .pc-warn { display: flex; align-items: center; justify-content: center; gap: 2mm; margin-top: 5mm; font-size: 10.5pt; font-weight: 600; color: #c62828; }
+  .pc-a5 .pc-warn svg { width: 6mm; height: 6mm; flex-shrink: 0; }
+  .pc-a5 .pc-foot { margin-top: 2.5mm; font-size: 9pt; line-height: 1.5; color: #666; }
 }
 
 
@@ -1149,7 +1164,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
       <button type="button" class="btn primary qr-reveal" id="qrReveal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg>Reveal QR</button>
     </div>
     <div class="qr-actions"><button type="button" class="btn small" id="qrHide"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.8A9.8 9.8 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3.2 3.9M6.6 6.6C4 8.4 2.5 12 2.5 12s3.5 6.5 9.5 6.5a9.6 9.6 0 0 0 4.1-.9"/></svg>Hide QR</button></div>
-    <div class="qr-export hidden" id="qrExport"><button type="button" class="btn small" id="qrPng"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 19h16"/></svg>Download PNG</button><button type="button" class="btn small" id="qrPrint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V3h10v6M7 17H4v-7h16v7h-3M7 14h10v7H7z"/></svg>Print card</button></div>
+    <div class="qr-export hidden" id="qrExport"><button type="button" class="btn small" id="qrPng"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 19h16"/></svg>Download PNG</button><button type="button" class="btn small" id="qrPrintLetter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V3h10v6M7 17H4v-7h16v7h-3M7 14h10v7H7z"/></svg>Print Letter</button><button type="button" class="btn small" id="qrPrintA5"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V3h10v6M7 17H4v-7h16v7h-3M7 14h10v7H7z"/></svg>Print A5</button></div>
     <p class="modal-fp" id="qrFp"></p>
     <p class="modal-foot" id="qrFoot"></p>
   </div>
@@ -22499,28 +22514,40 @@ $('qrPng').addEventListener('click', () => {
     toast('SeedQR saved as a PNG; the image holds the whole phrase');
   }, 'image/png');
 });
-// A print card: the SeedQR centred in the page's top-left quarter, with fold lines through the middle of the page, so folding
-// it in half and in half again closes the code inside. Sized to fit that quarter on A5 landscape too. It exists only while
-// printing and is removed when the print dialog closes.
-$('qrPrint').addEventListener('click', () => {
+// Print cards for the main SeedQR, built only while printing and removed when the print dialog closes.
+// letter: US Letter landscape, meant to be folded: the code centred in the top-left quarter, fold lines through the middle,
+//   so folding it in half and in half again closes the code inside.
+// a5: A5 portrait, flat: one centred column with the code large, like a backup card; nothing assumes it is folded.
+const WARN_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 23 21.5H1Z" fill="#f5c518" stroke="#1a1a1a" stroke-width="1.2" stroke-linejoin="round"/><path d="M12 9v6" stroke="#1a1a1a" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="18.2" r="1.4" fill="#1a1a1a"/></svg>';
+function seedCardPrint(paper) {
   if (qrMode !== 'seed' || !S.phraseValid) return;
   const [text, opts] = seedQrPayload(S.phraseWords, wordlists[S.lang].words);
-  const svg = encodeQR(text, 'svg', { ecc: 'low', border: 3, ...opts });
+  const svg = encodeQR(text, 'svg', { ecc: 'low', border: paper === 'a5' ? 2 : 3, ...opts });
   // the words' own fingerprint: the code carries no passphrase, and naming one on paper would tell a finder it exists
   const fp = fpHex(HDKey.fromMasterSeed(bip39.mnemonicToSeedSync(S.phraseWords.join(wordlists[S.lang].sep || ' '), '')));
-  const name = qrFormat === 'standard' ? 'Standard SeedQR' : 'Compact SeedQR';
-  $('printSheet').innerHTML = `<div class="pc-fold pc-fold-v"></div><div class="pc-fold pc-fold-h"></div>`
-    + `<div class="pc-quarter"><div class="pc-card"><div class="pc-qr">${svg}</div><div class="pc-info">`
-    + `<div class="pc-brand"><span>Key</span>Path</div><div class="pc-title">${name}</div>`
-    + `<div class="pc-meta">${S.phraseWords.length} words<br>Fingerprint ${fp}<br>Made ${new Date().toLocaleDateString('en-CA')}</div>`
-    + `<p class="pc-warn">This code is the whole seed phrase. Keep the page folded and out of sight.</p></div></div></div>`
-    + `<p class="pc-how">Fold along the dashed lines so the code ends up inside: first in half side to side, then top to bottom.</p>`;
-  const page = document.createElement('style'); page.textContent = '@page { size: landscape; margin: 0; }'; document.head.appendChild(page);
+  const name = qrFormat === 'standard' ? 'Standard SeedQR' : 'Compact SeedQR', made = new Date().toLocaleDateString('en-CA'), n = S.phraseWords.length;
+  const brand = '<div class="pc-brand"><span>Key</span>Path</div>';
+  $('printSheet').className = paper === 'a5' ? 'pc-a5' : 'pc-letter';
+  $('printSheet').innerHTML = paper === 'a5'
+    ? `${brand}<div class="pc-head">Seed Phrase Backup</div><div class="pc-qr">${svg}</div><div class="pc-title">${name}</div>`
+      + `<div class="pc-meta">${n} words · Made ${made}</div><div class="pc-meta">Fingerprint <span class="pc-mono">${fp}</span></div>`
+      + `<p class="pc-warn">${WARN_ICON}This code is the whole seed phrase. Store it securely.</p>`
+      + `<p class="pc-foot">Scan it with SeedSigner, Krux, Passport or Sparrow to recover the phrase.<br>seqrets.github.io/Keypath</p>`
+    : `<div class="pc-fold pc-fold-v"></div><div class="pc-fold pc-fold-h"></div>`
+      + `<div class="pc-quarter"><div class="pc-card"><div class="pc-qr">${svg}</div><div class="pc-info">${brand}<div class="pc-title">${name}</div>`
+      + `<div class="pc-meta">${n} words<br>Fingerprint ${fp}<br>Made ${made}</div>`
+      + `<p class="pc-warn">This code is the whole seed phrase. Keep the page folded and out of sight.</p></div></div></div>`
+      + `<p class="pc-how">Fold along the dashed lines so the code ends up inside: first in half side to side, then top to bottom.</p>`;
+  const page = document.createElement('style');
+  page.textContent = paper === 'a5' ? '@page { size: A5 portrait; margin: 0; }' : '@page { size: letter landscape; margin: 0; }';
+  document.head.appendChild(page);
   document.body.classList.add('printing-card');
-  const done = () => { document.body.classList.remove('printing-card'); $('printSheet').innerHTML = ''; page.remove(); window.removeEventListener('afterprint', done); };
+  const done = () => { document.body.classList.remove('printing-card'); $('printSheet').innerHTML = ''; $('printSheet').className = ''; page.remove(); window.removeEventListener('afterprint', done); };
   window.addEventListener('afterprint', done);
   window.print();
-});
+}
+$('qrPrintLetter').addEventListener('click', () => seedCardPrint('letter'));
+$('qrPrintA5').addEventListener('click', () => seedCardPrint('a5'));
 $('qrModal').addEventListener('click', (e) => { if (e.target.closest('[data-close]')) { $('qrModal').hidden = true; $('qrWrap').innerHTML = ''; } });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('qrModal').hidden) { $('qrModal').hidden = true; $('qrWrap').innerHTML = ''; } });
 

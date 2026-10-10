@@ -767,28 +767,40 @@ $('qrPng').addEventListener('click', () => {
     toast('SeedQR saved as a PNG; the image holds the whole phrase');
   }, 'image/png');
 });
-// A print card: the SeedQR centred in the page's top-left quarter, with fold lines through the middle of the page, so folding
-// it in half and in half again closes the code inside. Sized to fit that quarter on A5 landscape too. It exists only while
-// printing and is removed when the print dialog closes.
-$('qrPrint').addEventListener('click', () => {
+// Print cards for the main SeedQR, built only while printing and removed when the print dialog closes.
+// letter: US Letter landscape, meant to be folded: the code centred in the top-left quarter, fold lines through the middle,
+//   so folding it in half and in half again closes the code inside.
+// a5: A5 portrait, flat: one centred column with the code large, like a backup card; nothing assumes it is folded.
+const WARN_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 23 21.5H1Z" fill="#f5c518" stroke="#1a1a1a" stroke-width="1.2" stroke-linejoin="round"/><path d="M12 9v6" stroke="#1a1a1a" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="18.2" r="1.4" fill="#1a1a1a"/></svg>';
+function seedCardPrint(paper) {
   if (qrMode !== 'seed' || !S.phraseValid) return;
   const [text, opts] = seedQrPayload(S.phraseWords, wordlists[S.lang].words);
-  const svg = encodeQR(text, 'svg', { ecc: 'low', border: 3, ...opts });
+  const svg = encodeQR(text, 'svg', { ecc: 'low', border: paper === 'a5' ? 2 : 3, ...opts });
   // the words' own fingerprint: the code carries no passphrase, and naming one on paper would tell a finder it exists
   const fp = fpHex(HDKey.fromMasterSeed(bip39.mnemonicToSeedSync(S.phraseWords.join(wordlists[S.lang].sep || ' '), '')));
-  const name = qrFormat === 'standard' ? 'Standard SeedQR' : 'Compact SeedQR';
-  $('printSheet').innerHTML = `<div class="pc-fold pc-fold-v"></div><div class="pc-fold pc-fold-h"></div>`
-    + `<div class="pc-quarter"><div class="pc-card"><div class="pc-qr">${svg}</div><div class="pc-info">`
-    + `<div class="pc-brand"><span>Key</span>Path</div><div class="pc-title">${name}</div>`
-    + `<div class="pc-meta">${S.phraseWords.length} words<br>Fingerprint ${fp}<br>Made ${new Date().toLocaleDateString('en-CA')}</div>`
-    + `<p class="pc-warn">This code is the whole seed phrase. Keep the page folded and out of sight.</p></div></div></div>`
-    + `<p class="pc-how">Fold along the dashed lines so the code ends up inside: first in half side to side, then top to bottom.</p>`;
-  const page = document.createElement('style'); page.textContent = '@page { size: landscape; margin: 0; }'; document.head.appendChild(page);
+  const name = qrFormat === 'standard' ? 'Standard SeedQR' : 'Compact SeedQR', made = new Date().toLocaleDateString('en-CA'), n = S.phraseWords.length;
+  const brand = '<div class="pc-brand"><span>Key</span>Path</div>';
+  $('printSheet').className = paper === 'a5' ? 'pc-a5' : 'pc-letter';
+  $('printSheet').innerHTML = paper === 'a5'
+    ? `${brand}<div class="pc-head">Seed Phrase Backup</div><div class="pc-qr">${svg}</div><div class="pc-title">${name}</div>`
+      + `<div class="pc-meta">${n} words · Made ${made}</div><div class="pc-meta">Fingerprint <span class="pc-mono">${fp}</span></div>`
+      + `<p class="pc-warn">${WARN_ICON}This code is the whole seed phrase. Store it securely.</p>`
+      + `<p class="pc-foot">Scan it with SeedSigner, Krux, Passport or Sparrow to recover the phrase.<br>seqrets.github.io/Keypath</p>`
+    : `<div class="pc-fold pc-fold-v"></div><div class="pc-fold pc-fold-h"></div>`
+      + `<div class="pc-quarter"><div class="pc-card"><div class="pc-qr">${svg}</div><div class="pc-info">${brand}<div class="pc-title">${name}</div>`
+      + `<div class="pc-meta">${n} words<br>Fingerprint ${fp}<br>Made ${made}</div>`
+      + `<p class="pc-warn">This code is the whole seed phrase. Keep the page folded and out of sight.</p></div></div></div>`
+      + `<p class="pc-how">Fold along the dashed lines so the code ends up inside: first in half side to side, then top to bottom.</p>`;
+  const page = document.createElement('style');
+  page.textContent = paper === 'a5' ? '@page { size: A5 portrait; margin: 0; }' : '@page { size: letter landscape; margin: 0; }';
+  document.head.appendChild(page);
   document.body.classList.add('printing-card');
-  const done = () => { document.body.classList.remove('printing-card'); $('printSheet').innerHTML = ''; page.remove(); window.removeEventListener('afterprint', done); };
+  const done = () => { document.body.classList.remove('printing-card'); $('printSheet').innerHTML = ''; $('printSheet').className = ''; page.remove(); window.removeEventListener('afterprint', done); };
   window.addEventListener('afterprint', done);
   window.print();
-});
+}
+$('qrPrintLetter').addEventListener('click', () => seedCardPrint('letter'));
+$('qrPrintA5').addEventListener('click', () => seedCardPrint('a5'));
 $('qrModal').addEventListener('click', (e) => { if (e.target.closest('[data-close]')) { $('qrModal').hidden = true; $('qrWrap').innerHTML = ''; } });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('qrModal').hidden) { $('qrModal').hidden = true; $('qrWrap').innerHTML = ''; } });
 
