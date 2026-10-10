@@ -538,20 +538,21 @@
 <div class="modal" id="qrModal" hidden>
   <div class="modal-backdrop" data-close></div>
   <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="qrTitle">
-    <div class="modal-head"><h3 id="qrTitle">Seed QR</h3><button type="button" class="barbtn" data-close>Close</button></div>
+    <div class="modal-head"><h3 id="qrTitle">Seed QR</h3></div>
     <p class="modal-note" id="qrNote">Scan with SeedSigner, Krux, Sparrow, Passport or any wallet that reads SeedQR. <strong>This code is your entire phrase.</strong> Anyone who photographs it owns your coins.</p>
     <div class="mode-toggle" role="group" aria-label="SeedQR format" style="margin-bottom:1rem" id="qrFormats">
       <button class="mode-btn" id="qrStd" type="button" aria-pressed="true">Standard SeedQR</button>
       <button class="mode-btn" id="qrCompact" type="button" aria-pressed="false">Compact SeedQR</button>
     </div>
-    <div class="qr-stage">
-      <div class="qr-wrap" id="qrWrap"></div>
-      <button type="button" class="btn primary qr-reveal" id="qrReveal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg>Reveal QR</button>
-    </div>
-    <div class="qr-actions"><button type="button" class="btn small" id="qrHide"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.8A9.8 9.8 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3.2 3.9M6.6 6.6C4 8.4 2.5 12 2.5 12s3.5 6.5 9.5 6.5a9.6 9.6 0 0 0 4.1-.9"/></svg>Hide QR</button></div>
-    <div class="qr-export hidden" id="qrExport"><button type="button" class="btn small" id="qrPng"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 19h16"/></svg>Download PNG</button><button type="button" class="btn small" id="qrPrintLetter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V3h10v6M7 17H4v-7h16v7h-3M7 14h10v7H7z"/></svg>Print Letter</button><button type="button" class="btn small" id="qrPrintA5"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V3h10v6M7 17H4v-7h16v7h-3M7 14h10v7H7z"/></svg>Print A5</button></div>
+    <div class="qr-stage"><div class="qr-wrap" id="qrWrap"></div></div>
     <p class="modal-fp" id="qrFp"></p>
     <p class="modal-foot" id="qrFoot"></p>
+    <div class="qr-actions" id="qrActions">
+      <button type="button" class="btn" id="qrEye" aria-pressed="true"><svg class="ic-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.8A9.8 9.8 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3.2 3.9M6.6 6.6C4 8.4 2.5 12 2.5 12s3.5 6.5 9.5 6.5a9.6 9.6 0 0 0 4.1-.9"/></svg><span>Reveal</span></button>
+      <button type="button" class="btn" id="qrPng"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 19h16"/></svg>Download PNG</button>
+      <button type="button" class="btn" id="qrPrint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V3h10v6M7 17H4v-7h16v7h-3M7 14h10v7H7z"/></svg>Print card</button>
+    </div>
+    <button type="button" class="btn qr-close" data-close>Close</button>
   </div>
 </div>
 <div id="printSheet" aria-hidden="true"></div>
