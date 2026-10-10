@@ -4,7 +4,7 @@
 
 **Use it online:** [seqrets.github.io/Keypath](https://seqrets.github.io/Keypath/) (for real funds, download the file and use it offline).
 
-KeyPath is a modern re-imagining of Ian Coleman's [BIP39 tool](https://github.com/iancoleman/bip39). It keeps what that tool got right and improves the rest; see [Dice rolls](#dice-rolls) for one example. Download `dist/index.html`, move it to an offline computer, open it in a browser, and you have everything needed to create, inspect, back up and verify a Bitcoin recovery phrase.
+KeyPath is a modern re-imagining of Ian Coleman's [BIP39 tool](https://github.com/iancoleman/bip39). It keeps what that tool got right and improves the rest; see [Dice rolls](#dice-rolls) for one example. Download `dist/index.html`, move it to an offline computer, open it in a browser, and you have everything needed to create, inspect, back up and verify a Bitcoin seed phrase.
 
 ## Download and verify
 
