@@ -680,6 +680,7 @@ const QR_NOTES = {
 function qrOpen(mode, opts = {}) {
   qrMode = mode;
   $('qrTitle').textContent = opts.title || (mode === 'seed' ? 'Seed QR' : 'Entropy QR'); $('qrNote').innerHTML = QR_NOTES[mode]; $('qrFormats').classList.toggle('hidden', mode !== 'seed' && mode !== 'msseed');
+  $('qrExport').classList.toggle('hidden', mode !== 'seed'); // only the main phrase's SeedQR can be saved or printed
   if (mode === 'seed') seedQrRender(); else if (mode === 'msseed') msSeedQrRender(); else if (mode === 'text') textQrRender(); else entropyQrRender();
   document.querySelector('.qr-stage').classList.toggle('covered', opts.secret !== false); // public codes open in the clear
   $('qrModal').hidden = false; $('qrModal').querySelector('[data-close]:not(.modal-backdrop)').focus();
@@ -699,11 +700,14 @@ function entropyQrRender() {
   $('qrFoot').textContent = `${text.length} characters as text · ${q.modules}×${q.modules}`;
   $('qrFp').innerHTML = '';
 }
+// What a SeedQR encodes: Standard is each word's index as four digits, Compact the raw entropy bytes.
+function seedQrPayload(words, wl) {
+  return qrFormat === 'standard'
+    ? [words.map((w) => String(wl.indexOf(w)).padStart(4, '0')).join(''), { encoding: 'numeric' }]
+    : [latin1(bip39.mnemonicToEntropy(words.join(' '), wl)), { encoding: 'byte', textEncoder: latin1Encoder }];
+}
 function renderSeedQr(words, wl, fpLine) {
-  const idx = words.map((w) => wl.indexOf(w));
-  const q = qrFormat === 'standard'
-    ? qrSvg(idx.map((i) => String(i).padStart(4, '0')).join(''), { encoding: 'numeric' })
-    : qrSvg(latin1(bip39.mnemonicToEntropy(words.join(' '), wl)), { encoding: 'byte', textEncoder: latin1Encoder });
+  const q = qrSvg(...seedQrPayload(words, wl));
   $('qrWrap').innerHTML = q.svg;
   $('qrFoot').textContent = qrFormat === 'standard' ? `${words.length} words as ${words.length * 4} digits · ${q.modules}×${q.modules}` : `${words.length * 32 / 3 / 8} raw entropy bytes · ${q.modules}×${q.modules}`;
   $('qrFp').innerHTML = fpLine;
@@ -749,6 +753,42 @@ $('qrReveal').addEventListener('click', () => document.querySelector('.qr-stage'
 $('qrHide').addEventListener('click', () => document.querySelector('.qr-stage').classList.add('covered'));
 $('qrStd').addEventListener('click', () => { qrFormat = 'standard'; qrMode === 'msseed' ? msSeedQrRender() : seedQrRender(); });
 $('qrCompact').addEventListener('click', () => { qrFormat = 'compact'; qrMode === 'msseed' ? msSeedQrRender() : seedQrRender(); });
+// The main phrase's SeedQR as a PNG: black modules on white, a four-module quiet zone, sixteen pixels a module.
+$('qrPng').addEventListener('click', () => {
+  if (qrMode !== 'seed' || !S.phraseValid) return;
+  const [text, opts] = seedQrPayload(S.phraseWords, wordlists[S.lang].words);
+  const m = encodeQR(text, 'raw', { ecc: 'low', border: 4, ...opts }), px = 16;
+  const c = document.createElement('canvas'); c.width = c.height = m.length * px;
+  const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.fillStyle = '#000';
+  m.forEach((row, y) => row.forEach((on, x) => { if (on) g.fillRect(x * px, y * px, px, px); }));
+  c.toBlob((blob) => {
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `keypath-seedqr-${qrFormat}.png`;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    toast('SeedQR saved as a PNG; the image holds the whole phrase');
+  }, 'image/png');
+});
+// A print card: the SeedQR centred in the page's top-left quarter, with fold lines through the middle of the page, so folding
+// it in half and in half again closes the code inside. Sized to fit that quarter on A5 landscape too. It exists only while
+// printing and is removed when the print dialog closes.
+$('qrPrint').addEventListener('click', () => {
+  if (qrMode !== 'seed' || !S.phraseValid) return;
+  const [text, opts] = seedQrPayload(S.phraseWords, wordlists[S.lang].words);
+  const svg = encodeQR(text, 'svg', { ecc: 'low', border: 3, ...opts });
+  // the words' own fingerprint: the code carries no passphrase, and naming one on paper would tell a finder it exists
+  const fp = fpHex(HDKey.fromMasterSeed(bip39.mnemonicToSeedSync(S.phraseWords.join(wordlists[S.lang].sep || ' '), '')));
+  const name = qrFormat === 'standard' ? 'Standard SeedQR' : 'Compact SeedQR';
+  $('printSheet').innerHTML = `<div class="pc-fold pc-fold-v"></div><div class="pc-fold pc-fold-h"></div>`
+    + `<div class="pc-quarter"><div class="pc-card"><div class="pc-qr">${svg}</div><div class="pc-info">`
+    + `<div class="pc-brand"><span>Key</span>Path</div><div class="pc-title">${name}</div>`
+    + `<div class="pc-meta">${S.phraseWords.length} words<br>Fingerprint ${fp}<br>Made ${new Date().toLocaleDateString('en-CA')}</div>`
+    + `<p class="pc-warn">This code is the whole seed phrase. Keep the page folded and out of sight.</p></div></div></div>`
+    + `<p class="pc-how">Fold along the dashed lines so the code ends up inside: first in half side to side, then top to bottom.</p>`;
+  const page = document.createElement('style'); page.textContent = '@page { size: landscape; margin: 0; }'; document.head.appendChild(page);
+  document.body.classList.add('printing-card');
+  const done = () => { document.body.classList.remove('printing-card'); $('printSheet').innerHTML = ''; page.remove(); window.removeEventListener('afterprint', done); };
+  window.addEventListener('afterprint', done);
+  window.print();
+});
 $('qrModal').addEventListener('click', (e) => { if (e.target.closest('[data-close]')) { $('qrModal').hidden = true; $('qrWrap').innerHTML = ''; } });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('qrModal').hidden) { $('qrModal').hidden = true; $('qrWrap').innerHTML = ''; } });
 
@@ -1057,6 +1097,7 @@ function initTips() {
 
 /* ---------------- session hygiene ---------------- */
 function wipeAll() {
+  $('printSheet').innerHTML = '';
   for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR', 'msKeys']) $(id).value = ''; $('msGen').innerHTML = ''; msRsClear(); msUpdate();
   $('rootOut').textContent = ''; S.rootFromKey = false; S.seed = null; S.root = null; S.shRecovered = null;
   onPhraseInput(false); shamirClear(); shamirRecover();
