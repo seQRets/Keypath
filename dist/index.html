@@ -7,7 +7,7 @@
 <meta name="description" content="KeyPath: generate or inspect a BIP39 recovery phrase, back it up with SLIP-39 Shamir shares, and derive BIP32 keys and Bitcoin addresses, legacy through Taproot. Single file, runs entirely offline in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-P5bOCi+mn1+Z8F/Ma8IbUa+olaILPG5DmfnnzrJgo28=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-2reQyt1DlxkBEmDO7ZnPNQP8MdSLLb62t0gI9nqq/p0='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-P5bOCi+mn1+Z8F/Ma8IbUa+olaILPG5DmfnnzrJgo28=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-gneAjNcvaBBHSoO+o4HCvicpcq559/GoxRXN6cm4Yog='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <script>try{if(localStorage.getItem("keypath-tips")==="off")document.documentElement.classList.add("no-tips");}catch(e){}var t=null;try{t=localStorage.getItem("keypath-theme");}catch(e){}var dk=t==="dark"||(t!=="light"&&(location.protocol==="file:"||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)));document.documentElement.setAttribute("data-theme",dk?"dark":"light");</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fbbf24'/><stop offset='.55' stop-color='%23f97316'/><stop offset='1' stop-color='%23ef4444'/></linearGradient></defs><rect width='512' height='512' rx='116' fill='url(%23g)'/><g fill='none' stroke='%23fff' stroke-width='48' stroke-linecap='round' stroke-linejoin='round'><circle cx='190' cy='256' r='74'/><path d='M264 256h176M382 256v62M440 256v50'/></g></svg>">
 <style>
@@ -474,8 +474,20 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
 #qrEye .ic-eye-off, #qrEye[aria-pressed="false"] .ic-eye { display: none; }
 #qrEye[aria-pressed="false"] .ic-eye-off { display: inline; }
 .qr-close { width: 100%; justify-content: center; margin-top: 0.5rem; }
+/* the print step: which card, with a sketch of each */
+.print-choice { margin-top: 1rem; }
+.print-choice-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.6rem; }
+.print-choice-head p { font-weight: 600; color: var(--ink); }
+.print-choice-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+.print-opt { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; padding: 0.85rem 0.7rem 0.9rem; border: 1.5px solid var(--line); border-radius: var(--radius-sm); background: var(--panel-sunk); color: var(--ink-soft); font-family: var(--sans); text-align: center; cursor: pointer; transition: border-color .15s ease, color .15s ease; }
+.print-opt:hover, .print-opt:focus-visible { border-color: var(--accent); color: var(--ink); outline: none; }
+.print-opt svg { height: 56px; width: auto; margin-bottom: 0.2rem; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.print-opt svg .sk-qr { fill: currentColor; stroke: none; opacity: 0.85; }
+.print-opt svg .sk-fold { stroke-dasharray: 2.5 2.5; opacity: 0.7; }
+.print-opt b { font-weight: 600; color: var(--ink); }
+.print-opt span { font-size: 0.82rem; line-height: 1.35; }
 
-/* print card for the main SeedQR: built only while printing, black on white; the print dialog's orientation picks the layout */
+/* print card for the main SeedQR: built only while printing, black on white; only the card chosen in the modal is built */
 #printSheet { display: none; }
 @media print {
   body.printing-card > :not(#printSheet) { display: none !important; }
@@ -512,8 +524,6 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
   .pc-folded .pc-warn { margin-top: 0.1in; font-weight: 600; color: #b42318; }
   .pc-folded .pc-how { position: absolute; left: 50%; top: 50%; width: 50%; height: 50%; display: flex; align-items: center; justify-content: center; padding: 0 0.6in; text-align: center; font-size: 8pt; color: #666; }
 }
-@media print and (orientation: portrait) { .pc-folded { display: none; } }
-@media print and (orientation: landscape) { .pc-flat { display: none !important; } }
 
 
 /* ---------- multisig ---------- */
@@ -1172,6 +1182,13 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
       <button type="button" class="btn" id="qrEye" aria-pressed="true"><svg class="ic-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.8A9.8 9.8 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3.2 3.9M6.6 6.6C4 8.4 2.5 12 2.5 12s3.5 6.5 9.5 6.5a9.6 9.6 0 0 0 4.1-.9"/></svg><span>Reveal</span></button>
       <button type="button" class="btn" id="qrPng"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 19h16"/></svg>Download PNG</button>
       <button type="button" class="btn" id="qrPrint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V3h10v6M7 17H4v-7h16v7h-3M7 14h10v7H7z"/></svg>Print card</button>
+    </div>
+    <div class="print-choice hidden" id="qrPrintChoice" role="group" aria-labelledby="qrPrintQ">
+      <div class="print-choice-head"><p id="qrPrintQ">Which card should be printed?</p><button type="button" class="barbtn" id="qrPrintBack">Back</button></div>
+      <div class="print-choice-opts">
+        <button type="button" class="print-opt" data-layout="flat"><svg viewBox="0 0 48 64" aria-hidden="true"><rect x="2" y="2" width="44" height="60" rx="2.5"/><rect class="sk-qr" x="13" y="13" width="22" height="22" rx="1"/><path d="M15 42h18M18 47h12M16 52h16"/></svg><b>Flat card</b><span>Portrait, with the code large and nothing to fold.</span></button>
+        <button type="button" class="print-opt" data-layout="folded"><svg viewBox="0 0 64 48" aria-hidden="true"><rect x="2" y="2" width="60" height="44" rx="2.5"/><path class="sk-fold" d="M32 2v44M2 24h60"/><rect class="sk-qr" x="7" y="7" width="12" height="12" rx="1"/><path d="M22 10h7M22 14h6M22 18h7"/></svg><b>Fold-over card</b><span>Landscape, folded twice to close the code inside.</span></button>
+      </div>
     </div>
     <button type="button" class="btn qr-close" data-close>Close</button>
   </div>
@@ -22437,7 +22454,7 @@ function qrOpen(mode, opts = {}) {
   // only the main phrase's SeedQR can be saved or printed; public codes open in the clear and need no Reveal
   const secret = opts.secret !== false;
   $('qrPng').classList.toggle('hidden', mode !== 'seed'); $('qrPrint').classList.toggle('hidden', mode !== 'seed');
-  $('qrEye').classList.toggle('hidden', !secret); $('qrActions').classList.toggle('hidden', !secret);
+  $('qrEye').classList.toggle('hidden', !secret); $('qrActions').classList.toggle('hidden', !secret); $('qrPrintChoice').classList.add('hidden');
   if (mode === 'seed') seedQrRender(); else if (mode === 'msseed') msSeedQrRender(); else if (mode === 'text') textQrRender(); else entropyQrRender();
   qrCover(secret);
   $('qrModal').hidden = false; $('qrModal').querySelector('[data-close]:not(.modal-backdrop)').focus();
@@ -22527,13 +22544,17 @@ $('qrPng').addEventListener('click', () => {
     toast('SeedQR saved as a PNG; the image holds the whole phrase');
   }, 'image/png');
 });
-// The print card for the main SeedQR, built only while printing and removed when the print dialog closes. It holds two
-// layouts and the orientation chosen in the print dialog picks one, on any paper:
-// portrait (the default): flat, one centred column with the code large, like a backup card; nothing assumes it is folded.
-// landscape: fold-over, the code centred in the top-left quarter with fold lines through the middle, so folding the page in
+// The print card for the main SeedQR, built only while printing and removed when the print dialog closes. Print card asks
+// which card first, then opens the print dialog already set to that card's orientation, on whatever paper is chosen there:
+// flat (portrait): one centred column with the code large, like a backup card; nothing assumes it is folded.
+// folded (landscape): the code centred in the top-left quarter with fold lines through the middle, so folding the page in
 //   half and in half again closes the code inside.
 const WARN_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 23 21.5H1Z" fill="#f5c518" stroke="#1a1a1a" stroke-width="1.2" stroke-linejoin="round"/><path d="M12 9v6" stroke="#1a1a1a" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="18.2" r="1.4" fill="#1a1a1a"/></svg>';
-$('qrPrint').addEventListener('click', () => {
+function qrPrintStep(on) { $('qrActions').classList.toggle('hidden', on); $('qrPrintChoice').classList.toggle('hidden', !on); if (on) $('qrPrintChoice').querySelector('.print-opt').focus(); }
+$('qrPrint').addEventListener('click', () => { if (qrMode === 'seed' && S.phraseValid) qrPrintStep(true); });
+$('qrPrintBack').addEventListener('click', () => { qrPrintStep(false); $('qrPrint').focus(); });
+$('qrPrintChoice').addEventListener('click', (e) => { const b = e.target.closest('.print-opt'); if (b) seedCardPrint(b.dataset.layout); });
+function seedCardPrint(layout) {
   if (qrMode !== 'seed' || !S.phraseValid) return;
   const [text, opts] = seedQrPayload(S.phraseWords, wordlists[S.lang].words);
   const qr = (border) => encodeQR(text, 'svg', { ecc: 'low', border, ...opts });
@@ -22541,21 +22562,22 @@ $('qrPrint').addEventListener('click', () => {
   const fp = fpHex(HDKey.fromMasterSeed(bip39.mnemonicToSeedSync(S.phraseWords.join(wordlists[S.lang].sep || ' '), '')));
   const name = qrFormat === 'standard' ? 'Standard SeedQR' : 'Compact SeedQR', made = new Date().toLocaleDateString('en-CA'), n = S.phraseWords.length;
   const brand = '<div class="pc-brand"><span>Key</span>Path</div>';
-  $('printSheet').innerHTML = `<div class="pc-flat">${brand}<div class="pc-head">Seed Phrase Backup</div><div class="pc-qr">${qr(2)}</div><div class="pc-title">${name}</div>`
+  $('printSheet').innerHTML = layout === 'flat'
+    ? `<div class="pc-flat">${brand}<div class="pc-head">Seed Phrase Backup</div><div class="pc-qr">${qr(2)}</div><div class="pc-title">${name}</div>`
       + `<div class="pc-meta">${n} words · Made ${made}</div><div class="pc-meta">Fingerprint <span class="pc-mono">${fp}</span></div>`
       + `<p class="pc-warn">${WARN_ICON}This code is the whole seed phrase. Store it securely.</p>`
       + `<p class="pc-foot">Scan it with SeedSigner, Krux, Passport or Sparrow to recover the phrase.<br>seqrets.github.io/Keypath</p></div>`
-    + `<div class="pc-folded"><div class="pc-fold pc-fold-v"></div><div class="pc-fold pc-fold-h"></div>`
+    : `<div class="pc-folded"><div class="pc-fold pc-fold-v"></div><div class="pc-fold pc-fold-h"></div>`
       + `<div class="pc-quarter"><div class="pc-card"><div class="pc-qr">${qr(3)}</div><div class="pc-info">${brand}<div class="pc-title">${name}</div>`
       + `<div class="pc-meta">${n} words<br>Fingerprint ${fp}<br>Made ${made}</div>`
       + `<p class="pc-warn">This code is the whole seed phrase. Keep the page folded and out of sight.</p></div></div></div>`
       + `<p class="pc-how">Fold along the dashed lines so the code ends up inside: first in half side to side, then top to bottom.</p></div>`;
-  const page = document.createElement('style'); page.textContent = '@page { margin: 0; }'; document.head.appendChild(page);
+  const page = document.createElement('style'); page.textContent = `@page { size: ${layout === 'flat' ? 'portrait' : 'landscape'}; margin: 0; }`; document.head.appendChild(page);
   document.body.classList.add('printing-card');
-  const done = () => { document.body.classList.remove('printing-card'); $('printSheet').innerHTML = ''; page.remove(); window.removeEventListener('afterprint', done); };
+  const done = () => { document.body.classList.remove('printing-card'); $('printSheet').innerHTML = ''; page.remove(); qrPrintStep(false); window.removeEventListener('afterprint', done); };
   window.addEventListener('afterprint', done);
   window.print();
-});
+}
 $('qrModal').addEventListener('click', (e) => { if (e.target.closest('[data-close]')) { $('qrModal').hidden = true; $('qrWrap').innerHTML = ''; } });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('qrModal').hidden) { $('qrModal').hidden = true; $('qrWrap').innerHTML = ''; } });
 

@@ -683,7 +683,7 @@ function qrOpen(mode, opts = {}) {
   // only the main phrase's SeedQR can be saved or printed; public codes open in the clear and need no Reveal
   const secret = opts.secret !== false;
   $('qrPng').classList.toggle('hidden', mode !== 'seed'); $('qrPrint').classList.toggle('hidden', mode !== 'seed');
-  $('qrEye').classList.toggle('hidden', !secret); $('qrActions').classList.toggle('hidden', !secret);
+  $('qrEye').classList.toggle('hidden', !secret); $('qrActions').classList.toggle('hidden', !secret); $('qrPrintChoice').classList.add('hidden');
   if (mode === 'seed') seedQrRender(); else if (mode === 'msseed') msSeedQrRender(); else if (mode === 'text') textQrRender(); else entropyQrRender();
   qrCover(secret);
   $('qrModal').hidden = false; $('qrModal').querySelector('[data-close]:not(.modal-backdrop)').focus();
@@ -773,13 +773,17 @@ $('qrPng').addEventListener('click', () => {
     toast('SeedQR saved as a PNG; the image holds the whole phrase');
   }, 'image/png');
 });
-// The print card for the main SeedQR, built only while printing and removed when the print dialog closes. It holds two
-// layouts and the orientation chosen in the print dialog picks one, on any paper:
-// portrait (the default): flat, one centred column with the code large, like a backup card; nothing assumes it is folded.
-// landscape: fold-over, the code centred in the top-left quarter with fold lines through the middle, so folding the page in
+// The print card for the main SeedQR, built only while printing and removed when the print dialog closes. Print card asks
+// which card first, then opens the print dialog already set to that card's orientation, on whatever paper is chosen there:
+// flat (portrait): one centred column with the code large, like a backup card; nothing assumes it is folded.
+// folded (landscape): the code centred in the top-left quarter with fold lines through the middle, so folding the page in
 //   half and in half again closes the code inside.
 const WARN_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 23 21.5H1Z" fill="#f5c518" stroke="#1a1a1a" stroke-width="1.2" stroke-linejoin="round"/><path d="M12 9v6" stroke="#1a1a1a" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="18.2" r="1.4" fill="#1a1a1a"/></svg>';
-$('qrPrint').addEventListener('click', () => {
+function qrPrintStep(on) { $('qrActions').classList.toggle('hidden', on); $('qrPrintChoice').classList.toggle('hidden', !on); if (on) $('qrPrintChoice').querySelector('.print-opt').focus(); }
+$('qrPrint').addEventListener('click', () => { if (qrMode === 'seed' && S.phraseValid) qrPrintStep(true); });
+$('qrPrintBack').addEventListener('click', () => { qrPrintStep(false); $('qrPrint').focus(); });
+$('qrPrintChoice').addEventListener('click', (e) => { const b = e.target.closest('.print-opt'); if (b) seedCardPrint(b.dataset.layout); });
+function seedCardPrint(layout) {
   if (qrMode !== 'seed' || !S.phraseValid) return;
   const [text, opts] = seedQrPayload(S.phraseWords, wordlists[S.lang].words);
   const qr = (border) => encodeQR(text, 'svg', { ecc: 'low', border, ...opts });
@@ -787,21 +791,22 @@ $('qrPrint').addEventListener('click', () => {
   const fp = fpHex(HDKey.fromMasterSeed(bip39.mnemonicToSeedSync(S.phraseWords.join(wordlists[S.lang].sep || ' '), '')));
   const name = qrFormat === 'standard' ? 'Standard SeedQR' : 'Compact SeedQR', made = new Date().toLocaleDateString('en-CA'), n = S.phraseWords.length;
   const brand = '<div class="pc-brand"><span>Key</span>Path</div>';
-  $('printSheet').innerHTML = `<div class="pc-flat">${brand}<div class="pc-head">Seed Phrase Backup</div><div class="pc-qr">${qr(2)}</div><div class="pc-title">${name}</div>`
+  $('printSheet').innerHTML = layout === 'flat'
+    ? `<div class="pc-flat">${brand}<div class="pc-head">Seed Phrase Backup</div><div class="pc-qr">${qr(2)}</div><div class="pc-title">${name}</div>`
       + `<div class="pc-meta">${n} words · Made ${made}</div><div class="pc-meta">Fingerprint <span class="pc-mono">${fp}</span></div>`
       + `<p class="pc-warn">${WARN_ICON}This code is the whole seed phrase. Store it securely.</p>`
       + `<p class="pc-foot">Scan it with SeedSigner, Krux, Passport or Sparrow to recover the phrase.<br>seqrets.github.io/Keypath</p></div>`
-    + `<div class="pc-folded"><div class="pc-fold pc-fold-v"></div><div class="pc-fold pc-fold-h"></div>`
+    : `<div class="pc-folded"><div class="pc-fold pc-fold-v"></div><div class="pc-fold pc-fold-h"></div>`
       + `<div class="pc-quarter"><div class="pc-card"><div class="pc-qr">${qr(3)}</div><div class="pc-info">${brand}<div class="pc-title">${name}</div>`
       + `<div class="pc-meta">${n} words<br>Fingerprint ${fp}<br>Made ${made}</div>`
       + `<p class="pc-warn">This code is the whole seed phrase. Keep the page folded and out of sight.</p></div></div></div>`
       + `<p class="pc-how">Fold along the dashed lines so the code ends up inside: first in half side to side, then top to bottom.</p></div>`;
-  const page = document.createElement('style'); page.textContent = '@page { margin: 0; }'; document.head.appendChild(page);
+  const page = document.createElement('style'); page.textContent = `@page { size: ${layout === 'flat' ? 'portrait' : 'landscape'}; margin: 0; }`; document.head.appendChild(page);
   document.body.classList.add('printing-card');
-  const done = () => { document.body.classList.remove('printing-card'); $('printSheet').innerHTML = ''; page.remove(); window.removeEventListener('afterprint', done); };
+  const done = () => { document.body.classList.remove('printing-card'); $('printSheet').innerHTML = ''; page.remove(); qrPrintStep(false); window.removeEventListener('afterprint', done); };
   window.addEventListener('afterprint', done);
   window.print();
-});
+}
 $('qrModal').addEventListener('click', (e) => { if (e.target.closest('[data-close]')) { $('qrModal').hidden = true; $('qrWrap').innerHTML = ''; } });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('qrModal').hidden) { $('qrModal').hidden = true; $('qrWrap').innerHTML = ''; } });
 

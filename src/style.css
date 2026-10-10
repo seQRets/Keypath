@@ -461,8 +461,20 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
 #qrEye .ic-eye-off, #qrEye[aria-pressed="false"] .ic-eye { display: none; }
 #qrEye[aria-pressed="false"] .ic-eye-off { display: inline; }
 .qr-close { width: 100%; justify-content: center; margin-top: 0.5rem; }
+/* the print step: which card, with a sketch of each */
+.print-choice { margin-top: 1rem; }
+.print-choice-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.6rem; }
+.print-choice-head p { font-weight: 600; color: var(--ink); }
+.print-choice-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+.print-opt { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; padding: 0.85rem 0.7rem 0.9rem; border: 1.5px solid var(--line); border-radius: var(--radius-sm); background: var(--panel-sunk); color: var(--ink-soft); font-family: var(--sans); text-align: center; cursor: pointer; transition: border-color .15s ease, color .15s ease; }
+.print-opt:hover, .print-opt:focus-visible { border-color: var(--accent); color: var(--ink); outline: none; }
+.print-opt svg { height: 56px; width: auto; margin-bottom: 0.2rem; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.print-opt svg .sk-qr { fill: currentColor; stroke: none; opacity: 0.85; }
+.print-opt svg .sk-fold { stroke-dasharray: 2.5 2.5; opacity: 0.7; }
+.print-opt b { font-weight: 600; color: var(--ink); }
+.print-opt span { font-size: 0.82rem; line-height: 1.35; }
 
-/* print card for the main SeedQR: built only while printing, black on white; the print dialog's orientation picks the layout */
+/* print card for the main SeedQR: built only while printing, black on white; only the card chosen in the modal is built */
 #printSheet { display: none; }
 @media print {
   body.printing-card > :not(#printSheet) { display: none !important; }
@@ -499,8 +511,6 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
   .pc-folded .pc-warn { margin-top: 0.1in; font-weight: 600; color: #b42318; }
   .pc-folded .pc-how { position: absolute; left: 50%; top: 50%; width: 50%; height: 50%; display: flex; align-items: center; justify-content: center; padding: 0 0.6in; text-align: center; font-size: 8pt; color: #666; }
 }
-@media print and (orientation: portrait) { .pc-folded { display: none; } }
-@media print and (orientation: landscape) { .pc-flat { display: none !important; } }
 
 
 /* ---------- multisig ---------- */

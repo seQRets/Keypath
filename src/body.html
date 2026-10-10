@@ -552,6 +552,13 @@
       <button type="button" class="btn" id="qrPng"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 19h16"/></svg>Download PNG</button>
       <button type="button" class="btn" id="qrPrint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V3h10v6M7 17H4v-7h16v7h-3M7 14h10v7H7z"/></svg>Print card</button>
     </div>
+    <div class="print-choice hidden" id="qrPrintChoice" role="group" aria-labelledby="qrPrintQ">
+      <div class="print-choice-head"><p id="qrPrintQ">Which card should be printed?</p><button type="button" class="barbtn" id="qrPrintBack">Back</button></div>
+      <div class="print-choice-opts">
+        <button type="button" class="print-opt" data-layout="flat"><svg viewBox="0 0 48 64" aria-hidden="true"><rect x="2" y="2" width="44" height="60" rx="2.5"/><rect class="sk-qr" x="13" y="13" width="22" height="22" rx="1"/><path d="M15 42h18M18 47h12M16 52h16"/></svg><b>Flat card</b><span>Portrait, with the code large and nothing to fold.</span></button>
+        <button type="button" class="print-opt" data-layout="folded"><svg viewBox="0 0 64 48" aria-hidden="true"><rect x="2" y="2" width="60" height="44" rx="2.5"/><path class="sk-fold" d="M32 2v44M2 24h60"/><rect class="sk-qr" x="7" y="7" width="12" height="12" rx="1"/><path d="M22 10h7M22 14h6M22 18h7"/></svg><b>Fold-over card</b><span>Landscape, folded twice to close the code inside.</span></button>
+      </div>
+    </div>
     <button type="button" class="btn qr-close" data-close>Close</button>
   </div>
 </div>
