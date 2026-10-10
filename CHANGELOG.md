@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.17.0 — 2026-10-10
+
+**Shamir shares get QR codes and backup cards, and section 1 is "Seed phrase".**
+
+- Each Shamir share has a QR button beside reveal and copy. Its window shows the share's words as a plain-text QR code, since SLIP-39 shares have no SeedQR-style format; it is covered until revealed and offers Download PNG and Print card, with the same flat or fold-over choice as the seeds. The share card shows Shamir Share Backup, the date and the share set in brackets, like [3050], which tells which shares belong together. Like the seed cards, it names no share number, count or threshold.
+- The first card is titled Seed phrase instead of Recovery phrase, and its "?" notes that it is also known as a mnemonic phrase or a recovery phrase. The page now uses "seed phrase" throughout: the intro, the glossary and the page description.
+
 ## v2.16.0 — 2026-10-10
 
 **Multisig seeds get backup cards, and the wallet's configuration gets its own.**
