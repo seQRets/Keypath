@@ -635,7 +635,7 @@ function shamirMake() {
   catch (e) { return setMeter('shStatus', count(e.message, 'bad')); }
   const info = slip39.describeShare(shares[0]);
   setMeter('shStatus', count(`${t} of ${n} shares`, 'ok') + note(`${shares[0].split(' ').length} words each · `) + `<span class="meter-note gloss" data-tip="setid">set identifier ${info.identifier}</span>` + (pass ? note(' · passphrase protected') : ''));
-  $('shShares').innerHTML = `<div class="share-list">${shares.map((m, i) => `<div class="share"><button class="copy" type="button" data-text="${esc(m)}">copy</button><button class="reveal" type="button" aria-pressed="true">reveal</button><h4>Share ${i + 1} of ${n}<small>any ${t} recover</small></h4><ol>${m.split(' ').map((w, j) => `<li><i>${j + 1}</i><b>${esc(w)}</b></li>`).join('')}</ol></div>`).join('')}</div>
+  $('shShares').innerHTML = `<div class="share-list">${shares.map((m, i) => `<div class="share"><button class="copy" type="button" data-text="${esc(m)}">copy</button><button class="reveal" type="button" aria-pressed="true">reveal</button><button class="qr" type="button" aria-label="Show this share as a QR code">${QR_ICON}</button><h4>Share ${i + 1} of ${n}<small>any ${t} recover</small></h4><ol>${m.split(' ').map((w, j) => `<li><i>${j + 1}</i><b>${esc(w)}</b></li>`).join('')}</ol></div>`).join('')}</div>
     <div class="share-actions"><button type="button" class="btn small" id="shCopyAll">Copy all shares</button><button type="button" class="btn small" id="shTest">Test recovery with these shares</button></div>`;
   shSharesCover(S.phraseWords.join(' ') !== DEMO_PHRASE); $('shSharesEye').classList.remove('hidden'); // shares of a real phrase start covered; demo shares stay open
   $('shCopyAll').addEventListener('click', async () => { if (await copyText(shares.map((m, i) => `Share ${i + 1} of ${n} (${t} needed): ${m}`).join('\n'), true)) toast('All shares copied · clipboard clears in 60 s'); });
@@ -676,17 +676,19 @@ const QR_NOTES = {
   entropy: 'The entropy exactly as typed, as a plain text QR code, for moving it to another device. <strong>This code is the seed of your phrase.</strong> Anyone who photographs it owns your coins.',
   msseed: 'Scan with SeedSigner, Krux, Sparrow, Passport or any wallet that reads SeedQR. <strong>This code is this seed in full.</strong> Anyone who photographs it holds one of the wallet\'s seeds.',
   text: 'This is public information: it can watch, never spend. Scan it where the other wallet asks for it.',
+  share: 'This share\'s words as a plain text QR code. <strong>This code is one share of the seed phrase.</strong> Enough shares from the same set rebuild the whole phrase.',
 };
+let qrShareData = null; // for 'share': { text, id, n }
 function qrOpen(mode, opts = {}) {
   qrMode = mode;
   $('qrTitle').textContent = opts.title || (mode === 'seed' ? 'Seed QR' : 'Entropy QR'); $('qrNote').innerHTML = QR_NOTES[mode]; $('qrFormats').classList.toggle('hidden', mode !== 'seed' && mode !== 'msseed');
   // only the main phrase's SeedQR can be saved or printed; public codes open in the clear and need no Reveal
   const secret = opts.secret !== false;
-  // seeds (the main phrase and each multisig seed) can be saved and printed; the multisig descriptor prints as a wallet-configuration card
-  const seedish = mode === 'seed' || mode === 'msseed', config = mode === 'text' && qrTextData.source === 'msDesc' && !!msLast;
+  // seeds (the main phrase, each multisig seed) and Shamir shares can be saved and printed; the multisig descriptor prints as a wallet-configuration card
+  const seedish = mode === 'seed' || mode === 'msseed' || mode === 'share', config = mode === 'text' && qrTextData.source === 'msDesc' && !!msLast;
   $('qrPng').classList.toggle('hidden', !seedish); $('qrPrint').classList.toggle('hidden', !seedish && !config);
   $('qrEye').classList.toggle('hidden', !secret); $('qrActions').classList.toggle('hidden', !secret && !config); $('qrPrintChoice').classList.add('hidden');
-  if (mode === 'seed') seedQrRender(); else if (mode === 'msseed') msSeedQrRender(); else if (mode === 'text') textQrRender(); else entropyQrRender();
+  if (mode === 'seed') seedQrRender(); else if (mode === 'msseed') msSeedQrRender(); else if (mode === 'share') shareQrRender(); else if (mode === 'text') textQrRender(); else entropyQrRender();
   qrCover(secret);
   $('qrModal').hidden = false; $('qrModal').querySelector('[data-close]:not(.modal-backdrop)').focus();
 }
@@ -724,6 +726,12 @@ function renderSeedQr(words, wl, fpLine) {
 }
 function seedQrRender() { renderSeedQr(S.phraseWords, wordlists[S.lang].words, S.root ? `Master fingerprint${$('passphrase').value ? ' (with your passphrase)' : ''}<b>${esc(fpHex(S.root))}</b>` : ''); }
 function msSeedQrRender() { renderSeedQr(qrSeedData.words, qrSeedData.wl, `Fingerprint${qrSeedData.pass ? ' (with its passphrase; the code holds the words only)' : ''}<b>${esc(qrSeedData.fp)}</b>`); }
+function shareQrRender() {
+  const q = qrSvg(qrShareData.text, {});
+  $('qrWrap').innerHTML = q.svg;
+  $('qrFoot').textContent = `${qrShareData.text.split(' ').length} words as text · ${q.modules}×${q.modules}`;
+  $('qrFp').innerHTML = `Share set<b>[${esc(String(qrShareData.id))}]</b>`;
+}
 function textQrRender() {
   const q = qrSvg(qrTextData.text, {});
   $('qrWrap').innerHTML = q.svg;
@@ -737,6 +745,13 @@ document.addEventListener('click', (e) => {
   if (!v) return toast('Nothing to show yet');
   qrTextData = { text: v, source: b.dataset.qr };
   qrOpen('text', { title: b.dataset.qrtitle, secret: false });
+});
+// each Shamir share has its own QR: its words as plain text, since there is no SeedQR standard for SLIP-39 shares
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('#shShares .qr'); if (!b) return;
+  const share = b.closest('.share'), text = share.querySelector('.copy').dataset.text;
+  qrShareData = { text, id: slip39.describeShare(text).identifier, n: share.querySelector('h4').firstChild.textContent.match(/\d+/)[0] };
+  qrOpen('share', { title: `${share.querySelector('h4').firstChild.textContent} · QR` });
 });
 // each generated multisig seed has its own SeedQR
 document.addEventListener('click', (e) => {
@@ -765,16 +780,16 @@ $('qrCompact').addEventListener('click', () => { qrFormat = 'compact'; qrMode ==
 // The words and wordlist of the seed whose SeedQR is open: the main phrase, or one multisig seed.
 function qrSeedWords() { return qrMode === 'msseed' ? { words: qrSeedData.words, wl: qrSeedData.wl } : { words: S.phraseWords, wl: wordlists[S.lang].words }; }
 $('qrPng').addEventListener('click', () => {
-  if (!(qrMode === 'seed' && S.phraseValid) && qrMode !== 'msseed') return;
-  const { words, wl } = qrSeedWords(), [text, opts] = seedQrPayload(words, wl);
+  if (!(qrMode === 'seed' && S.phraseValid) && qrMode !== 'msseed' && qrMode !== 'share') return;
+  const share = qrMode === 'share', { words, wl } = share ? {} : qrSeedWords(), [text, opts] = share ? [qrShareData.text, {}] : seedQrPayload(words, wl);
   const m = encodeQR(text, 'raw', { ecc: 'low', border: 4, ...opts }), px = 16;
   const c = document.createElement('canvas'); c.width = c.height = m.length * px;
   const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.fillStyle = '#000';
   m.forEach((row, y) => row.forEach((on, x) => { if (on) g.fillRect(x * px, y * px, px, px); }));
   c.toBlob((blob) => {
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `keypath-seedqr-${qrFormat}-${wordsFp(words, wl)}.png`; // named by fingerprint, never by wallet or seed number
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = share ? `keypath-share-${qrShareData.id}-${qrShareData.n}.png` : `keypath-seedqr-${qrFormat}-${wordsFp(words, wl)}.png`; // named by set or fingerprint, never by wallet, seed number or count
     document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-    toast(qrMode === 'msseed' ? 'SeedQR saved as a PNG; the image holds the whole seed' : 'SeedQR saved as a PNG; the image holds the whole phrase');
+    toast(share ? 'Share QR saved as a PNG; the image holds the whole share' : qrMode === 'msseed' ? 'SeedQR saved as a PNG; the image holds the whole seed' : 'SeedQR saved as a PNG; the image holds the whole phrase');
   }, 'image/png');
 });
 // Print cards, built only while printing and removed when the print dialog closes. Seeds (the main phrase or a multisig seed)
@@ -787,10 +802,10 @@ const WARN_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 
 function qrPrintStep(on) { $('qrActions').classList.toggle('hidden', on); $('qrPrintChoice').classList.toggle('hidden', !on); if (on) $('qrPrintChoice').querySelector('.print-opt').focus(); }
 $('qrPrint').addEventListener('click', () => {
   if (qrMode === 'text' && qrTextData.source === 'msDesc' && msLast) printCard('flat', configCard());
-  else if ((qrMode === 'seed' && S.phraseValid) || qrMode === 'msseed') qrPrintStep(true);
+  else if ((qrMode === 'seed' && S.phraseValid) || qrMode === 'msseed' || qrMode === 'share') qrPrintStep(true);
 });
 $('qrPrintBack').addEventListener('click', () => { qrPrintStep(false); $('qrPrint').focus(); });
-$('qrPrintChoice').addEventListener('click', (e) => { const b = e.target.closest('.print-opt'); if (b) printCard(b.dataset.layout, seedCard()); });
+$('qrPrintChoice').addEventListener('click', (e) => { const b = e.target.closest('.print-opt'); if (b) printCard(b.dataset.layout, qrMode === 'share' ? shareCard() : seedCard()); });
 function seedCard() {
   // A multisig seed's card is the same as any seed's: naming its wallet, policy or seed number would tell a finder that one more
   // seed might be enough, and how many others to look for. The fingerprint is the quiet link to the wallet's configuration card.
@@ -801,6 +816,17 @@ function seedCard() {
     flatMeta: [`Made ${made}`, `Fingerprint <span class="pc-mono">[${fp}]</span>`], foldMeta: [`Fingerprint [${fp}]`, `Made ${made}`],
     warnFlat: 'This code is the whole seed phrase. Store it securely.', warnFold: 'This code is the whole seed phrase. Keep the page folded and out of sight.',
     foot: 'Scan it with any wallet that reads SeedQR to recover the phrase.',
+  };
+}
+// A Shamir share's card. Like a seed card it names no count or threshold (the words already hold the threshold and position).
+// The set identifier, in brackets, tells which shares belong together: shares from different sets cannot be combined.
+function shareCard() {
+  const made = new Date().toLocaleDateString('en-CA'), id = esc(String(qrShareData.id));
+  return {
+    text: qrShareData.text, opts: {}, head: 'Shamir Share Backup', title: 'Shamir share',
+    flatMeta: [`Made ${made}`, `Share set <span class="pc-mono">[${id}]</span>`], foldMeta: [`Share set [${id}]`, `Made ${made}`],
+    warnFlat: 'This code is one share of a seed phrase. Store it securely.', warnFold: 'This code is one share of a seed phrase. Keep the page folded and out of sight.',
+    foot: 'Scan it, or type its words, into any app that recovers SLIP-39 shares; enough shares from the same set rebuild the phrase.',
   };
 }
 // The words' own fingerprint: a SeedQR carries no passphrase, and naming one on paper would tell a finder it exists.
