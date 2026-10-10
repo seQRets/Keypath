@@ -393,6 +393,9 @@ footer.site { margin-top: 4.5rem; border-top: 1px solid var(--line); padding: 2.
 .modal[hidden] { display: none; }
 .modal-backdrop { position: absolute; inset: 0; background: rgba(20, 16, 10, 0.55); backdrop-filter: blur(3px); }
 .modal-card { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-lift); padding: 1.2rem 1.3rem 1.3rem; width: min(100%, 460px); max-height: calc(100vh - 2rem); overflow: auto; }
+/* dark theme: the glass panel colour is nearly transparent, so the modal gets a solid surface and a deeper backdrop; nothing on the page behind may read as part of it */
+:root[data-theme="dark"] .modal-card { background: #141414; }
+:root[data-theme="dark"] .modal-backdrop { background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(6px); }
 .modal-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.6rem; }
 .modal-head h3 { font-size: 1.15rem; font-weight: 600; letter-spacing: -0.01em; }
 .modal-note { font-size: 0.88rem; color: var(--ink-soft); margin-bottom: 1rem; }
