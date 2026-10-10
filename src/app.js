@@ -771,9 +771,8 @@ $('qrPng').addEventListener('click', () => {
   const c = document.createElement('canvas'); c.width = c.height = m.length * px;
   const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.fillStyle = '#000';
   m.forEach((row, y) => row.forEach((on, x) => { if (on) g.fillRect(x * px, y * px, px, px); }));
-  const which = qrMode === 'msseed' ? `${qrSeedData.label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-` : '';
   c.toBlob((blob) => {
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `keypath-${which}seedqr-${qrFormat}.png`;
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `keypath-seedqr-${qrFormat}-${wordsFp(words, wl)}.png`; // named by fingerprint, never by wallet or seed number
     document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
     toast(qrMode === 'msseed' ? 'SeedQR saved as a PNG; the image holds the whole seed' : 'SeedQR saved as a PNG; the image holds the whole phrase');
   }, 'image/png');
@@ -792,32 +791,29 @@ $('qrPrint').addEventListener('click', () => {
 });
 $('qrPrintBack').addEventListener('click', () => { qrPrintStep(false); $('qrPrint').focus(); });
 $('qrPrintChoice').addEventListener('click', (e) => { const b = e.target.closest('.print-opt'); if (b) printCard(b.dataset.layout, seedCard()); });
-// A seed card. The fingerprint is the words' own: the code carries no passphrase, and naming one on paper would tell a finder it exists.
 function seedCard() {
-  const { words, wl } = qrSeedWords(), [text, opts] = seedQrPayload(words, wl);
-  const lang = Object.keys(wordlists).find((k) => wordlists[k].words === wl) || 'english';
-  const fp = fpHex(HDKey.fromMasterSeed(bip39.mnemonicToSeedSync(words.join(wordlists[lang].sep || ' '), '')));
-  const fmt = qrFormat === 'standard' ? 'Standard SeedQR' : 'Compact SeedQR', made = new Date().toLocaleDateString('en-CA'), n = words.length;
-  if (qrMode !== 'msseed') return {
+  // A multisig seed's card is the same as any seed's: naming its wallet, policy or seed number would tell a finder that one more
+  // seed might be enough, and how many others to look for. The fingerprint is the quiet link to the wallet's configuration card.
+  const { words, wl } = qrSeedWords(), [text, opts] = seedQrPayload(words, wl), fp = wordsFp(words, wl);
+  const fmt = qrFormat === 'standard' ? 'Standard SeedQR' : 'Compact SeedQR', made = new Date().toLocaleDateString('en-CA');
+  return {
     text, opts, head: 'Seed Phrase Backup', title: fmt,
-    flatMeta: [`${n} words · Made ${made}`, `Fingerprint <span class="pc-mono">${fp}</span>`], foldMeta: [`${n} words`, `Fingerprint ${fp}`, `Made ${made}`],
+    flatMeta: [`Made ${made}`, `Fingerprint <span class="pc-mono">[${fp}]</span>`], foldMeta: [`Fingerprint [${fp}]`, `Made ${made}`],
     warnFlat: 'This code is the whole seed phrase. Store it securely.', warnFold: 'This code is the whole seed phrase. Keep the page folded and out of sight.',
     foot: 'Scan it with any wallet that reads SeedQR to recover the phrase.',
   };
-  const policy = msLast ? `${msLast.threshold}-of-${msLast.n} multisig wallet` : 'Multisig wallet';
-  return {
-    text, opts, head: 'Multisig Seed Backup', title: qrSeedData.label,
-    flatMeta: [policy, `${fmt} · ${n} words · Made ${made}`, `Fingerprint <span class="pc-mono">${fp}</span>`], foldMeta: [policy, `${fmt} · ${n} words`, `Fingerprint ${fp}`, `Made ${made}`],
-    warnFlat: 'This code is one multisig seed. Store it securely.', warnFold: 'This code is one seed of a multisig wallet. Keep the page folded and out of sight.',
-    foot: 'Scan it with any wallet that reads SeedQR to sign. Recovering the wallet also needs its configuration card.',
-  };
+}
+// The words' own fingerprint: a SeedQR carries no passphrase, and naming one on paper would tell a finder it exists.
+function wordsFp(words, wl) {
+  const lang = Object.keys(wordlists).find((k) => wordlists[k].words === wl) || 'english';
+  return fpHex(HDKey.fromMasterSeed(bip39.mnemonicToSeedSync(words.join(wordlists[lang].sep || ' '), '')));
 }
 // The wallet configuration: the descriptor, with the policy and every seed's fingerprint, so each seed card can be matched to it.
 function configCard() {
   const L = msLast, made = new Date().toLocaleDateString('en-CA');
   return {
     text: L.desc, opts: {}, public: true, head: 'Multisig Wallet Configuration', title: L.name,
-    flatMeta: [`${L.threshold} of ${L.n} · ${L.format} · ${L.net === 'mainnet' ? 'mainnet' : 'testnet'} · Made ${made}`, `Seed fingerprints <span class="pc-mono">${L.fps.join(' · ')}</span>`],
+    flatMeta: [`${L.threshold} of ${L.n} · ${L.format} · ${L.net === 'mainnet' ? 'mainnet' : 'testnet'} · Made ${made}`, `Seed fingerprints <span class="pc-mono">${L.fps.map((f) => `[${f}]`).join(' ')}</span>`],
     warnFlat: 'This is public: it can watch the wallet but never spend. Keep a copy with every seed.',
     foot: 'Import it into any wallet that reads output descriptors to rebuild the wallet.',
   };
