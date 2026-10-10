@@ -351,16 +351,16 @@
         <button class="mode-btn" id="msModeRestore" type="button" aria-pressed="false">Restore a wallet</button>
       </div></div>
       <p class="console-intro ms-build" style="margin-top:1rem">Paste each device's xpub into the box below, or let KeyPath create all the seeds; <strong>creating each seed on its own device is safer</strong>, because seeds created here all pass through this computer.</p>
-      <p class="console-intro ms-restore" style="margin-top:1rem">Enter whatever remains of the wallet — seeds, xpubs, a setup file, or a mix — and KeyPath rebuilds its addresses and its definition.</p>
+      <p class="console-intro ms-restore" style="margin-top:1rem">Enter whatever remains of the wallet — seeds, xpubs, a setup file, or a mix — and KeyPath rebuilds its addresses and its configuration.</p>
       <details class="adv ms-build" id="msHowto">
         <summary>How a multisig wallet is set up</summary>
         <div class="adv-body">
           <div class="limits" style="margin-top:0.9rem">
             <div class="limit"><span class="lm-tag">1 · Seeds</span><p>Make each seed on its <strong>own</strong> device, ideally a hardware wallet, one per person; nobody ever sees anyone else's seed.</p></div>
             <div class="limit"><span class="lm-tag">2 · Export</span><p>Each device exports its seed's <strong>public</strong> xpub, one line with the fingerprint and path (the BIP48 tab above shows it for the seed on this page); xpubs are safe to send by email or chat.</p></div>
-            <div class="limit"><span class="lm-tag">3 · Combine</span><p>Whoever sets up the wallet pastes every xpub below, picks how many signatures are needed, and gets the wallet definition: a descriptor for software wallets and a setup file for hardware wallets. Both are public, hold no seed, and tell each device which wallet its seed belongs to.</p></div>
+            <div class="limit"><span class="lm-tag">3 · Combine</span><p>Whoever sets up the wallet pastes every xpub below, picks how many signatures are needed, and gets the wallet configuration: a descriptor for software wallets and a setup file for hardware wallets. Both are public, hold no seed, and tell each device which wallet its seed belongs to.</p></div>
             <div class="limit warn"><span class="lm-tag">4 · Verify</span><p>Every device should show the <strong>first receive address</strong> listed here; if one disagrees, stop — an xpub, the threshold or the script type is wrong.</p></div>
-            <div class="limit warn"><span class="lm-tag">5 · Back up</span><p>Keep the <strong>wallet definition with every seed backup</strong>: recovery needs enough seeds to sign <em>and</em> the xpub of every seed. Two seeds of a 2-of-3 can sign, yet without the third seed's xpub the addresses cannot even be rebuilt; the demo wallet proves it when one xpub line is deleted.</p></div>
+            <div class="limit warn"><span class="lm-tag">5 · Back up</span><p>Keep the <strong>wallet configuration with every seed backup</strong>: recovery needs enough seeds to sign <em>and</em> the xpub of every seed. Two seeds of a 2-of-3 can sign, yet without the third seed's xpub the addresses cannot even be rebuilt; the demo wallet proves it when one xpub line is deleted.</p></div>
           </div>
         </div>
       </details>
@@ -409,7 +409,7 @@
       <div id="msWarnings"></div>
 
       <div id="msOut" class="hidden">
-        <h3 class="sec">Your wallet definition<button type="button" class="tip" data-tip="descriptor" aria-label="What does this mean?">?</button></h3>
+        <h3 class="sec">Your wallet configuration<button type="button" class="tip" data-tip="descriptor" aria-label="What does this mean?">?</button></h3>
         <p class="help" style="margin-bottom:0.8rem">It is public and cannot spend, but <strong>back it up with every seed</strong>: without it, even enough seeds to sign cannot find the coins.</p>
         <div class="field"><label class="field-label">Descriptor <span class="hint">Software wallets such as Sparrow and Bitcoin Core import this line.</span></label>
           <div class="term has-qr" id="msDesc"><button class="qr2" type="button" data-qr="msDesc" data-qrtitle="Descriptor" aria-label="Show as a QR code"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v2M17 20h4M14 20h1"/></svg></button><button class="copy" data-copy="msDesc" type="button">copy</button></div></div>
@@ -440,16 +440,16 @@
       <div class="row" style="margin-bottom:0.9rem">
         <span class="small-label" style="margin:0 0.3rem 0 0;align-self:center">Try:</span>
         <button type="button" class="barbtn" data-lab="1,1,1|0,0,0|0">All 3 seeds</button>
-        <button type="button" class="barbtn" data-lab="1,1,0|0,0,0|1">2 seeds + definition</button>
+        <button type="button" class="barbtn" data-lab="1,1,0|0,0,0|1">2 seeds + configuration</button>
         <button type="button" class="barbtn" data-lab="1,1,0|0,0,1|0">2 seeds + the 3rd xpub</button>
         <button type="button" class="barbtn" data-lab="1,1,0|0,0,0|0">2 seeds only</button>
-        <button type="button" class="barbtn" data-lab="1,0,0|0,0,0|1">1 seed + definition</button>
+        <button type="button" class="barbtn" data-lab="1,0,0|0,0,0|1">1 seed + configuration</button>
         <button type="button" class="barbtn" data-lab="0,0,0|1,1,1|0">3 xpubs, no seed</button>
         <button type="button" class="barbtn" id="labClear">Clear</button>
       </div>
       <div class="tablewrap"><table class="lab" id="labTable"><thead><tr><th>Seed</th><th>I have the seed</th><th>I have its xpub</th></tr></thead><tbody id="labRows"></tbody></table></div>
       <p class="help" style="margin:0.6rem 0 0">An xpub can always be produced from its seed, but a seed can never be produced from its xpub.</p>
-      <label class="check" style="margin-top:0.8rem"><input type="checkbox" id="labDef"> I have the wallet definition <span class="hint">(the descriptor or setup file, which holds all three xpubs and no seeds)</span></label>
+      <label class="check" style="margin-top:0.8rem"><input type="checkbox" id="labDef"> I have the wallet configuration <span class="hint">(the descriptor or setup file, which holds all three xpubs and no seeds)</span></label>
       <div id="labVerdict" class="limits" style="margin-top:1rem"></div>
     </div>
   </section>

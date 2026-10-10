@@ -7,7 +7,7 @@
 <meta name="description" content="KeyPath: generate or inspect a BIP39 recovery phrase, back it up with SLIP-39 Shamir shares, and derive BIP32 keys and Bitcoin addresses, legacy through Taproot. Single file, runs entirely offline in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-P5bOCi+mn1+Z8F/Ma8IbUa+olaILPG5DmfnnzrJgo28=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-udueoihbvmhHSUKBrNRIY6ZVV+WIRNsyMFnJXCnNdJU='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-P5bOCi+mn1+Z8F/Ma8IbUa+olaILPG5DmfnnzrJgo28=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-GqgSKOGf7+uTda7ZLATHqeVjj7QKAh9CVThrmIlaXnA='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <script>try{if(localStorage.getItem("keypath-tips")==="off")document.documentElement.classList.add("no-tips");}catch(e){}var t=null;try{t=localStorage.getItem("keypath-theme");}catch(e){}var dk=t==="dark"||(t!=="light"&&(location.protocol==="file:"||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)));document.documentElement.setAttribute("data-theme",dk?"dark":"light");</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fbbf24'/><stop offset='.55' stop-color='%23f97316'/><stop offset='1' stop-color='%23ef4444'/></linearGradient></defs><rect width='512' height='512' rx='116' fill='url(%23g)'/><g fill='none' stroke='%23fff' stroke-width='48' stroke-linecap='round' stroke-linejoin='round'><circle cx='190' cy='256' r='74'/><path d='M264 256h176M382 256v62M440 256v50'/></g></svg>">
 <style>
@@ -984,16 +984,16 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
         <button class="mode-btn" id="msModeRestore" type="button" aria-pressed="false">Restore a wallet</button>
       </div></div>
       <p class="console-intro ms-build" style="margin-top:1rem">Paste each device's xpub into the box below, or let KeyPath create all the seeds; <strong>creating each seed on its own device is safer</strong>, because seeds created here all pass through this computer.</p>
-      <p class="console-intro ms-restore" style="margin-top:1rem">Enter whatever remains of the wallet — seeds, xpubs, a setup file, or a mix — and KeyPath rebuilds its addresses and its definition.</p>
+      <p class="console-intro ms-restore" style="margin-top:1rem">Enter whatever remains of the wallet — seeds, xpubs, a setup file, or a mix — and KeyPath rebuilds its addresses and its configuration.</p>
       <details class="adv ms-build" id="msHowto">
         <summary>How a multisig wallet is set up</summary>
         <div class="adv-body">
           <div class="limits" style="margin-top:0.9rem">
             <div class="limit"><span class="lm-tag">1 · Seeds</span><p>Make each seed on its <strong>own</strong> device, ideally a hardware wallet, one per person; nobody ever sees anyone else's seed.</p></div>
             <div class="limit"><span class="lm-tag">2 · Export</span><p>Each device exports its seed's <strong>public</strong> xpub, one line with the fingerprint and path (the BIP48 tab above shows it for the seed on this page); xpubs are safe to send by email or chat.</p></div>
-            <div class="limit"><span class="lm-tag">3 · Combine</span><p>Whoever sets up the wallet pastes every xpub below, picks how many signatures are needed, and gets the wallet definition: a descriptor for software wallets and a setup file for hardware wallets. Both are public, hold no seed, and tell each device which wallet its seed belongs to.</p></div>
+            <div class="limit"><span class="lm-tag">3 · Combine</span><p>Whoever sets up the wallet pastes every xpub below, picks how many signatures are needed, and gets the wallet configuration: a descriptor for software wallets and a setup file for hardware wallets. Both are public, hold no seed, and tell each device which wallet its seed belongs to.</p></div>
             <div class="limit warn"><span class="lm-tag">4 · Verify</span><p>Every device should show the <strong>first receive address</strong> listed here; if one disagrees, stop — an xpub, the threshold or the script type is wrong.</p></div>
-            <div class="limit warn"><span class="lm-tag">5 · Back up</span><p>Keep the <strong>wallet definition with every seed backup</strong>: recovery needs enough seeds to sign <em>and</em> the xpub of every seed. Two seeds of a 2-of-3 can sign, yet without the third seed's xpub the addresses cannot even be rebuilt; the demo wallet proves it when one xpub line is deleted.</p></div>
+            <div class="limit warn"><span class="lm-tag">5 · Back up</span><p>Keep the <strong>wallet configuration with every seed backup</strong>: recovery needs enough seeds to sign <em>and</em> the xpub of every seed. Two seeds of a 2-of-3 can sign, yet without the third seed's xpub the addresses cannot even be rebuilt; the demo wallet proves it when one xpub line is deleted.</p></div>
           </div>
         </div>
       </details>
@@ -1042,7 +1042,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
       <div id="msWarnings"></div>
 
       <div id="msOut" class="hidden">
-        <h3 class="sec">Your wallet definition<button type="button" class="tip" data-tip="descriptor" aria-label="What does this mean?">?</button></h3>
+        <h3 class="sec">Your wallet configuration<button type="button" class="tip" data-tip="descriptor" aria-label="What does this mean?">?</button></h3>
         <p class="help" style="margin-bottom:0.8rem">It is public and cannot spend, but <strong>back it up with every seed</strong>: without it, even enough seeds to sign cannot find the coins.</p>
         <div class="field"><label class="field-label">Descriptor <span class="hint">Software wallets such as Sparrow and Bitcoin Core import this line.</span></label>
           <div class="term has-qr" id="msDesc"><button class="qr2" type="button" data-qr="msDesc" data-qrtitle="Descriptor" aria-label="Show as a QR code"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v2M17 20h4M14 20h1"/></svg></button><button class="copy" data-copy="msDesc" type="button">copy</button></div></div>
@@ -1073,16 +1073,16 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
       <div class="row" style="margin-bottom:0.9rem">
         <span class="small-label" style="margin:0 0.3rem 0 0;align-self:center">Try:</span>
         <button type="button" class="barbtn" data-lab="1,1,1|0,0,0|0">All 3 seeds</button>
-        <button type="button" class="barbtn" data-lab="1,1,0|0,0,0|1">2 seeds + definition</button>
+        <button type="button" class="barbtn" data-lab="1,1,0|0,0,0|1">2 seeds + configuration</button>
         <button type="button" class="barbtn" data-lab="1,1,0|0,0,1|0">2 seeds + the 3rd xpub</button>
         <button type="button" class="barbtn" data-lab="1,1,0|0,0,0|0">2 seeds only</button>
-        <button type="button" class="barbtn" data-lab="1,0,0|0,0,0|1">1 seed + definition</button>
+        <button type="button" class="barbtn" data-lab="1,0,0|0,0,0|1">1 seed + configuration</button>
         <button type="button" class="barbtn" data-lab="0,0,0|1,1,1|0">3 xpubs, no seed</button>
         <button type="button" class="barbtn" id="labClear">Clear</button>
       </div>
       <div class="tablewrap"><table class="lab" id="labTable"><thead><tr><th>Seed</th><th>I have the seed</th><th>I have its xpub</th></tr></thead><tbody id="labRows"></tbody></table></div>
       <p class="help" style="margin:0.6rem 0 0">An xpub can always be produced from its seed, but a seed can never be produced from its xpub.</p>
-      <label class="check" style="margin-top:0.8rem"><input type="checkbox" id="labDef"> I have the wallet definition <span class="hint">(the descriptor or setup file, which holds all three xpubs and no seeds)</span></label>
+      <label class="check" style="margin-top:0.8rem"><input type="checkbox" id="labDef"> I have the wallet configuration <span class="hint">(the descriptor or setup file, which holds all three xpubs and no seeds)</span></label>
       <div id="labVerdict" class="limits" style="margin-top:1rem"></div>
     </div>
   </section>
@@ -21757,15 +21757,15 @@ window.KEYPATH_GLOSSARY = {
   indexes: { t: 'Word indexes', d: 'The position of each word in the official 2048-word list, counting from 0. The phrase is really just these numbers.' },
   entropytype: { t: 'Entropy type', d: 'Leave on automatic and the tool works out whether you typed dice rolls, coin flips, cards or hex. Pick one only if it guesses wrong.' },
   entropylen: { t: 'Mnemonic length', d: 'KeyPath picks this for you: dice are hashed the way hardware wallets that accept dice do it, with the word count from the Words selector, so a wallet that hashes dice the same way will reproduce the phrase; other inputs are used raw. Override it here if you want something else. "Raw entropy" keeps only the unbiased bits of each event with no hashing, needs about 77 dice rolls for 12 words, and is not what hardware wallets do.' },
-  multisig: { t: 'Multisig wallet', d: 'A wallet controlled by several seeds that needs some of them to spend, for example any 2 of 3, each held by a different person or device. A thief with one seed gets nothing, and losing one seed loses nothing. It is the standard way to protect larger amounts. Every address is built from the public keys of all the seeds, so rebuilding the wallet needs every xpub, not just enough seeds to sign: back up the wallet definition with the seeds. KeyPath builds and verifies the wallet; signing happens on the devices that hold the seeds.' },
+  multisig: { t: 'Multisig wallet', d: 'A wallet controlled by several seeds that needs some of them to spend, for example any 2 of 3, each held by a different person or device. A thief with one seed gets nothing, and losing one seed loses nothing. It is the standard way to protect larger amounts. Every address is built from the public keys of all the seeds, so rebuilding the wallet needs every xpub, not just enough seeds to sign: back up the wallet configuration with the seeds. KeyPath builds and verifies the wallet; signing happens on the devices that hold the seeds.' },
   cosigner: { t: 'Seeds', d: 'The seeds that control a multisig wallet: each is one recovery phrase on its own device, usually held by its own person (wallet software calls them cosigners). "3 seeds" means 3 separate recovery phrases. Each seed contributes only its public key (an xpub with fingerprint and path) to the wallet. Xpubs reveal addresses but cannot spend.' },
   msthreshold: { t: 'Signatures needed (threshold)', d: 'How many of the seeds must sign to spend. 2 of 3 is the common choice: any one key can be lost or stolen without harm. 3 of 5 suits larger groups. 1 of N gives no protection, and N of N means losing any key loses everything.' },
   bip48: { t: 'BIP48 (multisig keys)', d: 'The standard path for a seed\'s multisig key, m/48\'/0\'/account\'/script\', where the last number says which script type: 2 for native SegWit (P2WSH), 1 for nested, 3 for Taproot (P2TR). Using a separate branch keeps multisig keys apart from your single-signature accounts.' },
   msscript: { t: 'Multisig script type', d: 'P2WSH is native SegWit multisig with bc1q addresses, the common default with low fees. P2SH-P2WSH is the older nested form with addresses starting with 3, for compatibility with old software. P2TR is Taproot multisig with bc1p addresses: newer, with cheaper and more private spends, supported by Sparrow, Bitcoin Core 24 and later, and recent hardware wallets, but older wallets and BlueWallet cannot import it. Every seed in the wallet must use the same type.' },
   keyorigin: { t: 'Key origin', d: 'The part in square brackets before an xpub: the master fingerprint and the path the key was derived along. It lets a hardware wallet recognise which of its keys is being asked to sign. Always share a multisig xpub with its origin.' },
   sortedmulti: { t: 'sortedmulti', d: 'In the descriptor, sortedmulti means the keys are put in a fixed order (BIP67) before building each address, so it does not matter in what order the xpubs were listed. Every wallet app agrees on the same addresses. Taproot wallets use sortedmulti_a, the same idea inside a Taproot script.' },
-  coldcardfile: { t: 'Setup file', d: 'A small text file listing the policy (2 of 3), the script type, the derivation path and the fingerprint and xpub of every seed: the same wallet definition as the descriptor, in the form hardware wallets read. It contains no seed. Each device already holds its own seed; loading the file tells the device which wallet that seed belongs to, so it can verify the wallet\'s addresses and sign for it.' },
-  lab: { t: 'Multisig lab', d: 'A sandbox for one question: what do you need to recover a multisig wallet? Its wallet is a 2-of-3 built from the three public test seeds, so nothing in it is secret. Check the boxes for the seeds, xpubs and wallet definition you still have, and it tells you whether the coins can be found (every xpub is known) and spent (enough seeds to sign).' },
+  coldcardfile: { t: 'Setup file', d: 'A small text file listing the policy (2 of 3), the script type, the derivation path and the fingerprint and xpub of every seed: the same wallet configuration as the descriptor, in the form hardware wallets read. It contains no seed. Each device already holds its own seed; loading the file tells the device which wallet that seed belongs to, so it can verify the wallet\'s addresses and sign for it.' },
+  lab: { t: 'Multisig lab', d: 'A sandbox for one question: what do you need to recover a multisig wallet? Its wallet is a 2-of-3 built from the three public test seeds, so nothing in it is secret. Check the boxes for the seeds, xpubs and wallet configuration you still have, and it tells you whether the coins can be found (every xpub is known) and spent (enough seeds to sign).' },
   msaddresses: { t: 'Wallet addresses', d: 'The receive addresses of the multisig wallet, built from the xpubs of all the seeds. They are the same on every device that has the same xpubs, threshold and script type, which is why comparing the first one is the standard check that the wallet was set up correctly.' },
   split: { t: 'Split into shares', d: 'Make a new set of Shamir shares from the phrase currently shown above.' },
   recover: { t: 'Recover from shares', d: 'Paste shares you made earlier to recover the phrase.' },
@@ -22455,10 +22455,10 @@ function qrOpen(mode, opts = {}) {
   $('qrTitle').textContent = opts.title || (mode === 'seed' ? 'Seed QR' : 'Entropy QR'); $('qrNote').innerHTML = QR_NOTES[mode]; $('qrFormats').classList.toggle('hidden', mode !== 'seed' && mode !== 'msseed');
   // only the main phrase's SeedQR can be saved or printed; public codes open in the clear and need no Reveal
   const secret = opts.secret !== false;
-  // seeds (the main phrase and each multisig seed) can be saved and printed; the multisig descriptor prints as a wallet-definition card
-  const seedish = mode === 'seed' || mode === 'msseed', definition = mode === 'text' && qrTextData.source === 'msDesc' && !!msLast;
-  $('qrPng').classList.toggle('hidden', !seedish); $('qrPrint').classList.toggle('hidden', !seedish && !definition);
-  $('qrEye').classList.toggle('hidden', !secret); $('qrActions').classList.toggle('hidden', !secret && !definition); $('qrPrintChoice').classList.add('hidden');
+  // seeds (the main phrase and each multisig seed) can be saved and printed; the multisig descriptor prints as a wallet-configuration card
+  const seedish = mode === 'seed' || mode === 'msseed', config = mode === 'text' && qrTextData.source === 'msDesc' && !!msLast;
+  $('qrPng').classList.toggle('hidden', !seedish); $('qrPrint').classList.toggle('hidden', !seedish && !config);
+  $('qrEye').classList.toggle('hidden', !secret); $('qrActions').classList.toggle('hidden', !secret && !config); $('qrPrintChoice').classList.add('hidden');
   if (mode === 'seed') seedQrRender(); else if (mode === 'msseed') msSeedQrRender(); else if (mode === 'text') textQrRender(); else entropyQrRender();
   qrCover(secret);
   $('qrModal').hidden = false; $('qrModal').querySelector('[data-close]:not(.modal-backdrop)').focus();
@@ -22556,11 +22556,11 @@ $('qrPng').addEventListener('click', () => {
 // flat (portrait): one centred column with the code large, like a backup card; nothing assumes it is folded.
 // folded (landscape): the code centred in the top-left quarter with fold lines through the middle, so folding the page in
 //   half and in half again closes the code inside.
-// The multisig descriptor prints straight to a flat wallet-definition card: it is public, so there is nothing to fold away.
+// The multisig descriptor prints straight to a flat wallet-configuration card: it is public, so there is nothing to fold away.
 const WARN_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 23 21.5H1Z" fill="#f5c518" stroke="#1a1a1a" stroke-width="1.2" stroke-linejoin="round"/><path d="M12 9v6" stroke="#1a1a1a" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="18.2" r="1.4" fill="#1a1a1a"/></svg>';
 function qrPrintStep(on) { $('qrActions').classList.toggle('hidden', on); $('qrPrintChoice').classList.toggle('hidden', !on); if (on) $('qrPrintChoice').querySelector('.print-opt').focus(); }
 $('qrPrint').addEventListener('click', () => {
-  if (qrMode === 'text' && qrTextData.source === 'msDesc' && msLast) printCard('flat', definitionCard());
+  if (qrMode === 'text' && qrTextData.source === 'msDesc' && msLast) printCard('flat', configCard());
   else if ((qrMode === 'seed' && S.phraseValid) || qrMode === 'msseed') qrPrintStep(true);
 });
 $('qrPrintBack').addEventListener('click', () => { qrPrintStep(false); $('qrPrint').focus(); });
@@ -22575,24 +22575,24 @@ function seedCard() {
     text, opts, head: 'Seed Phrase Backup', title: fmt,
     flatMeta: [`${n} words · Made ${made}`, `Fingerprint <span class="pc-mono">${fp}</span>`], foldMeta: [`${n} words`, `Fingerprint ${fp}`, `Made ${made}`],
     warnFlat: 'This code is the whole seed phrase. Store it securely.', warnFold: 'This code is the whole seed phrase. Keep the page folded and out of sight.',
-    foot: 'Scan it with SeedSigner, Krux, Passport or Sparrow to recover the phrase.',
+    foot: 'Scan it with any wallet that reads SeedQR to recover the phrase.',
   };
   const policy = msLast ? `${msLast.threshold}-of-${msLast.n} multisig wallet` : 'Multisig wallet';
   return {
     text, opts, head: 'Multisig Seed Backup', title: qrSeedData.label,
     flatMeta: [policy, `${fmt} · ${n} words · Made ${made}`, `Fingerprint <span class="pc-mono">${fp}</span>`], foldMeta: [policy, `${fmt} · ${n} words`, `Fingerprint ${fp}`, `Made ${made}`],
     warnFlat: 'This code is one multisig seed. Store it securely.', warnFold: 'This code is one seed of a multisig wallet. Keep the page folded and out of sight.',
-    foot: 'Scan it with SeedSigner, Krux, Passport or Sparrow to sign. Recovering the wallet also needs its definition card.',
+    foot: 'Scan it with any wallet that reads SeedQR to sign. Recovering the wallet also needs its configuration card.',
   };
 }
-// The wallet definition: the descriptor, with the policy and every seed's fingerprint, so each seed card can be matched to it.
-function definitionCard() {
+// The wallet configuration: the descriptor, with the policy and every seed's fingerprint, so each seed card can be matched to it.
+function configCard() {
   const L = msLast, made = new Date().toLocaleDateString('en-CA');
   return {
-    text: L.desc, opts: {}, public: true, head: 'Multisig Wallet Definition', title: L.name,
+    text: L.desc, opts: {}, public: true, head: 'Multisig Wallet Configuration', title: L.name,
     flatMeta: [`${L.threshold} of ${L.n} · ${L.format} · ${L.net === 'mainnet' ? 'mainnet' : 'testnet'} · Made ${made}`, `Seed fingerprints <span class="pc-mono">${L.fps.join(' · ')}</span>`],
     warnFlat: 'This is public: it can watch the wallet but never spend. Keep a copy with every seed.',
-    foot: 'Import it into Sparrow, Bitcoin Core or another descriptor wallet to rebuild the wallet.',
+    foot: 'Import it into any wallet that reads output descriptors to rebuild the wallet.',
   };
 }
 function printCard(layout, c) {
@@ -22846,7 +22846,7 @@ function labInit() {
     [0, 1, 2].forEach((i) => { const sd = $('labRows').querySelector(`[data-lab-seed="${i}"]`), xp = $('labRows').querySelector(`[data-lab-xpub="${i}"]`); if (sd.checked || (e && e.target === sd)) xp.checked = sd.checked; xp.disabled = sd.checked; });
     const h = have();
     const known = seeds.map((_, i) => h.def || h.seed[i] || h.xpub[i]);
-    const how = seeds.map((_, i) => (h.seed[i] ? 'comes from its seed' : h.def ? 'comes from the definition' : h.xpub[i] ? 'was kept on its own' : 'is missing'));
+    const how = seeds.map((_, i) => (h.seed[i] ? 'comes from its seed' : h.def ? 'comes from the configuration' : h.xpub[i] ? 'was kept on its own' : 'is missing'));
     const nSeeds = h.seed.filter(Boolean).length, nKnown = known.filter(Boolean).length, missing = seeds.map((_, i) => i).filter((i) => !known[i]);
     const canFind = nKnown === 3, canSpend = canFind && nSeeds >= 2;
     seeds.forEach((_, i) => { const el = $('labRows').querySelector(`[data-lab-xk="${i}"]`); el.className = 'xk ' + (known[i] ? 'ok' : 'bad'); el.textContent = known[i] ? '✓ xpub known' : '✗ xpub missing'; });
@@ -22857,16 +22857,16 @@ function labInit() {
       if (nKnown >= 2) { const partial = seeds.filter((_, i) => known[i]); alt = ` Building a wallet from only the ${nKnown} xpubs you have gives <code>${esc(multisig.multisigAddress(Math.min(2, nKnown), partial, 'p2wsh', 0, 0, netc))}</code>: a different wallet, with no coins in it.`; }
       out += box('no', 'Find the coins', `<strong>No.</strong> The xpub of seed ${missing.map((i) => i + 1).join(' and seed ')} is unknown, so the wallet's addresses cannot be rebuilt and the coins cannot even be located.${alt}`);
     }
-    if (canSpend) out += box('good', 'Spend', `<strong>Yes.</strong> ${nSeeds} of 3 seeds can sign, and the wallet can be rebuilt. Enter the seeds into wallets, load the definition, and spend.`);
+    if (canSpend) out += box('good', 'Spend', `<strong>Yes.</strong> ${nSeeds} of 3 seeds can sign, and the wallet can be rebuilt. Enter the seeds into wallets, load the configuration, and spend.`);
     else if (!canFind && nSeeds >= 2) out += box('no', 'Spend', `<strong>No.</strong> ${nSeeds} seeds are enough to sign, but the wallet cannot be rebuilt, so there is nothing to sign.`);
     else out += box('no', 'Spend', `<strong>No.</strong> ${nSeeds === 0 ? 'No seed' : 'Only 1 seed'} present; 2 of 3 must sign.${nSeeds === 0 && canFind ? ' Xpubs alone can only watch the coins, never move them.' : ''}`);
     if (!canSpend) {
       const fixes = [];
-      if (missing.length) fixes.push(`the xpub of seed ${missing.map((i) => i + 1).join(' and of seed ')} (its 12 words would do, since an xpub derives from its seed) or else the wallet definition`);
+      if (missing.length) fixes.push(`the xpub of seed ${missing.map((i) => i + 1).join(' and of seed ')} (its 12 words would do, since an xpub derives from its seed) or else the wallet configuration`);
       if (nSeeds < 2) fixes.push(`${2 - nSeeds} more seed${2 - nSeeds > 1 ? 's' : ''}`);
       out += box('', 'To recover', `You still need ${fixes.join(', and ')}.`);
     }
-    out += box('', 'Lesson', 'Keep the wallet definition with every seed backup. Then any 2 of the 3 seeds, plus that one public file, recover the wallet.');
+    out += box('', 'Lesson', 'Keep the wallet configuration with every seed backup. Then any 2 of the 3 seeds, plus that one public file, recover the wallet.');
     $('labVerdict').innerHTML = out;
     // the scenario button matching the current boxes stays highlighted
     // (an xpub implied by its seed is ignored on both sides, since ticking a seed ticks its xpub)

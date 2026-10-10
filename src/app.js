@@ -682,10 +682,10 @@ function qrOpen(mode, opts = {}) {
   $('qrTitle').textContent = opts.title || (mode === 'seed' ? 'Seed QR' : 'Entropy QR'); $('qrNote').innerHTML = QR_NOTES[mode]; $('qrFormats').classList.toggle('hidden', mode !== 'seed' && mode !== 'msseed');
   // only the main phrase's SeedQR can be saved or printed; public codes open in the clear and need no Reveal
   const secret = opts.secret !== false;
-  // seeds (the main phrase and each multisig seed) can be saved and printed; the multisig descriptor prints as a wallet-definition card
-  const seedish = mode === 'seed' || mode === 'msseed', definition = mode === 'text' && qrTextData.source === 'msDesc' && !!msLast;
-  $('qrPng').classList.toggle('hidden', !seedish); $('qrPrint').classList.toggle('hidden', !seedish && !definition);
-  $('qrEye').classList.toggle('hidden', !secret); $('qrActions').classList.toggle('hidden', !secret && !definition); $('qrPrintChoice').classList.add('hidden');
+  // seeds (the main phrase and each multisig seed) can be saved and printed; the multisig descriptor prints as a wallet-configuration card
+  const seedish = mode === 'seed' || mode === 'msseed', config = mode === 'text' && qrTextData.source === 'msDesc' && !!msLast;
+  $('qrPng').classList.toggle('hidden', !seedish); $('qrPrint').classList.toggle('hidden', !seedish && !config);
+  $('qrEye').classList.toggle('hidden', !secret); $('qrActions').classList.toggle('hidden', !secret && !config); $('qrPrintChoice').classList.add('hidden');
   if (mode === 'seed') seedQrRender(); else if (mode === 'msseed') msSeedQrRender(); else if (mode === 'text') textQrRender(); else entropyQrRender();
   qrCover(secret);
   $('qrModal').hidden = false; $('qrModal').querySelector('[data-close]:not(.modal-backdrop)').focus();
@@ -783,11 +783,11 @@ $('qrPng').addEventListener('click', () => {
 // flat (portrait): one centred column with the code large, like a backup card; nothing assumes it is folded.
 // folded (landscape): the code centred in the top-left quarter with fold lines through the middle, so folding the page in
 //   half and in half again closes the code inside.
-// The multisig descriptor prints straight to a flat wallet-definition card: it is public, so there is nothing to fold away.
+// The multisig descriptor prints straight to a flat wallet-configuration card: it is public, so there is nothing to fold away.
 const WARN_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 23 21.5H1Z" fill="#f5c518" stroke="#1a1a1a" stroke-width="1.2" stroke-linejoin="round"/><path d="M12 9v6" stroke="#1a1a1a" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="18.2" r="1.4" fill="#1a1a1a"/></svg>';
 function qrPrintStep(on) { $('qrActions').classList.toggle('hidden', on); $('qrPrintChoice').classList.toggle('hidden', !on); if (on) $('qrPrintChoice').querySelector('.print-opt').focus(); }
 $('qrPrint').addEventListener('click', () => {
-  if (qrMode === 'text' && qrTextData.source === 'msDesc' && msLast) printCard('flat', definitionCard());
+  if (qrMode === 'text' && qrTextData.source === 'msDesc' && msLast) printCard('flat', configCard());
   else if ((qrMode === 'seed' && S.phraseValid) || qrMode === 'msseed') qrPrintStep(true);
 });
 $('qrPrintBack').addEventListener('click', () => { qrPrintStep(false); $('qrPrint').focus(); });
@@ -802,24 +802,24 @@ function seedCard() {
     text, opts, head: 'Seed Phrase Backup', title: fmt,
     flatMeta: [`${n} words · Made ${made}`, `Fingerprint <span class="pc-mono">${fp}</span>`], foldMeta: [`${n} words`, `Fingerprint ${fp}`, `Made ${made}`],
     warnFlat: 'This code is the whole seed phrase. Store it securely.', warnFold: 'This code is the whole seed phrase. Keep the page folded and out of sight.',
-    foot: 'Scan it with SeedSigner, Krux, Passport or Sparrow to recover the phrase.',
+    foot: 'Scan it with any wallet that reads SeedQR to recover the phrase.',
   };
   const policy = msLast ? `${msLast.threshold}-of-${msLast.n} multisig wallet` : 'Multisig wallet';
   return {
     text, opts, head: 'Multisig Seed Backup', title: qrSeedData.label,
     flatMeta: [policy, `${fmt} · ${n} words · Made ${made}`, `Fingerprint <span class="pc-mono">${fp}</span>`], foldMeta: [policy, `${fmt} · ${n} words`, `Fingerprint ${fp}`, `Made ${made}`],
     warnFlat: 'This code is one multisig seed. Store it securely.', warnFold: 'This code is one seed of a multisig wallet. Keep the page folded and out of sight.',
-    foot: 'Scan it with SeedSigner, Krux, Passport or Sparrow to sign. Recovering the wallet also needs its definition card.',
+    foot: 'Scan it with any wallet that reads SeedQR to sign. Recovering the wallet also needs its configuration card.',
   };
 }
-// The wallet definition: the descriptor, with the policy and every seed's fingerprint, so each seed card can be matched to it.
-function definitionCard() {
+// The wallet configuration: the descriptor, with the policy and every seed's fingerprint, so each seed card can be matched to it.
+function configCard() {
   const L = msLast, made = new Date().toLocaleDateString('en-CA');
   return {
-    text: L.desc, opts: {}, public: true, head: 'Multisig Wallet Definition', title: L.name,
+    text: L.desc, opts: {}, public: true, head: 'Multisig Wallet Configuration', title: L.name,
     flatMeta: [`${L.threshold} of ${L.n} · ${L.format} · ${L.net === 'mainnet' ? 'mainnet' : 'testnet'} · Made ${made}`, `Seed fingerprints <span class="pc-mono">${L.fps.join(' · ')}</span>`],
     warnFlat: 'This is public: it can watch the wallet but never spend. Keep a copy with every seed.',
-    foot: 'Import it into Sparrow, Bitcoin Core or another descriptor wallet to rebuild the wallet.',
+    foot: 'Import it into any wallet that reads output descriptors to rebuild the wallet.',
   };
 }
 function printCard(layout, c) {
@@ -1073,7 +1073,7 @@ function labInit() {
     [0, 1, 2].forEach((i) => { const sd = $('labRows').querySelector(`[data-lab-seed="${i}"]`), xp = $('labRows').querySelector(`[data-lab-xpub="${i}"]`); if (sd.checked || (e && e.target === sd)) xp.checked = sd.checked; xp.disabled = sd.checked; });
     const h = have();
     const known = seeds.map((_, i) => h.def || h.seed[i] || h.xpub[i]);
-    const how = seeds.map((_, i) => (h.seed[i] ? 'comes from its seed' : h.def ? 'comes from the definition' : h.xpub[i] ? 'was kept on its own' : 'is missing'));
+    const how = seeds.map((_, i) => (h.seed[i] ? 'comes from its seed' : h.def ? 'comes from the configuration' : h.xpub[i] ? 'was kept on its own' : 'is missing'));
     const nSeeds = h.seed.filter(Boolean).length, nKnown = known.filter(Boolean).length, missing = seeds.map((_, i) => i).filter((i) => !known[i]);
     const canFind = nKnown === 3, canSpend = canFind && nSeeds >= 2;
     seeds.forEach((_, i) => { const el = $('labRows').querySelector(`[data-lab-xk="${i}"]`); el.className = 'xk ' + (known[i] ? 'ok' : 'bad'); el.textContent = known[i] ? '✓ xpub known' : '✗ xpub missing'; });
@@ -1084,16 +1084,16 @@ function labInit() {
       if (nKnown >= 2) { const partial = seeds.filter((_, i) => known[i]); alt = ` Building a wallet from only the ${nKnown} xpubs you have gives <code>${esc(multisig.multisigAddress(Math.min(2, nKnown), partial, 'p2wsh', 0, 0, netc))}</code>: a different wallet, with no coins in it.`; }
       out += box('no', 'Find the coins', `<strong>No.</strong> The xpub of seed ${missing.map((i) => i + 1).join(' and seed ')} is unknown, so the wallet's addresses cannot be rebuilt and the coins cannot even be located.${alt}`);
     }
-    if (canSpend) out += box('good', 'Spend', `<strong>Yes.</strong> ${nSeeds} of 3 seeds can sign, and the wallet can be rebuilt. Enter the seeds into wallets, load the definition, and spend.`);
+    if (canSpend) out += box('good', 'Spend', `<strong>Yes.</strong> ${nSeeds} of 3 seeds can sign, and the wallet can be rebuilt. Enter the seeds into wallets, load the configuration, and spend.`);
     else if (!canFind && nSeeds >= 2) out += box('no', 'Spend', `<strong>No.</strong> ${nSeeds} seeds are enough to sign, but the wallet cannot be rebuilt, so there is nothing to sign.`);
     else out += box('no', 'Spend', `<strong>No.</strong> ${nSeeds === 0 ? 'No seed' : 'Only 1 seed'} present; 2 of 3 must sign.${nSeeds === 0 && canFind ? ' Xpubs alone can only watch the coins, never move them.' : ''}`);
     if (!canSpend) {
       const fixes = [];
-      if (missing.length) fixes.push(`the xpub of seed ${missing.map((i) => i + 1).join(' and of seed ')} (its 12 words would do, since an xpub derives from its seed) or else the wallet definition`);
+      if (missing.length) fixes.push(`the xpub of seed ${missing.map((i) => i + 1).join(' and of seed ')} (its 12 words would do, since an xpub derives from its seed) or else the wallet configuration`);
       if (nSeeds < 2) fixes.push(`${2 - nSeeds} more seed${2 - nSeeds > 1 ? 's' : ''}`);
       out += box('', 'To recover', `You still need ${fixes.join(', and ')}.`);
     }
-    out += box('', 'Lesson', 'Keep the wallet definition with every seed backup. Then any 2 of the 3 seeds, plus that one public file, recover the wallet.');
+    out += box('', 'Lesson', 'Keep the wallet configuration with every seed backup. Then any 2 of the 3 seeds, plus that one public file, recover the wallet.');
     $('labVerdict').innerHTML = out;
     // the scenario button matching the current boxes stays highlighted
     // (an xpub implied by its seed is ignored on both sides, since ticking a seed ticks its xpub)
