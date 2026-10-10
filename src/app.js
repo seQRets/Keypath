@@ -682,8 +682,10 @@ function qrOpen(mode, opts = {}) {
   $('qrTitle').textContent = opts.title || (mode === 'seed' ? 'Seed QR' : 'Entropy QR'); $('qrNote').innerHTML = QR_NOTES[mode]; $('qrFormats').classList.toggle('hidden', mode !== 'seed' && mode !== 'msseed');
   // only the main phrase's SeedQR can be saved or printed; public codes open in the clear and need no Reveal
   const secret = opts.secret !== false;
-  $('qrPng').classList.toggle('hidden', mode !== 'seed'); $('qrPrint').classList.toggle('hidden', mode !== 'seed');
-  $('qrEye').classList.toggle('hidden', !secret); $('qrActions').classList.toggle('hidden', !secret); $('qrPrintChoice').classList.add('hidden');
+  // seeds (the main phrase and each multisig seed) can be saved and printed; the multisig descriptor prints as a wallet-definition card
+  const seedish = mode === 'seed' || mode === 'msseed', definition = mode === 'text' && qrTextData.source === 'msDesc' && !!msLast;
+  $('qrPng').classList.toggle('hidden', !seedish); $('qrPrint').classList.toggle('hidden', !seedish && !definition);
+  $('qrEye').classList.toggle('hidden', !secret); $('qrActions').classList.toggle('hidden', !secret && !definition); $('qrPrintChoice').classList.add('hidden');
   if (mode === 'seed') seedQrRender(); else if (mode === 'msseed') msSeedQrRender(); else if (mode === 'text') textQrRender(); else entropyQrRender();
   qrCover(secret);
   $('qrModal').hidden = false; $('qrModal').querySelector('[data-close]:not(.modal-backdrop)').focus();
@@ -733,7 +735,7 @@ document.addEventListener('click', (e) => {
   const b = e.target.closest('[data-qr]'); if (!b) return;
   const el = $(b.dataset.qr); const v = (el.dataset.value || el.value || '').trim();
   if (!v) return toast('Nothing to show yet');
-  qrTextData = { text: v };
+  qrTextData = { text: v, source: b.dataset.qr };
   qrOpen('text', { title: b.dataset.qrtitle, secret: false });
 });
 // each generated multisig seed has its own SeedQR
@@ -742,7 +744,7 @@ document.addEventListener('click', (e) => {
   const share = b.closest('.share');
   if (!share.querySelector('.copy').dataset.text) return toast('Enter a valid seed first');
   const words = splitWords(share.querySelector('.copy').dataset.text);
-  qrSeedData = { words, wl: wordlists[detectLang(words) || 'english'].words, fp: b.dataset.fp, pass: b.dataset.pass === '1' };
+  qrSeedData = { words, wl: wordlists[detectLang(words) || 'english'].words, fp: b.dataset.fp, pass: b.dataset.pass === '1', label: share.querySelector('h4').firstChild.textContent };
   qrOpen('msseed', { title: `${share.querySelector('h4').firstChild.textContent} · SeedQR` });
 });
 $('seedQrBtn').addEventListener('click', seedQrOpen);
@@ -759,47 +761,78 @@ $('phraseCopy').addEventListener('click', async () => {
 $('qrEye').addEventListener('click', () => qrCover(!document.querySelector('.qr-stage').classList.contains('covered')));
 $('qrStd').addEventListener('click', () => { qrFormat = 'standard'; qrMode === 'msseed' ? msSeedQrRender() : seedQrRender(); });
 $('qrCompact').addEventListener('click', () => { qrFormat = 'compact'; qrMode === 'msseed' ? msSeedQrRender() : seedQrRender(); });
-// The main phrase's SeedQR as a PNG: black modules on white, a four-module quiet zone, sixteen pixels a module.
+// The open seed's SeedQR as a PNG: black modules on white, a four-module quiet zone, sixteen pixels a module.
+// The words and wordlist of the seed whose SeedQR is open: the main phrase, or one multisig seed.
+function qrSeedWords() { return qrMode === 'msseed' ? { words: qrSeedData.words, wl: qrSeedData.wl } : { words: S.phraseWords, wl: wordlists[S.lang].words }; }
 $('qrPng').addEventListener('click', () => {
-  if (qrMode !== 'seed' || !S.phraseValid) return;
-  const [text, opts] = seedQrPayload(S.phraseWords, wordlists[S.lang].words);
+  if (!(qrMode === 'seed' && S.phraseValid) && qrMode !== 'msseed') return;
+  const { words, wl } = qrSeedWords(), [text, opts] = seedQrPayload(words, wl);
   const m = encodeQR(text, 'raw', { ecc: 'low', border: 4, ...opts }), px = 16;
   const c = document.createElement('canvas'); c.width = c.height = m.length * px;
   const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.fillStyle = '#000';
   m.forEach((row, y) => row.forEach((on, x) => { if (on) g.fillRect(x * px, y * px, px, px); }));
+  const which = qrMode === 'msseed' ? `${qrSeedData.label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-` : '';
   c.toBlob((blob) => {
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `keypath-seedqr-${qrFormat}.png`;
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `keypath-${which}seedqr-${qrFormat}.png`;
     document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-    toast('SeedQR saved as a PNG; the image holds the whole phrase');
+    toast(qrMode === 'msseed' ? 'SeedQR saved as a PNG; the image holds the whole seed' : 'SeedQR saved as a PNG; the image holds the whole phrase');
   }, 'image/png');
 });
-// The print card for the main SeedQR, built only while printing and removed when the print dialog closes. Print card asks
-// which card first, then opens the print dialog already set to that card's orientation, on whatever paper is chosen there:
+// Print cards, built only while printing and removed when the print dialog closes. Seeds (the main phrase or a multisig seed)
+// ask which card first, then open the print dialog already set to that card's orientation, on whatever paper is chosen there:
 // flat (portrait): one centred column with the code large, like a backup card; nothing assumes it is folded.
 // folded (landscape): the code centred in the top-left quarter with fold lines through the middle, so folding the page in
 //   half and in half again closes the code inside.
+// The multisig descriptor prints straight to a flat wallet-definition card: it is public, so there is nothing to fold away.
 const WARN_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 23 21.5H1Z" fill="#f5c518" stroke="#1a1a1a" stroke-width="1.2" stroke-linejoin="round"/><path d="M12 9v6" stroke="#1a1a1a" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="18.2" r="1.4" fill="#1a1a1a"/></svg>';
 function qrPrintStep(on) { $('qrActions').classList.toggle('hidden', on); $('qrPrintChoice').classList.toggle('hidden', !on); if (on) $('qrPrintChoice').querySelector('.print-opt').focus(); }
-$('qrPrint').addEventListener('click', () => { if (qrMode === 'seed' && S.phraseValid) qrPrintStep(true); });
+$('qrPrint').addEventListener('click', () => {
+  if (qrMode === 'text' && qrTextData.source === 'msDesc' && msLast) printCard('flat', definitionCard());
+  else if ((qrMode === 'seed' && S.phraseValid) || qrMode === 'msseed') qrPrintStep(true);
+});
 $('qrPrintBack').addEventListener('click', () => { qrPrintStep(false); $('qrPrint').focus(); });
-$('qrPrintChoice').addEventListener('click', (e) => { const b = e.target.closest('.print-opt'); if (b) seedCardPrint(b.dataset.layout); });
-function seedCardPrint(layout) {
-  if (qrMode !== 'seed' || !S.phraseValid) return;
-  const [text, opts] = seedQrPayload(S.phraseWords, wordlists[S.lang].words);
-  const qr = (border) => encodeQR(text, 'svg', { ecc: 'low', border, ...opts });
-  // the words' own fingerprint: the code carries no passphrase, and naming one on paper would tell a finder it exists
-  const fp = fpHex(HDKey.fromMasterSeed(bip39.mnemonicToSeedSync(S.phraseWords.join(wordlists[S.lang].sep || ' '), '')));
-  const name = qrFormat === 'standard' ? 'Standard SeedQR' : 'Compact SeedQR', made = new Date().toLocaleDateString('en-CA'), n = S.phraseWords.length;
-  const brand = '<div class="pc-brand"><span>Key</span>Path</div>';
+$('qrPrintChoice').addEventListener('click', (e) => { const b = e.target.closest('.print-opt'); if (b) printCard(b.dataset.layout, seedCard()); });
+// A seed card. The fingerprint is the words' own: the code carries no passphrase, and naming one on paper would tell a finder it exists.
+function seedCard() {
+  const { words, wl } = qrSeedWords(), [text, opts] = seedQrPayload(words, wl);
+  const lang = Object.keys(wordlists).find((k) => wordlists[k].words === wl) || 'english';
+  const fp = fpHex(HDKey.fromMasterSeed(bip39.mnemonicToSeedSync(words.join(wordlists[lang].sep || ' '), '')));
+  const fmt = qrFormat === 'standard' ? 'Standard SeedQR' : 'Compact SeedQR', made = new Date().toLocaleDateString('en-CA'), n = words.length;
+  if (qrMode !== 'msseed') return {
+    text, opts, head: 'Seed Phrase Backup', title: fmt,
+    flatMeta: [`${n} words · Made ${made}`, `Fingerprint <span class="pc-mono">${fp}</span>`], foldMeta: [`${n} words`, `Fingerprint ${fp}`, `Made ${made}`],
+    warnFlat: 'This code is the whole seed phrase. Store it securely.', warnFold: 'This code is the whole seed phrase. Keep the page folded and out of sight.',
+    foot: 'Scan it with SeedSigner, Krux, Passport or Sparrow to recover the phrase.',
+  };
+  const policy = msLast ? `${msLast.threshold}-of-${msLast.n} multisig wallet` : 'Multisig wallet';
+  return {
+    text, opts, head: 'Multisig Seed Backup', title: qrSeedData.label,
+    flatMeta: [policy, `${fmt} · ${n} words · Made ${made}`, `Fingerprint <span class="pc-mono">${fp}</span>`], foldMeta: [policy, `${fmt} · ${n} words`, `Fingerprint ${fp}`, `Made ${made}`],
+    warnFlat: 'This code is one multisig seed. Store it securely.', warnFold: 'This code is one seed of a multisig wallet. Keep the page folded and out of sight.',
+    foot: 'Scan it with SeedSigner, Krux, Passport or Sparrow to sign. Recovering the wallet also needs its definition card.',
+  };
+}
+// The wallet definition: the descriptor, with the policy and every seed's fingerprint, so each seed card can be matched to it.
+function definitionCard() {
+  const L = msLast, made = new Date().toLocaleDateString('en-CA');
+  return {
+    text: L.desc, opts: {}, public: true, head: 'Multisig Wallet Definition', title: L.name,
+    flatMeta: [`${L.threshold} of ${L.n} · ${L.format} · ${L.net === 'mainnet' ? 'mainnet' : 'testnet'} · Made ${made}`, `Seed fingerprints <span class="pc-mono">${L.fps.join(' · ')}</span>`],
+    warnFlat: 'This is public: it can watch the wallet but never spend. Keep a copy with every seed.',
+    foot: 'Import it into Sparrow, Bitcoin Core or another descriptor wallet to rebuild the wallet.',
+  };
+}
+function printCard(layout, c) {
+  const qr = (border) => encodeQR(c.text, 'svg', { ecc: 'low', border, ...c.opts });
+  const brand = '<div class="pc-brand"><span>Key</span>Path</div>', title = esc(c.title);
   $('printSheet').innerHTML = layout === 'flat'
-    ? `<div class="pc-flat">${brand}<div class="pc-head">Seed Phrase Backup</div><div class="pc-qr">${qr(2)}</div><div class="pc-title">${name}</div>`
-      + `<div class="pc-meta">${n} words · Made ${made}</div><div class="pc-meta">Fingerprint <span class="pc-mono">${fp}</span></div>`
-      + `<p class="pc-warn">${WARN_ICON}This code is the whole seed phrase. Store it securely.</p>`
-      + `<p class="pc-foot">Scan it with SeedSigner, Krux, Passport or Sparrow to recover the phrase.<br>seqrets.github.io/Keypath</p></div>`
+    ? `<div class="pc-flat${c.public ? ' pc-public' : ''}">${brand}<div class="pc-head">${c.head}</div><div class="pc-qr">${qr(2)}</div><div class="pc-title">${title}</div>`
+      + c.flatMeta.map((m) => `<div class="pc-meta">${m}</div>`).join('')
+      + (c.public ? `<p class="pc-note">${c.warnFlat}</p>` : `<p class="pc-warn">${WARN_ICON}${c.warnFlat}</p>`)
+      + `<p class="pc-foot">${c.foot}<br>seqrets.github.io/Keypath</p></div>`
     : `<div class="pc-folded"><div class="pc-fold pc-fold-v"></div><div class="pc-fold pc-fold-h"></div>`
-      + `<div class="pc-quarter"><div class="pc-card"><div class="pc-qr">${qr(3)}</div><div class="pc-info">${brand}<div class="pc-title">${name}</div>`
-      + `<div class="pc-meta">${n} words<br>Fingerprint ${fp}<br>Made ${made}</div>`
-      + `<p class="pc-warn">This code is the whole seed phrase. Keep the page folded and out of sight.</p></div></div></div>`
+      + `<div class="pc-quarter"><div class="pc-card"><div class="pc-qr">${qr(3)}</div><div class="pc-info">${brand}<div class="pc-title">${title}</div>`
+      + `<div class="pc-meta">${c.foldMeta.join('<br>')}</div><p class="pc-warn">${c.warnFold}</p></div></div></div>`
       + `<p class="pc-how">Fold along the dashed lines so the code ends up inside: first in half side to side, then top to bottom.</p></div>`;
   const page = document.createElement('style'); page.textContent = `@page { size: ${layout === 'flat' ? 'portrait' : 'landscape'}; margin: 0; }`; document.head.appendChild(page);
   document.body.classList.add('printing-card');
@@ -1008,7 +1041,7 @@ function msUpdate() {
   const d = multisig.buildDescriptors(threshold, cos, script, n.xpub);
   const name = $('msName').value.trim() || 'KeyPath multisig';
   const config = multisig.coldcardConfig(name, threshold, cos, script, n.xpub);
-  msLast = { config, name };
+  msLast = { config, name, threshold, n: cos.length, fps: cos.map((c) => c.fp), format: multisig.MS_FORMAT[script], net: S.net, desc: d.combined };
   setBox('msDesc', d.combined); setBox('msDescRecv', d.receive); setBox('msDescChange', d.change); setBox('msConfig', config);
   const chain = +$('msChain').value, rows = Math.min(100, Math.max(1, parseInt($('msRows').value, 10) || 5));
   const demo = text.trim() === msDemoKeys;
