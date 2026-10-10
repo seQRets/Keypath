@@ -448,10 +448,10 @@ $('rootOut').addEventListener('input', debounce(() => {
 }, 300));
 
 /* ---------------- derivation ---------------- */
-document.querySelectorAll('#tabs .mode-btn').forEach((t) => t.addEventListener('click', () => selectTab(t.dataset.tab)));
+$('tabs').addEventListener('change', () => selectTab($('tabs').value));
 function selectTab(tab) {
   S.tab = tab;
-  document.querySelectorAll('#tabs .mode-btn').forEach((x) => { const on = x.dataset.tab === tab; x.setAttribute('aria-selected', on ? 'true' : 'false'); x.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  $('tabs').value = tab;
   $('tabHelp').textContent = TABS[tab].help;
   const std = tab !== 'custom';
   $('stdFields').classList.toggle('hidden', !std); $('customFields').classList.toggle('hidden', std);

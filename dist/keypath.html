@@ -7,7 +7,7 @@
 <meta name="description" content="KeyPath: generate or inspect a BIP39 recovery phrase, back it up with SLIP-39 Shamir shares, and derive BIP32 keys and Bitcoin addresses, legacy through Taproot. Single file, runs entirely offline in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-P5bOCi+mn1+Z8F/Ma8IbUa+olaILPG5DmfnnzrJgo28=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-gneAjNcvaBBHSoO+o4HCvicpcq559/GoxRXN6cm4Yog='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-P5bOCi+mn1+Z8F/Ma8IbUa+olaILPG5DmfnnzrJgo28=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-sO4yhhRkVZdVHb8gvnnBSkstRBDve+PEcUlX+YYHoac='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <script>try{if(localStorage.getItem("keypath-tips")==="off")document.documentElement.classList.add("no-tips");}catch(e){}var t=null;try{t=localStorage.getItem("keypath-theme");}catch(e){}var dk=t==="dark"||(t!=="light"&&(location.protocol==="file:"||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)));document.documentElement.setAttribute("data-theme",dk?"dark":"light");</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fbbf24'/><stop offset='.55' stop-color='%23f97316'/><stop offset='1' stop-color='%23ef4444'/></linearGradient></defs><rect width='512' height='512' rx='116' fill='url(%23g)'/><g fill='none' stroke='%23fff' stroke-width='48' stroke-linecap='round' stroke-linejoin='round'><circle cx='190' cy='256' r='74'/><path d='M264 256h176M382 256v62M440 256v50'/></g></svg>">
 <style>
@@ -198,7 +198,7 @@ textarea { min-height: 96px; resize: vertical; }
 textarea.mono, input.mono { font-family: var(--mono); font-size: 0.9rem; }
 input::placeholder, textarea::placeholder { color: var(--ink-faint); }
 input:hover, select:hover, textarea:hover { border-color: var(--ink-faint); }
-input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); background: var(--panel); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); background-color: var(--panel); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
 input[readonly], textarea[readonly] { color: var(--ink-soft); }
 input.bad, textarea.bad { border-color: var(--danger); }
 select { appearance: none; -webkit-appearance: none; padding-right: 2.1rem; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23968f80' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.7rem center; }
@@ -210,8 +210,6 @@ select { appearance: none; -webkit-appearance: none; padding-right: 2.1rem; back
 .mode-btn { font-family: var(--sans); font-size: 0.8rem; font-weight: 500; padding: 0.35rem 0.9rem; border: none; border-radius: var(--pill); background: transparent; color: var(--ink-soft); cursor: pointer; transition: background .15s ease, color .15s ease; white-space: nowrap; }
 .mode-btn:hover { color: var(--ink); }
 .mode-btn[aria-pressed="true"] { background: var(--panel); color: var(--ink); box-shadow: var(--shadow); }
-.mode-btn .tsub { font-family: var(--mono); font-size: 0.66rem; color: var(--ink-faint); margin-left: 0.3rem; }
-.mode-btn .tnew { font-family: var(--mono); font-size: 0.6rem; font-weight: 700; color: var(--accent-ink); margin-left: 0.35rem; letter-spacing: 0.05em; }
 
 /* One height for everything in a control row so labels, toggle, select and buttons line up. */
 .row select, .row input[type="text"], .row input[type="number"], .row .btn, .row .mode-toggle { height: 44px; }
@@ -263,7 +261,7 @@ select { appearance: none; -webkit-appearance: none; padding-right: 2.1rem; back
 
 /* ---------- entropy panel ---------- */
 .entropy-panel { margin-top: 1.1rem; background: var(--panel-sunk); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.1rem 1.2rem; }
-.entropy-panel input, .entropy-panel select, .entropy-panel textarea { background: var(--panel); }
+.entropy-panel input, .entropy-panel select, .entropy-panel textarea { background-color: var(--panel); }
 .entropy-panel .panel-title { font-weight: 600; font-size: 0.98rem; margin-bottom: 0.3rem; }
 .entropy-panel .panel-note { font-size: 0.88rem; color: var(--ink-soft); max-width: 68ch; margin-bottom: 0.9rem; }
 .kv { display: grid; grid-template-columns: minmax(9rem, max-content) 1fr; gap: 0.45rem 1.2rem; font-size: 0.86rem; margin-top: 1rem; align-items: baseline; }
@@ -286,13 +284,15 @@ details.adv[open] summary::before { transform: rotate(45deg); }
 details.adv summary:hover { color: var(--accent-ink); }
 details.adv .adv-body { padding: 0.2rem 0.95rem 1rem; border-top: 1px solid var(--line-soft); }
 details.adv .adv-body p.help { font-size: 0.88rem; color: var(--ink-soft); max-width: 68ch; margin: 0.7rem 0 0.9rem; }
-details.adv input, details.adv select, details.adv textarea { background: var(--panel); }
+details.adv input, details.adv select, details.adv textarea { background-color: var(--panel); }
 .split { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.7rem; margin-top: 0.6rem; }
 .scard { background: var(--panel); border: 1px dashed var(--line); border-radius: var(--radius-sm); padding: 0.7rem 0.85rem; font-family: var(--mono); font-size: 0.8rem; line-height: 1.75; }
 .scard h4 { font-family: var(--sans); font-size: 0.74rem; color: var(--ink-faint); font-weight: 600; margin-bottom: 0.3rem; letter-spacing: 0.05em; text-transform: uppercase; }
 .scard s { color: var(--ink-faint); text-decoration: none; opacity: .55; }
 
 /* ---------- derivation ---------- */
+.path-pick { display: block; max-width: 24rem; }
+.path-pick select { width: 100%; }
 .tabpanel { margin-top: 1.2rem; }
 .tabpanel p.help { font-size: 0.9rem; color: var(--ink-soft); max-width: 66ch; margin-bottom: 1rem; }
 .pathline { font-family: var(--mono); font-size: 0.86rem; color: var(--ink); background: var(--panel-sunk); border: 1px solid var(--line); border-radius: var(--pill); padding: 0.35rem 0.9rem; display: inline-flex; gap: 0.6rem; align-items: center; margin: 1rem 0; }
@@ -535,7 +535,7 @@ th .tip { margin-left: 0.3rem; vertical-align: 0; }
 
 /* ---------- generated multisig wallet ---------- */
 .gen-strip { background: var(--panel-sunk); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem 1.1rem; margin-top: 1.1rem; }
-.gen-strip select, .gen-strip input { background: var(--panel); }
+.gen-strip select, .gen-strip input { background-color: var(--panel); } /* background-color, not background: the shorthand would erase a menu's arrow */
 /* one blur, per share: only the word list blurs, so the header, fingerprint and buttons stay usable */
 .share.covered ol { filter: blur(7px); user-select: none; pointer-events: none; }
 .share-pass { display: block; margin-top: 0.7rem; }
@@ -611,8 +611,8 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
 :root[data-theme="dark"] .console { background: var(--panel); border-color: var(--line); backdrop-filter: blur(10px); }
 :root[data-theme="dark"] .console-bar { background: rgba(255,255,255,0.03); }
 :root[data-theme="dark"] .console-bar .n { background: linear-gradient(to bottom right, #f59e0b, #f97316 55%, #ef4444); color: #000; font-weight: 800; }
-:root[data-theme="dark"] input[type="text"], :root[data-theme="dark"] input[type="number"], :root[data-theme="dark"] select, :root[data-theme="dark"] textarea { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.10); }
-:root[data-theme="dark"] .gen-strip select, :root[data-theme="dark"] .gen-strip input { background: rgba(255,255,255,0.04); }
+:root[data-theme="dark"] input[type="text"], :root[data-theme="dark"] input[type="number"], :root[data-theme="dark"] select, :root[data-theme="dark"] textarea { background-color: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.10); }
+:root[data-theme="dark"] .gen-strip select, :root[data-theme="dark"] .gen-strip input { background-color: rgba(255,255,255,0.04); }
 :root[data-theme="dark"] .tipbox { background: #18181b; color: #f4f4f5; border: 1px solid rgba(255,255,255,0.12); }
 :root[data-theme="dark"] .tipbox strong { color: #f59e0b; }
 
@@ -851,14 +851,14 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
   <section class="console" id="derivation-card" aria-label="Derivation path">
     <div class="console-bar"><span class="n">4</span> Derivation path<button type="button" class="tip" data-tip="derivation" aria-label="What does this mean?">?</button><div class="bar-actions"><button type="button" class="barbtn eye" aria-pressed="false"><svg class="ic-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ic-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.8A9.8 9.8 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3.2 3.9M6.6 6.6C4 8.4 2.5 12 2.5 12s3.5 6.5 9.5 6.5a9.6 9.6 0 0 0 4.1-.9"/></svg><span>Hide</span></button></div></div>
     <div class="console-body">
-      <div class="mode-toggle" role="tablist" id="tabs" aria-label="Derivation standard">
-        <button class="mode-btn" role="tab" data-tab="bip44" aria-selected="false" aria-pressed="false">BIP44<span class="tsub">1…</span></button>
-        <button class="mode-btn" role="tab" data-tab="bip49" aria-selected="false" aria-pressed="false">BIP49<span class="tsub">3…</span></button>
-        <button class="mode-btn" role="tab" data-tab="bip84" aria-selected="true" aria-pressed="true">BIP84<span class="tsub">bc1q…</span></button>
-        <button class="mode-btn" role="tab" data-tab="bip86" aria-selected="false" aria-pressed="false">BIP86<span class="tsub">bc1p…</span><span class="tnew">TAPROOT</span></button>
-        <button class="mode-btn" role="tab" data-tab="bip48" aria-selected="false" aria-pressed="false">BIP48<span class="tnew">MULTISIG</span></button>
-        <button class="mode-btn" role="tab" data-tab="custom" aria-selected="false" aria-pressed="false">Custom<span class="tsub">BIP32 / 141</span></button>
-      </div>
+      <label class="path-pick"><span class="small-label">Choose path<button type="button" class="tip" data-tip="bip" aria-label="What does this mean?">?</button></span><select id="tabs">
+        <option value="bip84">BIP84 · Native SegWit (bc1q…)</option>
+        <option value="bip86">BIP86 · Taproot (bc1p…)</option>
+        <option value="bip49">BIP49 · Nested SegWit (3…)</option>
+        <option value="bip44">BIP44 · Legacy (1…)</option>
+        <option value="bip48">BIP48 · Multisig key</option>
+        <option value="custom">Custom · any path and script type</option>
+      </select></label>
 
       <div class="tabpanel">
         <p class="help" id="tabHelp"></p>
@@ -22219,10 +22219,10 @@ $('rootOut').addEventListener('input', debounce(() => {
 }, 300));
 
 /* ---------------- derivation ---------------- */
-document.querySelectorAll('#tabs .mode-btn').forEach((t) => t.addEventListener('click', () => selectTab(t.dataset.tab)));
+$('tabs').addEventListener('change', () => selectTab($('tabs').value));
 function selectTab(tab) {
   S.tab = tab;
-  document.querySelectorAll('#tabs .mode-btn').forEach((x) => { const on = x.dataset.tab === tab; x.setAttribute('aria-selected', on ? 'true' : 'false'); x.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  $('tabs').value = tab;
   $('tabHelp').textContent = TABS[tab].help;
   const std = tab !== 'custom';
   $('stdFields').classList.toggle('hidden', !std); $('customFields').classList.toggle('hidden', std);
