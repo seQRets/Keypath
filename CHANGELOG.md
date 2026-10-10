@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.15.1 — 2026-10-10
+
+- Print card now asks which card to print before the print dialog opens. In v2.15.0 the layout followed the orientation chosen in the print dialog, and nothing on screen said so, so the fold-over card was easy to miss. Pressing Print card shows two choices with a sketch of each, a flat card (portrait, with the code large and nothing to fold) and a fold-over card (landscape, folded twice to close the code inside), plus Back. The print dialog then opens already set to that card's orientation, on whatever paper is chosen there, with only that card on the page.
+
 ## v2.15.0 — 2026-10-10
 
 **The SeedQR can be downloaded or printed as a backup card.**
