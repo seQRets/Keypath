@@ -397,8 +397,9 @@ footer.site { margin-top: 4.5rem; border-top: 1px solid var(--line); padding: 2.
 .modal-head h3 { font-size: 1.15rem; font-weight: 600; letter-spacing: -0.01em; }
 .modal-note { font-size: 0.88rem; color: var(--ink-soft); margin-bottom: 1rem; }
 .modal-note strong { color: var(--danger); }
-.qr-wrap { background: #fff; border-radius: var(--radius-sm); padding: 0.75rem; display: grid; place-items: center; }
-.qr-wrap svg { width: 100%; max-width: 360px; height: auto; display: block; }
+/* the white tile hugs the code, so the modal shows around it; tile padding plus the code's 1-module quiet zone is about 2 modules of white */
+.qr-wrap { background: #fff; border-radius: var(--radius-sm); padding: 0.6rem; width: fit-content; margin: 0.3rem auto; display: grid; place-items: center; }
+.qr-wrap svg { width: min(68vw, 280px); height: auto; display: block; }
 .modal-foot { font-family: var(--mono); font-size: 0.76rem; color: var(--ink-faint); margin-top: 0.8rem; text-align: center; overflow-wrap: anywhere; }
 
 /* ---------- phrase numbered list ---------- */

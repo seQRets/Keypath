@@ -693,9 +693,9 @@ function qrCover(on) {
   document.querySelector('.qr-stage').classList.toggle('covered', on);
   $('qrEye').setAttribute('aria-pressed', on); $('qrEye').querySelector('span').textContent = on ? 'Reveal' : 'Hide';
 }
-// SVG for the modal: paulmillr/qr, error correction L, 2-module quiet zone. Returns the module count too.
+// SVG for the modal: paulmillr/qr, error correction L, 1-module quiet zone (the white tile's padding adds the rest). Returns the module count too.
 function qrSvg(text, opts) {
-  const o = { ecc: 'low', border: 2, ...opts };
+  const o = { ecc: 'low', border: 1, ...opts };
   return { svg: encodeQR(text, 'svg', o), modules: encodeQR(text, 'raw', o).length - 2 * o.border }; // raw output includes the quiet zone
 }
 const latin1 = (bytes) => Array.from(bytes, (b) => String.fromCharCode(b)).join('');

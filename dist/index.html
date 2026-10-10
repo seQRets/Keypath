@@ -7,7 +7,7 @@
 <meta name="description" content="KeyPath: generate or inspect a BIP39 recovery phrase, back it up with SLIP-39 Shamir shares, and derive BIP32 keys and Bitcoin addresses, legacy through Taproot. Single file, runs entirely offline in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-P5bOCi+mn1+Z8F/Ma8IbUa+olaILPG5DmfnnzrJgo28=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-qK7UUcT/du8c5TDD+aCtDGvQ6mEBFzemTzWjxK4qIrI='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-P5bOCi+mn1+Z8F/Ma8IbUa+olaILPG5DmfnnzrJgo28=' 'sha256-2Oda1bKUu1Tf8fOIW3kICsA7dod+SZ8ioUwoICgQ+98=' 'sha256-2reQyt1DlxkBEmDO7ZnPNQP8MdSLLb62t0gI9nqq/p0='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <script>try{if(localStorage.getItem("keypath-tips")==="off")document.documentElement.classList.add("no-tips");}catch(e){}var t=null;try{t=localStorage.getItem("keypath-theme");}catch(e){}var dk=t==="dark"||(t!=="light"&&(location.protocol==="file:"||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)));document.documentElement.setAttribute("data-theme",dk?"dark":"light");</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fbbf24'/><stop offset='.55' stop-color='%23f97316'/><stop offset='1' stop-color='%23ef4444'/></linearGradient></defs><rect width='512' height='512' rx='116' fill='url(%23g)'/><g fill='none' stroke='%23fff' stroke-width='48' stroke-linecap='round' stroke-linejoin='round'><circle cx='190' cy='256' r='74'/><path d='M264 256h176M382 256v62M440 256v50'/></g></svg>">
 <style>
@@ -410,8 +410,9 @@ footer.site { margin-top: 4.5rem; border-top: 1px solid var(--line); padding: 2.
 .modal-head h3 { font-size: 1.15rem; font-weight: 600; letter-spacing: -0.01em; }
 .modal-note { font-size: 0.88rem; color: var(--ink-soft); margin-bottom: 1rem; }
 .modal-note strong { color: var(--danger); }
-.qr-wrap { background: #fff; border-radius: var(--radius-sm); padding: 0.75rem; display: grid; place-items: center; }
-.qr-wrap svg { width: 100%; max-width: 360px; height: auto; display: block; }
+/* the white tile hugs the code, so the modal shows around it; tile padding plus the code's 1-module quiet zone is about 2 modules of white */
+.qr-wrap { background: #fff; border-radius: var(--radius-sm); padding: 0.6rem; width: fit-content; margin: 0.3rem auto; display: grid; place-items: center; }
+.qr-wrap svg { width: min(68vw, 280px); height: auto; display: block; }
 .modal-foot { font-family: var(--mono); font-size: 0.76rem; color: var(--ink-faint); margin-top: 0.8rem; text-align: center; overflow-wrap: anywhere; }
 
 /* ---------- phrase numbered list ---------- */
@@ -22443,9 +22444,9 @@ function qrCover(on) {
   document.querySelector('.qr-stage').classList.toggle('covered', on);
   $('qrEye').setAttribute('aria-pressed', on); $('qrEye').querySelector('span').textContent = on ? 'Reveal' : 'Hide';
 }
-// SVG for the modal: paulmillr/qr, error correction L, 2-module quiet zone. Returns the module count too.
+// SVG for the modal: paulmillr/qr, error correction L, 1-module quiet zone (the white tile's padding adds the rest). Returns the module count too.
 function qrSvg(text, opts) {
-  const o = { ecc: 'low', border: 2, ...opts };
+  const o = { ecc: 'low', border: 1, ...opts };
   return { svg: encodeQR(text, 'svg', o), modules: encodeQR(text, 'raw', o).length - 2 * o.border }; // raw output includes the quiet zone
 }
 const latin1 = (bytes) => Array.from(bytes, (b) => String.fromCharCode(b)).join('');
