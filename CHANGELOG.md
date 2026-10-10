@@ -1,5 +1,14 @@
 # Changelog
 
+## v2.15.0 — 2026-10-10
+
+**The SeedQR can be downloaded or printed as a backup card.**
+
+- The Seed QR window for the main phrase has Download PNG and Print card, for both the Standard and the Compact SeedQR. The PNG is black on white with a wide quiet zone. Print card follows the orientation chosen in the print dialog, on any paper: portrait (the default) gives a flat backup card with the code large, and landscape gives a fold-over card with the code in the top-left quarter and fold lines through the middle, so folding the page in half and in half again closes the code inside. Each card shows the format, the word count, the date and the fingerprint of the words alone; it never mentions a passphrase, since the code does not hold one. The card exists only while printing and is removed when the print dialog closes. The PNG holds the whole phrase unencrypted, so printing is the safer choice.
+- The QR window is simpler: the format choice, one row of equal buttons (Reveal / Hide, Download PNG, Print card) and a full-width Close. Each kind of QR shows only the buttons it uses; public keys and files show just Close.
+- The white tile behind each QR in the window fits the code instead of spanning the window, with a thinner white border, so the code has room around it.
+- In dark mode the QR window is solid over a deeper, blurred backdrop. Before, the page's buttons showed through it.
+
 ## v2.14.0 — 2026-09-29
 
 **Restoring a multisig wallet works like building one: a card for every seed.**
