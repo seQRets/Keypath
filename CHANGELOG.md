@@ -1,5 +1,17 @@
 # Changelog
 
+## v2.16.0 — 2026-10-10
+
+**Multisig seeds get backup cards, and the wallet's configuration gets its own.**
+
+- Each multisig seed's SeedQR window has Download PNG and Print card, with the same flat or fold-over choice as the main seed. A multisig seed's card is deliberately the same as any seed's: it names no wallet, policy or seed number, which would tell a finder that one more seed might be enough and how many others to look for.
+- The Descriptor's QR window prints a Multisig Wallet Configuration card: the descriptor as a QR, the wallet name, policy, script type and network, and every seed's fingerprint. It is marked public, since it can watch the wallet but never spend, and a copy belongs with every seed.
+- Seed cards show less: Seed Phrase Backup, the SeedQR format, the date and the fingerprint of the words alone, printed in brackets like [73c5da0a] so it can be matched against the configuration card. The word count is gone. A seed's PNG is named by format and fingerprint.
+- Cards no longer name devices or wallets, which would go out of date: they say to scan with any wallet that reads SeedQR, or to import into any wallet that reads output descriptors.
+- "Wallet definition" is now "wallet configuration" everywhere: the multisig card, the Multisig lab, the glossary and the printed card.
+- The derivation path card's six tabs, whose labels had shrunk to fragments, are now one "Choose path" menu: BIP84 Native SegWit, BIP86 Taproot, BIP49 Nested SegWit, BIP44 Legacy, BIP48 Multisig key and Custom.
+- Every menu on the page shows its dropdown arrow again. Since v2.10 the arrow vanished in dark mode, and in both themes while a menu was focused.
+
 ## v2.15.1 — 2026-10-10
 
 - Print card now asks which card to print before the print dialog opens. In v2.15.0 the layout followed the orientation chosen in the print dialog, and nothing on screen said so, so the fold-over card was easy to miss. Pressing Print card shows two choices with a sketch of each, a flat card (portrait, with the code large and nothing to fold) and a fold-over card (landscape, folded twice to close the code inside), plus Back. The print dialog then opens already set to that card's orientation, on whatever paper is chosen there, with only that card on the page.
