@@ -1,32 +1,33 @@
 :root {
-  --bg: #f2ece0;
-  --bg-grad: radial-gradient(1200px 600px at 50% -10%, #faf6ec 0%, #f2ece0 55%, #ece4d4 100%);
-  --ink: #23201a;
-  --ink-soft: #635d52;
-  --ink-faint: #968f80;
-  --panel: #fcf9f2;
-  --panel-sunk: #f6f1e6;
-  --line: #ded5c2;
-  --line-soft: #eae2d3;
-  --term-bg: #211d16;
-  --term-text: #ded7c6;
-  --term-dim: #8a8271;
-  --term-hex: #b8d178;
-  --term-line: #3a342a;
-  --accent: #d2761a;
-  --accent-ink: #a8590c;
-  --accent-wash: #f7ecd9;
-  --danger: #b8412a;
-  --danger-wash: #f7e6e1;
-  --ok: #4b8b3b;
-  --ok-wash: #e9f1e3;
-  --on-accent: #fcf9f2; /* text on the accent colour */
-  --on-ink: #fcf9f2; /* text on the ink colour (toast, tips) */
-  --radius: 10px;
-  --radius-sm: 6px;
+  /* light: the dark theme's boldness in a light flavour; neutral zinc greys, white cards, a soft amber glow, the same amber accent */
+  --bg: #f6f6f7;
+  --bg-grad: radial-gradient(1100px 520px at 50% -10%, rgba(251,191,36,0.22), rgba(249,115,22,0.06) 45%, rgba(246,246,247,0) 72%);
+  --ink: #09090b;
+  --ink-soft: #52525b;
+  --ink-faint: #71717a;
+  --panel: #ffffff;
+  --panel-sunk: #f4f4f5;
+  --line: #e4e4e7;
+  --line-soft: #ededf0;
+  --term-bg: #f7f7f8;
+  --term-text: #18181b;
+  --term-dim: #71717a;
+  --term-hex: #047857;
+  --term-line: #e4e4e7;
+  --accent: #f59e0b;
+  --accent-ink: #b45309; /* amber dark enough to read on white (5:1) */
+  --accent-wash: #fff7ed;
+  --danger: #dc2626;
+  --danger-wash: #fef2f2;
+  --ok: #047857;
+  --ok-wash: #ecfdf5;
+  --on-accent: #000; /* text on the accent colour */
+  --on-ink: #fff; /* text on the ink colour (toast, tips) */
+  --radius: 20px;
+  --radius-sm: 12px;
   --pill: 11px; /* softened pill: roughly half the height of a control */
-  --shadow: 0 1px 2px rgba(20,24,28,.05), 0 6px 20px -8px rgba(20,24,28,.10);
-  --shadow-lift: 0 1px 2px rgba(20,24,28,.06), 0 14px 34px -12px rgba(20,24,28,.20);
+  --shadow: 0 1px 2px rgba(9,9,11,.05), 0 6px 20px -10px rgba(9,9,11,.10);
+  --shadow-lift: 0 1px 2px rgba(9,9,11,.04), 0 18px 40px -18px rgba(9,9,11,.18);
   --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --display: "Avenir Next", "Segoe UI", Roboto, "Helvetica Neue", -apple-system, sans-serif;
@@ -43,6 +44,9 @@
   --line: rgba(255,255,255,0.10);
   --line-soft: rgba(255,255,255,0.06);
   --term-bg: #0a0a0a;
+  --term-text: #ded7c6;
+  --term-dim: #8a8271;
+  --term-hex: #b8d178;
   --term-line: rgba(255,255,255,0.10);
   --accent: #f59e0b;
   --accent-ink: #f59e0b;
@@ -614,3 +618,31 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
 :root[data-theme="dark"] .barbtn { border-color: rgba(255,255,255,0.14); }
 :root[data-theme="dark"] .barbtn:hover { border-color: #f59e0b; color: #f59e0b; }
 :root[data-theme="dark"] .barbtn.eye .ic-eye { stroke: url(#kpEyeGrad); } /* the open eye wears the brand gradient; the crossed eye stays red */
+
+/* Light theme: the dark theme's boldness in a light flavour. The same brand mark, gradient title, gradient actions, switches,
+   badges and eye; crisp white cards on an off-white page with an amber glow; amber text one shade darker so it reads on white. */
+:root[data-theme="light"] .brandmark { display: flex; justify-content: center; margin-bottom: 0.9rem; }
+:root[data-theme="light"] .brandmark svg { width: 72px; height: 72px; filter: drop-shadow(0 10px 22px rgba(249,115,22,.32)); }
+:root[data-theme="light"] h1 { letter-spacing: -0.04em; }
+:root[data-theme="light"] h1 .op .path { background: linear-gradient(#18181b 0%, #52525b 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
+:root[data-theme="light"] h1 .op .key, :root[data-theme="light"] .foot-brand .fb-name .op .key { background: linear-gradient(to bottom right, #f59e0b, #f97316 55%, #dc2626); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; padding-right: 0.12em; margin-right: -0.12em; }
+:root[data-theme="light"] .btn.primary { background: linear-gradient(to bottom right, #f59e0b, #f97316 55%, #ef4444); border: 1.5px solid transparent; background-clip: padding-box; color: #000; font-weight: 700; box-shadow: 0 8px 20px -8px rgba(249,115,22,.60); }
+:root[data-theme="light"] .btn.primary:hover { color: #000; filter: brightness(1.06); }
+:root[data-theme="light"] .mode-btn[aria-pressed="true"] { background: linear-gradient(to bottom right, #f59e0b, #f97316 55%, #ef4444); color: #000; font-weight: 700; box-shadow: 0 4px 12px -6px rgba(249,115,22,.55); }
+:root[data-theme="light"] .console { background: #fff; border-color: var(--line); box-shadow: var(--shadow-lift); }
+:root[data-theme="light"] .console-bar { background: #fff; }
+:root[data-theme="light"] .console-bar .n { background: linear-gradient(to bottom right, #f59e0b, #f97316 55%, #ef4444); color: #000; font-weight: 800; }
+:root[data-theme="light"] input[type="text"], :root[data-theme="light"] input[type="number"], :root[data-theme="light"] select, :root[data-theme="light"] textarea { background-color: #fff; border-color: #d4d4d8; }
+:root[data-theme="light"] .gen-strip select, :root[data-theme="light"] .gen-strip input { background-color: #fff; }
+:root[data-theme="light"] .tipbox { background: #18181b; color: #f4f4f5; border: 1px solid #27272a; }
+:root[data-theme="light"] .tipbox strong { color: #fbbf24; }
+:root[data-theme="light"] .barbtn { border-color: #d4d4d8; }
+:root[data-theme="light"] .barbtn:hover { border-color: var(--accent); color: var(--accent-ink); }
+:root[data-theme="light"] .barbtn[aria-pressed="true"] { background: var(--accent-wash); border-color: var(--accent); color: var(--accent-ink); }
+:root[data-theme="light"] .chip { border: 1.5px solid var(--line); background: transparent; color: var(--ink-soft); }
+:root[data-theme="light"] .chip:hover { border-color: var(--accent); color: var(--accent-ink); }
+:root[data-theme="light"] .chip[aria-pressed="true"] { background: var(--accent-wash); border-color: var(--accent); color: var(--accent-ink); box-shadow: none; }
+:root[data-theme="light"] .cols { background: transparent; border: none; padding: 0; gap: 0.4rem; }
+:root[data-theme="light"] .barbtn.eye .ic-eye { stroke: url(#kpEyeGrad); }
+:root[data-theme="light"] .qr-wrap { box-shadow: 0 0 0 1px var(--line); } /* a white tile on a white modal needs an edge */
+:root[data-theme="light"] .modal-backdrop { background: rgba(9, 9, 11, 0.45); backdrop-filter: blur(6px); }
