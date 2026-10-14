@@ -611,7 +611,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
 :root[data-theme="dark"] h1 { letter-spacing: -0.04em; }
 :root[data-theme="dark"] h1 .op .path { background: linear-gradient(#ffffff 0%, #b8b8be 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
 :root[data-theme="dark"] h1 .op .key, :root[data-theme="dark"] .foot-brand .fb-name .op .key { background: linear-gradient(to bottom right, #fbbf24, #f97316 55%, #ef4444); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; padding-right: 0.12em; margin-right: -0.12em; } /* same gradient as the brand mark; each word clips its own gradient so neither paints under the other, and the padding keeps the y's tail inside the painted area */
-:root[data-theme="dark"] .btn.primary { background: linear-gradient(to bottom right, #f59e0b, #f97316 55%, #ef4444); border: 1.5px solid transparent; background-clip: padding-box; color: #000; font-weight: 700; box-shadow: 0 6px 18px -6px rgba(245,158,11,.55); }
+:root[data-theme="dark"] .btn.primary { background: linear-gradient(to bottom right, #f59e0b, #f97316 55%, #ef4444); border: 1.5px solid transparent; background-origin: border-box; color: #000; font-weight: 700; box-shadow: 0 6px 18px -6px rgba(245,158,11,.55); }
 :root[data-theme="dark"] .btn.primary:hover { color: #000; filter: brightness(1.08); }
 :root[data-theme="dark"] .mode-btn[aria-pressed="true"] { background: linear-gradient(to bottom right, #f59e0b, #f97316 55%, #ef4444); color: #000; font-weight: 700; box-shadow: none; }
 :root[data-theme="dark"] .console { background: var(--panel); border-color: var(--line); backdrop-filter: blur(10px); }
@@ -640,7 +640,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
 :root[data-theme="light"] h1 { letter-spacing: -0.04em; }
 :root[data-theme="light"] h1 .op .path { background: linear-gradient(#18181b 0%, #52525b 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
 :root[data-theme="light"] h1 .op .key, :root[data-theme="light"] .foot-brand .fb-name .op .key { background: linear-gradient(to bottom right, #f59e0b, #f97316 55%, #dc2626); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; padding-right: 0.12em; margin-right: -0.12em; }
-:root[data-theme="light"] .btn.primary { background: linear-gradient(to bottom right, #f59e0b, #f97316 55%, #ef4444); border: 1.5px solid transparent; background-clip: padding-box; color: #000; font-weight: 700; box-shadow: 0 8px 20px -8px rgba(249,115,22,.60); }
+:root[data-theme="light"] .btn.primary { background: linear-gradient(to bottom right, #f59e0b, #f97316 55%, #ef4444); border: 1.5px solid transparent; background-origin: border-box; color: #000; font-weight: 700; box-shadow: 0 8px 20px -8px rgba(249,115,22,.60); }
 :root[data-theme="light"] .btn.primary:hover { color: #000; filter: brightness(1.06); }
 :root[data-theme="light"] .mode-btn[aria-pressed="true"] { background: linear-gradient(to bottom right, #f59e0b, #f97316 55%, #ef4444); color: #000; font-weight: 700; box-shadow: 0 4px 12px -6px rgba(249,115,22,.55); }
 :root[data-theme="light"] .console { background: #fff; border-color: var(--line); box-shadow: var(--shadow-lift); }
