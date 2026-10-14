@@ -603,6 +603,7 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
 :root[data-theme="dark"] .mode-btn[aria-pressed="true"] { background: linear-gradient(to bottom right, #f59e0b, #f97316 55%, #ef4444); color: #000; font-weight: 700; box-shadow: none; }
 :root[data-theme="dark"] .console { background: var(--panel); border-color: var(--line); backdrop-filter: blur(10px); }
 :root[data-theme="dark"] .console-bar { background: rgba(255,255,255,0.03); }
+:root[data-theme="dark"] .menu-panel, :root[data-theme="dark"] .menu-btn { background: #000; } /* the glass --panel would let the page show through the floating menu */
 :root[data-theme="dark"] .console-bar .n { background: linear-gradient(to bottom right, #f59e0b, #f97316 55%, #ef4444); color: #000; font-weight: 800; }
 :root[data-theme="dark"] input[type="text"], :root[data-theme="dark"] input[type="number"], :root[data-theme="dark"] select, :root[data-theme="dark"] textarea { background-color: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.10); }
 :root[data-theme="dark"] .gen-strip select, :root[data-theme="dark"] .gen-strip input { background-color: rgba(255,255,255,0.04); }
