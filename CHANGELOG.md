@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.17.1 — 2026-10-14
+
+- Light mode has the same bold look as dark mode. It used to keep the older parchment colours; now it has white cards on an off-white page with a soft amber glow at the top, light code boxes with dark text, and darker amber text that is easy to read on white. It shares dark mode's brand mark, the gradient "Key" in the title, the gradient primary buttons, switches, step badges and eye, the rounded cards, a dark tooltip and a blurred backdrop behind the QR window. The QR tile has a thin edge so it stands out on the white window.
+- The menu at the top right is solid black in dark mode. Before, the page showed through it when it was open.
+- The orange buttons no longer have a thin pale ring around them. It showed most in light mode, between the button and its glow.
+
 ## v2.17.0 — 2026-10-10
 
 **Shamir shares get QR codes and backup cards, and section 1 is "Seed phrase".**
