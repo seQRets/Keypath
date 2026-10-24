@@ -72,6 +72,8 @@ check('BIP86', p2tr(root.derive("m/86'/0'/0'/0/0").publicKey), 'bc1p5cyxnuxmeuwu
   check('validate: too few keys', multisig.validate(2, cos.slice(0, 1), 'mainnet').some((p) => p.level === 'bad'), true);
   check('validate: duplicate key', multisig.validate(2, [cos[0], cos[0]], 'mainnet').some((p) => p.text.includes('twice')), true);
   check('validate: ok', multisig.validate(2, cos, 'mainnet').filter((p) => p.level === 'bad').length, 0);
+  check('validate: P2WSH keys under P2TR warn', multisig.validate(2, cos, 'mainnet', 'p2tr').some((p) => p.text.includes('BIP48 path for P2WSH')), true);
+  check('validate: P2WSH keys under P2WSH do not', multisig.validate(2, cos, 'mainnet', 'p2wsh').some((p) => p.text.includes('BIP48 path')), false);
 
   /* ---- Taproot multisig (BIP48 3', tr(NUMS, sortedmulti_a)); addresses cross-checked against @scure/btc-signer ---- */
   const tr = [0, 1, 2].map((a) => multisig.cosignerFromNode(root, [48 + H, 0 + H, a + H, 3 + H]));

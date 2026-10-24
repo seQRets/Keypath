@@ -49,15 +49,26 @@ let toastTimer;
 function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 1400); }
 let clipTimer = null;
 // Secrets are cleared from the clipboard after 60 s, the way password managers do.
+// The clipboard is read back only where reading is already allowed, so the clear never raises a permission prompt;
+// elsewhere it cannot be checked, and the secret is assumed to still be there.
+async function clipboardStillHolds(text) {
+  try { const p = await navigator.permissions.query({ name: 'clipboard-read' }); if (p.state === 'granted') return (await navigator.clipboard.readText()) === text; } catch (e) {}
+  return true;
+}
 function scheduleClipboardClear(text) {
   clearTimeout(clipTimer);
-  clipTimer = setTimeout(async () => { try { const cur = await navigator.clipboard.readText().catch(() => text); if (cur === text) await navigator.clipboard.writeText(' '); } catch (e) {} }, 60000);
+  clipTimer = setTimeout(async () => { clipTimer = null; try { if (await clipboardStillHolds(text)) await navigator.clipboard.writeText(' '); } catch (e) {} }, 60000);
+}
+async function writeClipboard(text) {
+  try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
+  try { const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok; } catch (e) { return false; }
 }
 async function copyText(text, secret = false) {
   if (!text) return false;
-  if (secret) scheduleClipboardClear(text);
-  try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
-  try { const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok; } catch (e) { return false; }
+  const ok = await writeClipboard(text);
+  // a later copy of anything replaces the secret on the clipboard, so its pending clear is dropped and cannot wipe the new value
+  if (ok) { if (secret) scheduleClipboardClear(text); else { clearTimeout(clipTimer); clipTimer = null; } }
+  return ok;
 }
 function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
 // Terminal boxes keep their copy button; the value lives in a span.val child.
@@ -73,6 +84,11 @@ function setMeter(id, html) { $(id).innerHTML = html; }
 const count = (txt, cls = '') => `<span class="count ${cls}">${esc(txt)}</span>`;
 const note = (txt) => `<span class="meter-note">${esc(txt)}</span>`;
 const fpHex = (node) => node.fingerprint.toString(16).padStart(8, '0');
+// A BIP32 index typed into a number box: a whole number from 0 to 2^31 - 1 (an empty box counts as 0), otherwise null.
+// Anything else would silently change the path: -1 + H is the unhardened 2147483647, and 2^31 + H overflows.
+const MAX_INDEX = H - 1;
+const uint31 = (v) => { const n = Number(String(v).trim() || 0); return Number.isInteger(n) && n >= 0 && n <= MAX_INDEX ? n : null; };
+const INDEX_ERR = `Use a whole number from 0 to ${MAX_INDEX}.`;
 const toH = (i) => (i >= H ? (i - H) + "'" : String(i));
 const pathToString = (idx) => 'm' + idx.map((i) => '/' + toH(i)).join('');
 const pathToDesc = (idx) => idx.map((i) => '/' + (i >= H ? (i - H) + 'h' : i)).join('');
@@ -185,7 +201,9 @@ function setCardHidden(id, on) {
   const all = allHidden();
   $('menuHide').setAttribute('aria-pressed', all); $('menuHide').querySelector('span').textContent = all ? 'Reveal private info' : 'Hide private info';
 }
-function setHidden(on) { for (const id of SECRET_CARDS) setCardHidden(id, on); }
+// an open QR window showing a secret (its eye is visible) counts as private info too: hiding everything covers it
+function qrSecretRevealed() { return !$('qrModal').hidden && !$('qrEye').classList.contains('hidden') && !document.querySelector('.qr-stage').classList.contains('covered'); }
+function setHidden(on) { for (const id of SECRET_CARDS) setCardHidden(id, on); if (on && qrSecretRevealed()) qrCover(true); }
 document.querySelectorAll('.barbtn.eye').forEach((b) => b.addEventListener('click', () => {
   const card = b.closest('.console'); setCardHidden(card.id, !card.classList.contains('sec-hidden'));
 }));
@@ -199,10 +217,9 @@ $('fpValue').addEventListener('click', async () => { if (S.root && (await copyTe
 $('phraseFpVal').addEventListener('click', async () => { if (S.root && (await copyText(fpHex(S.root)))) toast('Fingerprint copied'); });
 $('pathOut').addEventListener('click', async () => { const p = $('pathOut').textContent; if (p.startsWith('m') && (await copyText(p))) toast('Path copied'); });
 $('clearBtn').addEventListener('click', () => {
-  for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR', 'msKeys']) $(id).value = ''; $('msGen').innerHTML = ''; msRsClear(); msUpdate();
+  clearSecrets();
   $('entropyLen').value = 'raw'; $('entropyType').value = 'auto'; entropyLenTouched = false; $('startIdx').value = '0';
-  S.rootFromKey = false; $('rootOut').textContent = '';
-  onPhraseInput(false); shamirClear(); shamirRecover(); setHidden(false); toast('Everything on the page cleared'); // nothing private is left, so the blur comes off too
+  setHidden(false); toast('Everything on the page cleared'); // nothing private is left, so the blur comes off too
 });
 $('warnMore').addEventListener('click', () => { const open = $('warnDetail').hidden; $('warnDetail').hidden = !open; $('warnMore').setAttribute('aria-expanded', open); $('warnMore').textContent = open ? 'Show less' : 'Read more'; });
 $('network').addEventListener('change', () => { S.net = $('network').value; S.coin = net().coin; $('coin').value = S.coin; rebuildRoot(); });
@@ -299,7 +316,7 @@ function renderEntropyDetails(e, entBytes, error) {
     ['Raw binary', spaceEvery11(e.binaryStr), '', 'rawbinary'],
   ];
   if (entBytes) {
-    const words = $('phrase').value.split(/\s+/); const wl = wordlists[S.lang].words;
+    const words = splitWords($('phrase').value); const wl = wordlists[S.lang].words; // normalized like the phrase check, so capitals, accents and stray spaces still find their index
     rows.push(['Binary checksum', checksumBits(entBytes), '', 'checksumbits'], ['Word indexes', words.map((w) => wl.indexOf(w)).join(', '), '', 'indexes']);
   }
   const tipBtn = (k) => (k ? `<button type="button" class="tip" data-tip="${k}" aria-label="What does this mean?">?</button>` : '');
@@ -466,7 +483,7 @@ function selectTab(tab) {
   if (slip) $('slipNames').textContent = `xpub ↔ ${slip[1]}`;
   derive();
 }
-for (const id of ['coin', 'account', 'change']) $(id).addEventListener('input', debounce(() => { S.coin = +$('coin').value || 0; S.account = +$('account').value || 0; S.change = +$('change').value || 0; derive(); }, 200));
+for (const id of ['coin', 'account', 'change']) $(id).addEventListener('input', debounce(() => { S.coin = uint31($('coin').value); S.account = uint31($('account').value); S.change = uint31($('change').value); derive(); }, 200));
 $('customPreset').addEventListener('change', () => { const v = $('customPreset').value; if (v !== 'custom') { $('customPath').value = v; S.customPath = v; derive(); } });
 $('customPath').addEventListener('input', debounce(() => { S.customPath = $('customPath').value; $('customPreset').value = 'custom'; derive(); }, 250));
 $('customScript').addEventListener('change', () => { S.customScript = $('customScript').value; derive(); });
@@ -476,10 +493,13 @@ $('msScript').addEventListener('change', () => selectTab('bip48'));
 
 function derive() {
   const n = net(); const std = S.tab !== 'custom';
-  const clear = (msg) => { for (const id of ['acctXprv', 'acctXpub', 'descRecv', 'descChange', 'pathXprv', 'pathXpub', 'descPath']) setBox(id, '', { empty: msg }); S.pathNode = null; renderRows(); };
+  const clear = (msg) => { for (const id of ['acctXprv', 'acctXpub', 'descRecv', 'descChange', 'pathXprv', 'pathXpub', 'descPath', 'cosignerLine']) setBox(id, '', { empty: msg }); S.pathNode = null; renderRows(); };
   $('pathWarn').classList.add('hidden');
   let idx, script, acctIdx = null;
   const ms = S.tab === 'bip48';
+  const idxFields = ms ? ['coin', 'account'] : std ? ['coin', 'account', 'change'] : [];
+  for (const id of ['coin', 'account', 'change']) $(id).classList.toggle('bad', idxFields.includes(id) && uint31($(id).value) === null);
+  if (idxFields.some((id) => uint31($(id).value) === null)) { $('pathOut').textContent = '(invalid path)'; return clear(`Invalid coin, account or change number. ${INDEX_ERR}`); }
   if (ms) { script = 'multisig'; acctIdx = [48 + H, S.coin + H, S.account + H, multisig.SCRIPT_INDEX[$('msScript').value] + H]; idx = acctIdx; }
   else if (std) { const p = TABS[S.tab].purpose; script = TABS[S.tab].script; acctIdx = [p + H, S.coin + H, S.account + H]; idx = [...acctIdx, S.change]; }
   else {
@@ -526,7 +546,7 @@ function derive() {
     return clear('Hardened derivation needs a private key.');
   }
   S.pathNode = pathNode;
-  S.start = Math.max(0, parseInt($('startIdx').value, 10) || 0);
+  S.start = startOf();
   renderRows();
 }
 
@@ -536,9 +556,11 @@ document.querySelectorAll('.cols .chip').forEach((c) => c.addEventListener('clic
   $('tableWrap').classList.toggle('hidecol-' + c.dataset.col, !on);
 }));
 $('hardened').addEventListener('change', () => { S.hardened = $('hardened').checked; derive(); });
-$('startIdx').addEventListener('input', debounce(() => { S.start = Math.max(0, parseInt($('startIdx').value, 10) || 0); renderRows(); }, 250));
-$('rowCount').addEventListener('input', debounce(() => { S.count = Math.min(1000, Math.max(1, parseInt($('rowCount').value, 10) || 10)); renderRows(); }, 250));
-$('moreBtn').addEventListener('click', () => { S.start += S.count; $('startIdx').value = S.start; renderRows(true); });
+// the first row's index, kept low enough that the last row is still a valid index (an index of 2^31 or more would be a hardened child)
+function startOf() { const v = Math.min(H - S.count, Math.max(0, parseInt($('startIdx').value, 10) || 0)); if (String(v) !== $('startIdx').value && $('startIdx').value !== '') $('startIdx').value = v; return v; }
+$('startIdx').addEventListener('input', debounce(() => { S.start = startOf(); renderRows(); }, 250));
+$('rowCount').addEventListener('input', debounce(() => { S.count = Math.min(1000, Math.max(1, parseInt($('rowCount').value, 10) || 10)); S.start = startOf(); renderRows(); }, 250));
+$('moreBtn').addEventListener('click', () => { if (S.start + 2 * S.count > H) return toast(`No more rows: the last index is ${MAX_INDEX}`); S.start += S.count; $('startIdx').value = S.start; renderRows(true); });
 
 function renderRows(append = false) {
   const body = $('addrBody'); const token = ++S.renderToken;
@@ -589,11 +611,15 @@ $('csvCopyBtn').addEventListener('click', async () => { if (!S.rows.length) retu
 /* ---------------- BIP85: child phrases ---------------- */
 for (const id of ['bip85Lang', 'bip85Words', 'bip85Index']) $(id).addEventListener('input', bip85);
 function bip85() {
-  const index = Math.max(0, parseInt($('bip85Index').value, 10) || 0);
+  const index = uint31($('bip85Index').value);
   const words = +$('bip85Words').value, lang = $('bip85Lang').value;
+  $('bip85Index').classList.toggle('bad', index === null);
+  // the output is cleared before anything can fail, so a child phrase is never left showing under another index
+  setBox('bip85Out', '', { empty: 'Needs a private root key.' });
+  if (index === null) { $('bip85Path').textContent = '(invalid index)'; return setBox('bip85Out', '', { empty: `Invalid index. ${INDEX_ERR}` }); }
   const path = [83696968, 39, BIP85_LANG[lang], words, index];
   $('bip85Path').textContent = 'm' + path.map((i) => `/${i}'`).join('');
-  if (!S.root || !S.root.privateKey) return setBox('bip85Out', '', { empty: 'Needs a private root key.' });
+  if (!S.root || !S.root.privateKey) return;
   const node = deriveIdx(S.root, path.map((i) => i + H));
   const ent = hmac(sha512, new TextEncoder().encode('bip-entropy-from-k'), node.privateKey);
   setBox('bip85Out', bip39.entropyToMnemonic(ent.slice(0, words * 4 / 3), wordlists[lang].words));
@@ -642,10 +668,11 @@ function shamirMake() {
   $('shTest').addEventListener('click', () => { $('shInput').value = shares.slice(0, t).join('\n'); $('shPassR').value = pass; shamirMode('recover'); shamirRecover(); });
   $('shNote').classList.remove('hidden');
 }
+let shLastPhrase = null; // the last phrase recovered, kept across failed attempts while the shares are edited
 function shamirRecover() {
-  const wasRecovered = !!S.shRecovered;
   S.shRecovered = null; $('shUse').classList.add('hidden');
-  const lines = $('shInput').value.split(/\n+/).map((l) => l.trim()).filter(Boolean);
+  // a label before a colon, like "Share 1 of 3 (2 needed): " from Copy all shares, is dropped: share words never contain one
+  const lines = $('shInput').value.split(/\n+/).map((l) => l.replace(/^[^:]*:/, '').trim()).filter(Boolean);
   const clear = (msg, cls = 'bad') => { setBox('shRecHex', '', { empty: 'Paste enough shares above.' }); setBox('shRecPhrase', ''); $('shRecLang').textContent = ''; setMeter('shRecStatus', msg ? count(msg, cls) : ''); };
   if (!lines.length) return clear('');
   const good = [], bad = [];
@@ -660,7 +687,8 @@ function shamirRecover() {
   if (![16, 20, 24, 28, 32].includes(ent.length)) return clear(`Recovered a ${ent.length * 8}-bit secret, which is not a BIP39 entropy size.`);
   const phrase = bip39.entropyToMnemonic(ent, wordlists[S.lang].words);
   S.shRecovered = { phrase };
-  if (!wasRecovered && phrase !== DEMO_PHRASE) setHidden(true); // a freshly recovered phrase is private from the first moment
+  if (phrase !== shLastPhrase && phrase !== DEMO_PHRASE) setHidden(true); // a newly recovered phrase is private from the first moment; the same one again keeps a deliberate Reveal
+  shLastPhrase = phrase;
   setMeter('shRecStatus', count('recovered', 'ok') + note(`${ent.length * 8} bits from ${distinct} shares (set ${good[0].identifier}). A wrong share passphrase gives a different, valid-looking phrase, so check it against what you expect.`));
   setBox('shRecHex', hex.encode(ent)); setBox('shRecPhrase', phrase); $('shRecLang').textContent = wordlists[S.lang].name;
   $('shUse').classList.remove('hidden');
@@ -862,18 +890,23 @@ function printCard(layout, c) {
   window.addEventListener('afterprint', done);
   window.print();
 }
-$('qrModal').addEventListener('click', (e) => { if (e.target.closest('[data-close]')) { $('qrModal').hidden = true; $('qrWrap').innerHTML = ''; } });
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('qrModal').hidden) { $('qrModal').hidden = true; $('qrWrap').innerHTML = ''; } });
+// closing the window drops the code and the words or share behind it, not just the picture
+function qrClose() { $('qrModal').hidden = true; $('qrWrap').innerHTML = ''; qrSeedData = qrShareData = qrTextData = null; }
+$('qrModal').addEventListener('click', (e) => { if (e.target.closest('[data-close]')) qrClose(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('qrModal').hidden) qrClose(); });
 
 /* ---------------- multisig wallet (BIP48 / BIP67 / descriptors) ---------------- */
 let msLast = null, msKeysSeen = '', msDemoKeys = null, msModeV = 'build';
 let msGenState = null; // seeds created here: { script, netc, seeds: [{ phrase, pass, fp, line }] }, so a passphrase can re-derive one seed's key
 // Restore: each seed card's words and passphrase, derived at m/48'/coin'/account'/script'. Returns { cosigners, errors },
 // and keeps each card's fingerprint line, copy text and SeedQR in step with what it holds.
+// Each card remembers its last derivation, so a change elsewhere in the card (name, rows, threshold) does not re-run PBKDF2 for every seed.
+const msRsCache = new WeakMap(); // card -> { key, c }
 function msSeedCosigners(script, account) {
   const cosigners = [], errors = [], netc = net();
   $('msRs').querySelectorAll('.share').forEach((card, i) => {
-    const raw = card.querySelector('.rs-words').value.trim().toLowerCase(), pass = card.querySelector('.share-pass input').value;
+    // NFKD like the phrase card: the wordlists are stored that way, and typed accents (Spanish, French) or kana (Japanese) arrive as NFC
+    const raw = nfkd(card.querySelector('.rs-words').value).trim().toLowerCase(), pass = card.querySelector('.share-pass input').value;
     const small = card.querySelector('h4 small'), copy = card.querySelector('.copy'), qr = card.querySelector('.qr');
     copy.dataset.text = ''; qr.dataset.fp = ''; qr.dataset.pass = ''; small.textContent = '';
     if (!raw) return;
@@ -882,8 +915,9 @@ function msSeedCosigners(script, account) {
     const lang = detectLang(words);
     if (!lang || !bip39.validateMnemonic(words.join(' '), wordlists[lang].words)) { small.textContent = 'not a valid seed'; errors.push(`seed ${i + 1}: not a valid seed (check every word and the last one, which carries the checksum)`); return; }
     const phrase = words.join(wordlists[lang].sep || ' ');
-    const root = HDKey.fromMasterSeed(bip39.mnemonicToSeedSync(phrase, pass), { private: netc.xprv, public: netc.xpub });
-    const c = multisig.cosignerFromNode(root, [48 + H, netc.coin + H, account + H, multisig.SCRIPT_INDEX[script] + H]);
+    const key = [phrase, pass, script, account, S.net].join('\n'), hit = msRsCache.get(card);
+    const c = hit && hit.key === key ? hit.c : multisig.cosignerFromNode(HDKey.fromMasterSeed(bip39.mnemonicToSeedSync(phrase, pass), { private: netc.xprv, public: netc.xpub }), [48 + H, netc.coin + H, account + H, multisig.SCRIPT_INDEX[script] + H]);
+    msRsCache.set(card, { key, c });
     cosigners.push({ ...c, net: S.net, source: `seed ${i + 1}` });
     small.textContent = `fingerprint ${c.fp}${pass ? ' · with passphrase' : ''}`;
     copy.dataset.text = phrase; qr.dataset.fp = c.fp; qr.dataset.pass = pass ? '1' : '';
@@ -1031,11 +1065,30 @@ function msPassApply(inp) {
   const q = share.querySelector('.qr'); q.dataset.fp = k.fp; q.dataset.pass = pass ? '1' : '';
   msUpdate();
 }
+// The seeds created here re-derive their keys when the script type or network changes, each with its own passphrase:
+// keys left at the old BIP48 script level (2' for P2WSH, 3' for P2TR) would build a wallet that restoring the same seeds
+// with the new script type never finds.
+function msGenRederive() {
+  const script = $('msScript2').value, netc = net(), box = $('msKeys'), cards = $('msGen').querySelectorAll('.share');
+  msGenState.seeds.forEach((s, i) => {
+    const k = msSeedKey(s.phrase, s.pass, script, netc);
+    box.value = box.value.includes(s.line) ? box.value.replace(s.line, k.line) : box.value;
+    Object.assign(s, { fp: k.fp, line: k.line });
+    const card = cards[i]; if (!card) return;
+    card.querySelector('h4 small').textContent = `fingerprint ${k.fp}${s.pass ? ' · with passphrase' : ''}`;
+    card.querySelector('.qr').dataset.fp = k.fp;
+  });
+  Object.assign(msGenState, { script, netc });
+  if (msDemoKeys !== null) msDemoKeys = box.value; // the demo wallet stays the demo wallet
+}
 function msUpdate() {
   msLast = null; $('msOut').classList.add('hidden'); $('msWarnings').innerHTML = '';
   $('msTrNote').classList.toggle('hidden', $('msScript2').value !== 'p2tr');
+  if (msGenState && (msGenState.script !== $('msScript2').value || msGenState.netc !== net())) msGenRederive(); // created seeds follow the script type and network
   const text = $('msKeys').value;
-  const account = Math.max(0, parseInt($('msAccount').value, 10) || 0);
+  const account = uint31($('msAccount').value);
+  $('msAccount').classList.toggle('bad', account === null);
+  if (account === null) { $('msPathLbl').textContent = '(invalid account)'; setMeter('msStatus', count('invalid account', 'bad') + note(INDEX_ERR)); return; }
   $('msPathLbl').textContent = `m/48'/${net().coin}'/${account}'/${multisig.SCRIPT_INDEX[$('msScript2').value]}'`;
   // runs before the empty check so every seed card's fingerprint line stays current, even as the last one is emptied
   const fromSeeds = msModeV === 'restore' ? msSeedCosigners($('msScript2').value, account) : { cosigners: [], errors: [] };
@@ -1057,7 +1110,7 @@ function msUpdate() {
   if (parsed.meta.name && $('msName').value === 'KeyPath multisig') $('msName').value = parsed.meta.name;
   const threshold = +$('msThreshold').value, script = $('msScript2').value, cos = parsed.cosigners, n = net();
   $('msTrNote').classList.toggle('hidden', script !== 'p2tr');
-  const problems = [...parsed.errors.map((e) => (e.endsWith('(level: note)') ? { level: 'warn', text: e.replace(' (level: note)', '.') } : { level: 'bad', text: e })), ...multisig.validate(threshold, cos, S.net)];
+  const problems = [...parsed.errors.map((e) => (e.endsWith('(level: note)') ? { level: 'warn', text: e.replace(' (level: note)', '.') } : { level: 'bad', text: e })), ...multisig.validate(threshold, cos, S.net, script)];
   $('msWarnings').innerHTML = problems.map((p) => `<div class="inputwarn${p.level === 'bad' ? ' bad' : ''}"><p>${esc(p.text)}</p></div>`).join('');
   if (problems.some((p) => p.level === 'bad')) { setMeter('msStatus', count(`${cos.length} key${cos.length === 1 ? '' : 's'} read`, 'bad')); return; }
   const d = multisig.buildDescriptors(threshold, cos, script, n.xpub);
@@ -1169,20 +1222,23 @@ function initTips() {
 }
 
 /* ---------------- session hygiene ---------------- */
-function wipeAll() {
-  $('printSheet').innerHTML = '';
-  for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR', 'msKeys']) $(id).value = ''; $('msGen').innerHTML = ''; msRsClear(); msUpdate();
-  $('rootOut').textContent = ''; S.rootFromKey = false; S.seed = null; S.root = null; S.shRecovered = null;
+// Every secret on the page and in memory: the fields, the multisig card (seeds created or entered, and the state behind them),
+// recovered phrases and the QR window's data. Clear all and leaving the page share it, so neither can miss a part.
+function clearSecrets() {
+  for (const id of ['phrase', 'passphrase', 'entropy', 'shPass', 'shInput', 'shPassR']) $(id).value = '';
+  msReset(); msUpdate();
+  $('rootOut').textContent = ''; S.rootFromKey = false; S.seed = null; S.root = null; S.shRecovered = null; shLastPhrase = null;
   onPhraseInput(false); shamirClear(); shamirRecover();
-  $('qrModal').hidden = true; $('qrWrap').innerHTML = '';
+  qrClose();
 }
+function wipeAll() { $('printSheet').innerHTML = ''; clearSecrets(); }
 // Leaving the page (navigation, tab close, back/forward cache) wipes every secret from the DOM.
 addEventListener('pagehide', wipeAll);
 // Five minutes without activity re-blurs private values; nothing is deleted.
 let idleTimer;
 function idleReset() {
   clearTimeout(idleTimer);
-  idleTimer = setTimeout(() => { if (!allHidden()) { setHidden(true); toast('Private info hidden after 5 minutes idle'); } }, 5 * 60 * 1000);
+  idleTimer = setTimeout(() => { if (!allHidden() || qrSecretRevealed()) { setHidden(true); toast('Private info hidden after 5 minutes idle'); } }, 5 * 60 * 1000);
 }
 for (const ev of ['pointerdown', 'keydown', 'scroll', 'input']) addEventListener(ev, idleReset, { passive: true });
 idleReset();

@@ -143,7 +143,7 @@ export function coldcardConfig(name, threshold, cosigners, script, xpubVersion) 
 }
 
 // Sanity checks; returns a list of { level: 'bad'|'warn', text }.
-export function validate(threshold, cosigners, netName) {
+export function validate(threshold, cosigners, netName, script) {
   const out = [];
   if (cosigners.length < 2) out.push({ level: 'bad', text: 'A multisig wallet needs at least two xpubs, one per seed.' });
   if (cosigners.length > 15) out.push({ level: 'bad', text: 'At most 15 seeds.' });
@@ -154,6 +154,13 @@ export function validate(threshold, cosigners, netName) {
   if (cosigners.some((c) => c.isPrivate)) out.push({ level: 'warn', text: 'A private key (xprv) was pasted. Only its public part is used here; never share the private one.' });
   if (cosigners.some((c) => c.originKnown === false)) out.push({ level: 'warn', text: 'An xpub was pasted without its origin ([fingerprint/path]). The descriptor uses the xpub\'s own fingerprint, so a hardware wallet may not recognise it as its own. Paste the full line the device exports if you can.' });
   if (cosigners.some((c) => c.node.depth !== 4 && c.node.depth !== 0)) out.push({ level: 'warn', text: 'An xpub is not at the usual account depth (four levels, like m/48\'/0\'/0\'/2\'). Check it is the multisig xpub the device exported.' });
+  // a BIP48 key's fourth level names its script type (1h nested, 2h native SegWit, 3h Taproot); a key made for another type
+  // gives a wallet that restoring its seed with the chosen type never finds
+  if (script) {
+    const want = SCRIPT_INDEX[script], byIndex = Object.fromEntries(Object.entries(SCRIPT_INDEX).map(([k, v]) => [v, k]));
+    const off = cosigners.find((c) => { const m = /^\/48h\/\d+h\/\d+h\/(\d+)h$/.exec(c.path || ''); return m && +m[1] !== want && byIndex[+m[1]]; });
+    if (off) { const other = byIndex[+/(\d+)h$/.exec(off.path)[1]]; out.push({ level: 'warn', text: `An xpub comes from the BIP48 path for ${MS_FORMAT[other]} (m${off.path.replace(/h/g, "'")}), but the script type is ${MS_FORMAT[script]}. Restoring its seed as ${MS_FORMAT[script]} would derive a different key, so check the script type matches what each device exported.` }); }
+  }
   if (threshold === 1 && cosigners.length > 1) out.push({ level: 'warn', text: '1-of-N means any single seed can spend alone.' });
   if (threshold === cosigners.length && cosigners.length > 1) out.push({ level: 'warn', text: 'N-of-N means losing any one seed loses the wallet. Most people choose 2-of-3 or 3-of-5.' });
   return out;

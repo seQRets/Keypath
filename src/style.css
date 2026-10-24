@@ -647,3 +647,4 @@ th { font-size: 0.86rem; font-weight: 600; letter-spacing: 0; text-transform: no
 :root[data-theme="light"] .barbtn.eye .ic-eye { stroke: url(#kpEyeGrad); }
 :root[data-theme="light"] .qr-wrap { box-shadow: 0 0 0 1px var(--line); } /* a white tile on a white modal needs an edge */
 :root[data-theme="light"] .modal-backdrop { background: rgba(9, 9, 11, 0.45); backdrop-filter: blur(6px); }
+:root[data-theme] input.bad, :root[data-theme] textarea.bad { border-color: var(--danger); } /* after the themed field rules, which would otherwise hide the red edge of an invalid entry */
