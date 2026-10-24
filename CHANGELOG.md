@@ -1,5 +1,20 @@
 # Changelog
 
+## v2.17.2 — 2026-10-24
+
+**Fixes from a full code review: multisig script types, Restore in every language, and tighter privacy.**
+
+- Seeds created in the multisig card follow the script type and network. Before, switching the script type after "Create the seeds here" (for example from P2WSH to P2TR) kept keys made for the old type, which built a wallet that restoring the same seeds with the new type would never find. Each seed now re-derives its key, with its passphrase, whenever the script type or network changes. A pasted xpub whose path belongs to a different script type now gets a warning.
+- Restoring a multisig wallet accepts Spanish, French and Japanese seeds typed with accents or kana. Before, most of them were refused as "not a valid seed".
+- Hiding private info, from the menu or after five idle minutes, also covers an open QR window that shows a secret. Before, a revealed SeedQR stayed on screen above the hidden cards. Closing the window now also discards the words or share behind the code.
+- The clipboard clear no longer erases something copied later: any later copy cancels it. The page reads the clipboard back only where the browser already allows it, so no permission prompt appears.
+- Clear all, and leaving the page, reset the whole multisig card, including the seeds created there, and the last recovered Shamir phrase. Before, a Hide seeds button and the created seeds stayed behind.
+- Shamir Recover accepts the lines that Copy all shares writes ("Share 1 of 3 (2 needed): …"), and hides the page again whenever it recovers a different phrase.
+- Coin, account, change, the BIP85 index and the multisig account accept only whole numbers from 0 to 2147483647, and say so when a number is out of range. Before, a negative account quietly gave a non-standard path, and a large BIP85 index left the previous child phrase on screen. The address table's starting index stays in range.
+- The entropy panel's word indexes no longer show -1 when the phrase has capitals or extra spaces.
+- Restoring a multisig wallet no longer recalculates every seed when only the name, the number of rows or the signatures needed changes.
+- The BIP48 key line clears along with the other results, and fields with an invalid entry show a red border in both themes.
+
 ## v2.17.1 — 2026-10-14
 
 - Light mode has the same bold look as dark mode. It used to keep the older parchment colours; now it has white cards on an off-white page with a soft amber glow at the top, light code boxes with dark text, and darker amber text that is easy to read on white. It shares dark mode's brand mark, the gradient "Key" in the title, the gradient primary buttons, switches, step badges and eye, the rounded cards, a dark tooltip and a blurred backdrop behind the QR window. The QR tile has a thin edge so it stands out on the white window.
