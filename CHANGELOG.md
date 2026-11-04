@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.17.3 — 2026-11-04
+
+- Buttons no longer have a blurred glow or shadow around them. The orange buttons had an orange glow in both themes, the selected side of each switch had one in light mode, and the round menu button had a soft grey shadow in light mode. All of them now have clean edges.
+
 ## v2.17.2 — 2026-10-24
 
 **Fixes from a full code review: multisig script types, Restore in every language, and tighter privacy.**
