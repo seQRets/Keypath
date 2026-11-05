@@ -33,7 +33,7 @@ KeyPath is a modern re-imagining of Ian Coleman's [BIP39 tool](https://github.co
 - BIP85 child phrases (one master phrase, many independent child phrases by index)
 - Bitcoin mainnet and testnet/signet, light and dark themes, "Hide all private info" blur for screen sharing
 
-Two themes with one look: an amber → orange → red gradient on the brand mark, the title, primary actions, switches and step badges; IBM Plex type; pill navigation. Dark is true black with glass cards; light is white cards on an off-white page with an amber glow.
+Two themes with one look: an amber → orange → red gradient on the brand mark, the title, primary actions, switches and step badges; the computer's own system fonts, with Avenir Next for the title; pill navigation. Dark is true black with glass cards; light is white cards on an off-white page with an amber glow.
 
 - Plain-language tooltips: a "?" beside every label that uses a technical term, plus a collapsible "KeyPath glossary" list. Both come from one glossary in `src/glossary.js`, so a definition is written once
 
