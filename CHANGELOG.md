@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.17.4 — 2026-11-05
+
+- The page uses the computer's own system fonts: SF Pro and SF Mono on a Mac, Segoe UI and Consolas on Windows, with Avenir Next for the title. IBM Plex is gone from the font lists. It was never built into the file, so it only appeared on computers that already had it installed.
+- The status messages under each card, such as "enter or generate a valid phrase first", "checksum failed" and "2 of 3 · P2WSH · mainnet", use the regular text font instead of the monospace font used for keys and addresses, and are slightly larger and lighter, to match the notes beside them.
+- The Security section's Randomness item now names the random number generator. Every random value comes from the browser's crypto.getRandomValues() (the Web Crypto API), which draws on the operating system's secure random source; the code contains no Math.random and no generator of its own, and Generate is turned off rather than weakened when the browser has no secure source.
+
 ## v2.17.3 — 2026-11-04
 
 - Buttons no longer have a blurred glow or shadow around them. The orange buttons had an orange glow in both themes, the selected side of each switch had one in light mode, and the round menu button had a soft grey shadow in light mode. All of them now have clean edges.
