@@ -217,8 +217,8 @@ select { appearance: none; -webkit-appearance: none; padding-right: 2.1rem; back
 .btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
 /* ---------- meter / status ---------- */
-.meter { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem 0.7rem; margin-top: 0.75rem; font-family: var(--mono); font-size: 0.8rem; min-height: 1.5rem; }
-.meter .count { font-weight: 600; padding: 0.1rem 0.5rem; border-radius: 4px; background: var(--panel-sunk); border: 1px solid var(--line-soft); color: var(--ink-soft); }
+.meter { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem 0.7rem; margin-top: 0.75rem; font-family: var(--sans); font-size: 0.88rem; min-height: 1.5rem; } /* status lines are sentences, so the reading font; values stay mono where they appear */
+.meter .count { font-weight: 500; padding: 0.1rem 0.55rem; border-radius: 6px; background: var(--panel-sunk); border: 1px solid var(--line-soft); color: var(--ink-soft); }
 .meter .count.ok { color: var(--ok); background: var(--ok-wash); border-color: color-mix(in srgb, var(--ok) 35%, transparent); }
 .meter .count.bad { color: var(--danger); background: var(--danger-wash); border-color: color-mix(in srgb, var(--danger) 35%, transparent); }
 .meter .count.warn { color: var(--accent-ink); background: var(--accent-wash); border-color: color-mix(in srgb, var(--accent) 38%, transparent); }
