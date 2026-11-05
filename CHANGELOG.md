@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.17.5 — 2026-11-05
+
+- The warning at the top of the page is clearer. Its first line says "seed phrase" instead of "phrase", and its Read more text now names what never to paste or share (the seed phrase or keys). "Download this file" is now a link to the latest release's keypath.html.
+
 ## v2.17.4 — 2026-11-05
 
 - The page uses the computer's own system fonts: SF Pro and SF Mono on a Mac, Segoe UI and Consolas on Windows, with Avenir Next for the title. IBM Plex is gone from the font lists. It was never built into the file, so it only appeared on computers that already had it installed.
